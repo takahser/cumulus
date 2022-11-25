@@ -131,10 +131,6 @@
 <span id="131">131</span>
 <span id="132">132</span>
 <span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2021 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -248,10 +244,6 @@
 		approve: bool,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;bool, DispatchError&gt; {
 		pallet_collective::Pallet::&lt;T, I&gt;::do_vote(who, proposal, index, approve)
-	}
-
-	<span class="kw">fn </span>veto_proposal(proposal_hash: HashOf&lt;T&gt;) -&gt; u32 {
-		pallet_collective::Pallet::&lt;T, I&gt;::do_disapprove_proposal(proposal_hash)
 	}
 
 	<span class="kw">fn </span>close_proposal(

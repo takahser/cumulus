@@ -322,18 +322,6 @@
 <span id="322">322</span>
 <span id="323">323</span>
 <span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -389,31 +377,29 @@
 	// Storage: AllianceMotion ProposalCount (r:1 w:1)
 	// Storage: AllianceMotion Voting (r:0 w:1)
 	</span><span class="doccomment">/// The range of component `b` is `[1, 1024]`.
-	/// The range of component `x` is `[2, 10]`.
-	/// The range of component `y` is `[0, 90]`.
+	/// The range of component `m` is `[2, 100]`.
 	/// The range of component `p` is `[1, 100]`.
-	</span><span class="kw">fn </span>propose_proposed(_b: u32, _x: u32, y: u32, p: u32, ) -&gt; Weight {
-		<span class="comment">// Minimum execution time: 43_327 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">47_831_441 </span><span class="kw">as </span>u64)
-			<span class="comment">// Standard Error: 2_335
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">49_915 </span><span class="kw">as </span>u64).saturating_mul(y <span class="kw">as </span>u64))
-			<span class="comment">// Standard Error: 2_131
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">167_914 </span><span class="kw">as </span>u64).saturating_mul(p <span class="kw">as </span>u64))
+	</span><span class="kw">fn </span>propose_proposed(b: u32, m: u32, p: u32, ) -&gt; Weight {
+		<span class="comment">// Minimum execution time: 23_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">24_357_172 </span><span class="kw">as </span>u64)
+			<span class="comment">// Standard Error: 428
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">233 </span><span class="kw">as </span>u64).saturating_mul(b <span class="kw">as </span>u64))
+			<span class="comment">// Standard Error: 4_474
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">48_024 </span><span class="kw">as </span>u64).saturating_mul(m <span class="kw">as </span>u64))
+			<span class="comment">// Standard Error: 4_418
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">97_604 </span><span class="kw">as </span>u64).saturating_mul(p <span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().reads(<span class="number">4 </span><span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">4 </span><span class="kw">as </span>u64))
 	}
-	<span class="comment">// Storage: Alliance Members (r:2 w:0)
+	<span class="comment">// Storage: Alliance Members (r:1 w:0)
 	// Storage: AllianceMotion Voting (r:1 w:1)
-	</span><span class="doccomment">/// The range of component `x` is `[3, 10]`.
-	/// The range of component `y` is `[2, 90]`.
-	</span><span class="kw">fn </span>vote(x: u32, y: u32, ) -&gt; Weight {
-		<span class="comment">// Minimum execution time: 46_818 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">48_355_703 </span><span class="kw">as </span>u64)
-			<span class="comment">// Standard Error: 38_083
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">199_036 </span><span class="kw">as </span>u64).saturating_mul(x <span class="kw">as </span>u64))
-			<span class="comment">// Standard Error: 3_223
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">54_377 </span><span class="kw">as </span>u64).saturating_mul(y <span class="kw">as </span>u64))
-			.saturating_add(T::DbWeight::get().reads(<span class="number">3 </span><span class="kw">as </span>u64))
+	</span><span class="doccomment">/// The range of component `m` is `[5, 100]`.
+	</span><span class="kw">fn </span>vote(m: u32, ) -&gt; Weight {
+		<span class="comment">// Minimum execution time: 24_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">26_617_201 </span><span class="kw">as </span>u64)
+			<span class="comment">// Standard Error: 4_280
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">43_152 </span><span class="kw">as </span>u64).saturating_mul(m <span class="kw">as </span>u64))
+			.saturating_add(T::DbWeight::get().reads(<span class="number">2 </span><span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">1 </span><span class="kw">as </span>u64))
 	}
 	<span class="comment">// Storage: Alliance Members (r:1 w:0)
@@ -422,10 +408,10 @@
 	// Storage: AllianceMotion Voting (r:0 w:1)
 	</span><span class="doccomment">/// The range of component `p` is `[1, 100]`.
 	</span><span class="kw">fn </span>veto(p: u32, ) -&gt; Weight {
-		<span class="comment">// Minimum execution time: 33_781 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">37_103_051 </span><span class="kw">as </span>u64)
-			<span class="comment">// Standard Error: 1_592
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">181_767 </span><span class="kw">as </span>u64).saturating_mul(p <span class="kw">as </span>u64))
+		<span class="comment">// Minimum execution time: 23_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">26_045_752 </span><span class="kw">as </span>u64)
+			<span class="comment">// Standard Error: 2_154
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">61_220 </span><span class="kw">as </span>u64).saturating_mul(p <span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().reads(<span class="number">3 </span><span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">3 </span><span class="kw">as </span>u64))
 	}
@@ -434,18 +420,15 @@
 	// Storage: AllianceMotion Members (r:1 w:0)
 	// Storage: AllianceMotion Proposals (r:1 w:1)
 	// Storage: AllianceMotion ProposalOf (r:0 w:1)
-	</span><span class="doccomment">/// The range of component `x` is `[2, 10]`.
-	/// The range of component `y` is `[2, 90]`.
+	</span><span class="doccomment">/// The range of component `m` is `[4, 100]`.
 	/// The range of component `p` is `[1, 100]`.
-	</span><span class="kw">fn </span>close_early_disapproved(x: u32, y: u32, p: u32, ) -&gt; Weight {
-		<span class="comment">// Minimum execution time: 48_244 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">47_895_181 </span><span class="kw">as </span>u64)
-			<span class="comment">// Standard Error: 31_033
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">233_652 </span><span class="kw">as </span>u64).saturating_mul(x <span class="kw">as </span>u64))
-			<span class="comment">// Standard Error: 3_023
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">34_551 </span><span class="kw">as </span>u64).saturating_mul(y <span class="kw">as </span>u64))
-			<span class="comment">// Standard Error: 2_701
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">124_837 </span><span class="kw">as </span>u64).saturating_mul(p <span class="kw">as </span>u64))
+	</span><span class="kw">fn </span>close_early_disapproved(m: u32, p: u32, ) -&gt; Weight {
+		<span class="comment">// Minimum execution time: 30_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">25_697_866 </span><span class="kw">as </span>u64)
+			<span class="comment">// Standard Error: 3_827
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">48_360 </span><span class="kw">as </span>u64).saturating_mul(m <span class="kw">as </span>u64))
+			<span class="comment">// Standard Error: 3_731
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">116_922 </span><span class="kw">as </span>u64).saturating_mul(p <span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().reads(<span class="number">4 </span><span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">3 </span><span class="kw">as </span>u64))
 	}
@@ -455,20 +438,17 @@
 	// Storage: AllianceMotion ProposalOf (r:1 w:1)
 	// Storage: AllianceMotion Proposals (r:1 w:1)
 	</span><span class="doccomment">/// The range of component `b` is `[1, 1024]`.
-	/// The range of component `x` is `[2, 10]`.
-	/// The range of component `y` is `[2, 90]`.
+	/// The range of component `m` is `[4, 100]`.
 	/// The range of component `p` is `[1, 100]`.
-	</span><span class="kw">fn </span>close_early_approved(b: u32, x: u32, y: u32, p: u32, ) -&gt; Weight {
-		<span class="comment">// Minimum execution time: 61_015 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">57_149_992 </span><span class="kw">as </span>u64)
-			<span class="comment">// Standard Error: 246
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">2_998 </span><span class="kw">as </span>u64).saturating_mul(b <span class="kw">as </span>u64))
-			<span class="comment">// Standard Error: 29_174
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">14_515 </span><span class="kw">as </span>u64).saturating_mul(x <span class="kw">as </span>u64))
-			<span class="comment">// Standard Error: 2_847
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">38_233 </span><span class="kw">as </span>u64).saturating_mul(y <span class="kw">as </span>u64))
-			<span class="comment">// Standard Error: 2_543
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">174_542 </span><span class="kw">as </span>u64).saturating_mul(p <span class="kw">as </span>u64))
+	</span><span class="kw">fn </span>close_early_approved(b: u32, m: u32, p: u32, ) -&gt; Weight {
+		<span class="comment">// Minimum execution time: 34_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">30_725_464 </span><span class="kw">as </span>u64)
+			<span class="comment">// Standard Error: 370
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">2_367 </span><span class="kw">as </span>u64).saturating_mul(b <span class="kw">as </span>u64))
+			<span class="comment">// Standard Error: 3_920
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">40_710 </span><span class="kw">as </span>u64).saturating_mul(m <span class="kw">as </span>u64))
+			<span class="comment">// Standard Error: 3_822
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">111_866 </span><span class="kw">as </span>u64).saturating_mul(p <span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().reads(<span class="number">5 </span><span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">3 </span><span class="kw">as </span>u64))
 	}
@@ -476,21 +456,19 @@
 	// Storage: AllianceMotion Voting (r:1 w:1)
 	// Storage: AllianceMotion Members (r:1 w:0)
 	// Storage: AllianceMotion Prime (r:1 w:0)
-	// Storage: AllianceMotion ProposalOf (r:1 w:1)
 	// Storage: AllianceMotion Proposals (r:1 w:1)
-	// Storage: Alliance Rule (r:0 w:1)
-	</span><span class="doccomment">/// The range of component `x` is `[2, 10]`.
-	/// The range of component `y` is `[2, 90]`.
+	// Storage: AllianceMotion ProposalOf (r:0 w:1)
+	</span><span class="doccomment">/// The range of component `m` is `[2, 100]`.
 	/// The range of component `p` is `[1, 100]`.
-	</span><span class="kw">fn </span>close_disapproved(_x: u32, y: u32, p: u32, ) -&gt; Weight {
-		<span class="comment">// Minimum execution time: 67_605 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">66_773_651 </span><span class="kw">as </span>u64)
-			<span class="comment">// Standard Error: 3_250
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">58_552 </span><span class="kw">as </span>u64).saturating_mul(y <span class="kw">as </span>u64))
-			<span class="comment">// Standard Error: 2_903
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">183_936 </span><span class="kw">as </span>u64).saturating_mul(p <span class="kw">as </span>u64))
-			.saturating_add(T::DbWeight::get().reads(<span class="number">6 </span><span class="kw">as </span>u64))
-			.saturating_add(T::DbWeight::get().writes(<span class="number">4 </span><span class="kw">as </span>u64))
+	</span><span class="kw">fn </span>close_disapproved(m: u32, p: u32, ) -&gt; Weight {
+		<span class="comment">// Minimum execution time: 31_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">29_444_599 </span><span class="kw">as </span>u64)
+			<span class="comment">// Standard Error: 4_043
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">48_928 </span><span class="kw">as </span>u64).saturating_mul(m <span class="kw">as </span>u64))
+			<span class="comment">// Standard Error: 3_994
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">76_527 </span><span class="kw">as </span>u64).saturating_mul(p <span class="kw">as </span>u64))
+			.saturating_add(T::DbWeight::get().reads(<span class="number">5 </span><span class="kw">as </span>u64))
+			.saturating_add(T::DbWeight::get().writes(<span class="number">3 </span><span class="kw">as </span>u64))
 	}
 	<span class="comment">// Storage: Alliance Members (r:1 w:0)
 	// Storage: AllianceMotion Voting (r:1 w:1)
@@ -499,37 +477,33 @@
 	// Storage: AllianceMotion Proposals (r:1 w:1)
 	// Storage: AllianceMotion ProposalOf (r:0 w:1)
 	</span><span class="doccomment">/// The range of component `b` is `[1, 1024]`.
-	/// The range of component `x` is `[2, 10]`.
-	/// The range of component `y` is `[2, 90]`.
+	/// The range of component `m` is `[5, 100]`.
 	/// The range of component `p` is `[1, 100]`.
-	</span><span class="kw">fn </span>close_approved(_b: u32, _x: u32, y: u32, p: u32, ) -&gt; Weight {
-		<span class="comment">// Minimum execution time: 51_748 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">48_865_836 </span><span class="kw">as </span>u64)
-			<span class="comment">// Standard Error: 2_633
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">75_701 </span><span class="kw">as </span>u64).saturating_mul(y <span class="kw">as </span>u64))
-			<span class="comment">// Standard Error: 2_351
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">194_721 </span><span class="kw">as </span>u64).saturating_mul(p <span class="kw">as </span>u64))
+	</span><span class="kw">fn </span>close_approved(_b: u32, m: u32, p: u32, ) -&gt; Weight {
+		<span class="comment">// Minimum execution time: 29_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">32_315_075 </span><span class="kw">as </span>u64)
+			<span class="comment">// Standard Error: 4_502
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">43_205 </span><span class="kw">as </span>u64).saturating_mul(m <span class="kw">as </span>u64))
+			<span class="comment">// Standard Error: 4_340
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">101_872 </span><span class="kw">as </span>u64).saturating_mul(p <span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().reads(<span class="number">5 </span><span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">3 </span><span class="kw">as </span>u64))
 	}
-	<span class="comment">// Storage: Alliance Members (r:3 w:3)
+	<span class="comment">// Storage: Alliance Members (r:2 w:2)
 	// Storage: AllianceMotion Members (r:1 w:1)
-	</span><span class="doccomment">/// The range of component `x` is `[1, 10]`.
-	/// The range of component `y` is `[0, 90]`.
+	</span><span class="doccomment">/// The range of component `m` is `[1, 100]`.
 	/// The range of component `z` is `[0, 100]`.
-	</span><span class="kw">fn </span>init_members(x: u32, y: u32, z: u32, ) -&gt; Weight {
-		<span class="comment">// Minimum execution time: 48_081 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">31_894_957 </span><span class="kw">as </span>u64)
-			<span class="comment">// Standard Error: 8_667
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">160_266 </span><span class="kw">as </span>u64).saturating_mul(x <span class="kw">as </span>u64))
-			<span class="comment">// Standard Error: 917
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">186_970 </span><span class="kw">as </span>u64).saturating_mul(y <span class="kw">as </span>u64))
-			<span class="comment">// Standard Error: 827
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">155_921 </span><span class="kw">as </span>u64).saturating_mul(z <span class="kw">as </span>u64))
-			.saturating_add(T::DbWeight::get().reads(<span class="number">4 </span><span class="kw">as </span>u64))
-			.saturating_add(T::DbWeight::get().writes(<span class="number">4 </span><span class="kw">as </span>u64))
+	</span><span class="kw">fn </span>init_members(m: u32, z: u32, ) -&gt; Weight {
+		<span class="comment">// Minimum execution time: 22_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">13_523_882 </span><span class="kw">as </span>u64)
+			<span class="comment">// Standard Error: 1_823
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">91_625 </span><span class="kw">as </span>u64).saturating_mul(m <span class="kw">as </span>u64))
+			<span class="comment">// Standard Error: 1_802
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">98_184 </span><span class="kw">as </span>u64).saturating_mul(z <span class="kw">as </span>u64))
+			.saturating_add(T::DbWeight::get().reads(<span class="number">3 </span><span class="kw">as </span>u64))
+			.saturating_add(T::DbWeight::get().writes(<span class="number">3 </span><span class="kw">as </span>u64))
 	}
-	<span class="comment">// Storage: Alliance Members (r:3 w:3)
+	<span class="comment">// Storage: Alliance Members (r:2 w:2)
 	// Storage: AllianceMotion Proposals (r:1 w:0)
 	// Storage: Alliance DepositOf (r:101 w:50)
 	// Storage: System Account (r:50 w:50)
@@ -539,67 +513,67 @@
 	/// The range of component `y` is `[0, 100]`.
 	/// The range of component `z` is `[0, 50]`.
 	</span><span class="kw">fn </span>disband(x: u32, y: u32, z: u32, ) -&gt; Weight {
-		<span class="comment">// Minimum execution time: 256_705 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">257_735_000 </span><span class="kw">as </span>u64)
-			<span class="comment">// Standard Error: 20_427
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">442_424 </span><span class="kw">as </span>u64).saturating_mul(x <span class="kw">as </span>u64))
-			<span class="comment">// Standard Error: 20_329
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">508_022 </span><span class="kw">as </span>u64).saturating_mul(y <span class="kw">as </span>u64))
-			<span class="comment">// Standard Error: 40_620
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">9_490_608 </span><span class="kw">as </span>u64).saturating_mul(z <span class="kw">as </span>u64))
-			.saturating_add(T::DbWeight::get().reads(<span class="number">4 </span><span class="kw">as </span>u64))
+		<span class="comment">// Minimum execution time: 145_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">147_000_000 </span><span class="kw">as </span>u64)
+			<span class="comment">// Standard Error: 13_290
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">304_371 </span><span class="kw">as </span>u64).saturating_mul(x <span class="kw">as </span>u64))
+			<span class="comment">// Standard Error: 13_226
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">330_798 </span><span class="kw">as </span>u64).saturating_mul(y <span class="kw">as </span>u64))
+			<span class="comment">// Standard Error: 26_428
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">7_207_748 </span><span class="kw">as </span>u64).saturating_mul(z <span class="kw">as </span>u64))
+			.saturating_add(T::DbWeight::get().reads(<span class="number">3 </span><span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().reads((<span class="number">1 </span><span class="kw">as </span>u64).saturating_mul(x <span class="kw">as </span>u64)))
 			.saturating_add(T::DbWeight::get().reads((<span class="number">1 </span><span class="kw">as </span>u64).saturating_mul(y <span class="kw">as </span>u64)))
 			.saturating_add(T::DbWeight::get().reads((<span class="number">1 </span><span class="kw">as </span>u64).saturating_mul(z <span class="kw">as </span>u64)))
-			.saturating_add(T::DbWeight::get().writes(<span class="number">5 </span><span class="kw">as </span>u64))
+			.saturating_add(T::DbWeight::get().writes(<span class="number">4 </span><span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().writes((<span class="number">2 </span><span class="kw">as </span>u64).saturating_mul(z <span class="kw">as </span>u64)))
 	}
 	<span class="comment">// Storage: Alliance Rule (r:0 w:1)
 	</span><span class="kw">fn </span>set_rule() -&gt; Weight {
-		<span class="comment">// Minimum execution time: 19_171 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">19_395_000 </span><span class="kw">as </span>u64)
+		<span class="comment">// Minimum execution time: 11_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">12_000_000 </span><span class="kw">as </span>u64)
 			.saturating_add(T::DbWeight::get().writes(<span class="number">1 </span><span class="kw">as </span>u64))
 	}
 	<span class="comment">// Storage: Alliance Announcements (r:1 w:1)
 	</span><span class="kw">fn </span>announce() -&gt; Weight {
-		<span class="comment">// Minimum execution time: 21_640 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">21_983_000 </span><span class="kw">as </span>u64)
+		<span class="comment">// Minimum execution time: 13_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">14_000_000 </span><span class="kw">as </span>u64)
 			.saturating_add(T::DbWeight::get().reads(<span class="number">1 </span><span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">1 </span><span class="kw">as </span>u64))
 	}
 	<span class="comment">// Storage: Alliance Announcements (r:1 w:1)
 	</span><span class="kw">fn </span>remove_announcement() -&gt; Weight {
-		<span class="comment">// Minimum execution time: 23_224 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">23_606_000 </span><span class="kw">as </span>u64)
+		<span class="comment">// Minimum execution time: 14_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">14_000_000 </span><span class="kw">as </span>u64)
 			.saturating_add(T::DbWeight::get().reads(<span class="number">1 </span><span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">1 </span><span class="kw">as </span>u64))
 	}
-	<span class="comment">// Storage: Alliance Members (r:4 w:1)
+	<span class="comment">// Storage: Alliance Members (r:3 w:1)
 	// Storage: Alliance UnscrupulousAccounts (r:1 w:0)
 	// Storage: System Account (r:1 w:1)
 	// Storage: Alliance DepositOf (r:0 w:1)
 	</span><span class="kw">fn </span>join_alliance() -&gt; Weight {
-		<span class="comment">// Minimum execution time: 57_718 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">58_601_000 </span><span class="kw">as </span>u64)
-			.saturating_add(T::DbWeight::get().reads(<span class="number">6 </span><span class="kw">as </span>u64))
+		<span class="comment">// Minimum execution time: 39_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">41_000_000 </span><span class="kw">as </span>u64)
+			.saturating_add(T::DbWeight::get().reads(<span class="number">5 </span><span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">3 </span><span class="kw">as </span>u64))
 	}
-	<span class="comment">// Storage: Alliance Members (r:4 w:1)
+	<span class="comment">// Storage: Alliance Members (r:3 w:1)
 	// Storage: Alliance UnscrupulousAccounts (r:1 w:0)
 	</span><span class="kw">fn </span>nominate_ally() -&gt; Weight {
-		<span class="comment">// Minimum execution time: 42_740 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">44_169_000 </span><span class="kw">as </span>u64)
-			.saturating_add(T::DbWeight::get().reads(<span class="number">5 </span><span class="kw">as </span>u64))
+		<span class="comment">// Minimum execution time: 29_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">30_000_000 </span><span class="kw">as </span>u64)
+			.saturating_add(T::DbWeight::get().reads(<span class="number">4 </span><span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">1 </span><span class="kw">as </span>u64))
 	}
-	<span class="comment">// Storage: Alliance Members (r:3 w:2)
+	<span class="comment">// Storage: Alliance Members (r:2 w:2)
 	// Storage: AllianceMotion Proposals (r:1 w:0)
 	// Storage: AllianceMotion Members (r:0 w:1)
 	// Storage: AllianceMotion Prime (r:0 w:1)
 	</span><span class="kw">fn </span>elevate_ally() -&gt; Weight {
-		<span class="comment">// Minimum execution time: 38_511 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">39_563_000 </span><span class="kw">as </span>u64)
-			.saturating_add(T::DbWeight::get().reads(<span class="number">4 </span><span class="kw">as </span>u64))
+		<span class="comment">// Minimum execution time: 23_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">24_000_000 </span><span class="kw">as </span>u64)
+			.saturating_add(T::DbWeight::get().reads(<span class="number">3 </span><span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">4 </span><span class="kw">as </span>u64))
 	}
 	<span class="comment">// Storage: Alliance Members (r:4 w:2)
@@ -608,8 +582,8 @@
 	// Storage: AllianceMotion Prime (r:0 w:1)
 	// Storage: Alliance RetiringMembers (r:0 w:1)
 	</span><span class="kw">fn </span>give_retirement_notice() -&gt; Weight {
-		<span class="comment">// Minimum execution time: 41_316 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">42_071_000 </span><span class="kw">as </span>u64)
+		<span class="comment">// Minimum execution time: 31_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">32_000_000 </span><span class="kw">as </span>u64)
 			.saturating_add(T::DbWeight::get().reads(<span class="number">5 </span><span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">5 </span><span class="kw">as </span>u64))
 	}
@@ -618,40 +592,34 @@
 	// Storage: Alliance DepositOf (r:1 w:1)
 	// Storage: System Account (r:1 w:1)
 	</span><span class="kw">fn </span>retire() -&gt; Weight {
-		<span class="comment">// Minimum execution time: 45_235 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">45_813_000 </span><span class="kw">as </span>u64)
+		<span class="comment">// Minimum execution time: 29_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">30_000_000 </span><span class="kw">as </span>u64)
 			.saturating_add(T::DbWeight::get().reads(<span class="number">4 </span><span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">4 </span><span class="kw">as </span>u64))
 	}
 	<span class="comment">// Storage: Alliance Members (r:3 w:1)
 	// Storage: AllianceMotion Proposals (r:1 w:0)
 	// Storage: Alliance DepositOf (r:1 w:1)
-	// Storage: System Account (r:2 w:2)
-	// Storage: ParachainInfo ParachainId (r:1 w:0)
-	// Storage: PolkadotXcm SupportedVersion (r:1 w:0)
-	// Storage: PolkadotXcm VersionDiscoveryQueue (r:1 w:1)
-	// Storage: PolkadotXcm SafeXcmVersion (r:1 w:0)
-	// Storage: ParachainSystem HostConfiguration (r:1 w:0)
-	// Storage: ParachainSystem PendingUpwardMessages (r:1 w:1)
+	// Storage: System Account (r:1 w:1)
 	// Storage: AllianceMotion Members (r:0 w:1)
 	// Storage: AllianceMotion Prime (r:0 w:1)
 	</span><span class="kw">fn </span>kick_member() -&gt; Weight {
-		<span class="comment">// Minimum execution time: 123_722 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">127_594_000 </span><span class="kw">as </span>u64)
-			.saturating_add(T::DbWeight::get().reads(<span class="number">13 </span><span class="kw">as </span>u64))
-			.saturating_add(T::DbWeight::get().writes(<span class="number">8 </span><span class="kw">as </span>u64))
+		<span class="comment">// Minimum execution time: 45_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">47_000_000 </span><span class="kw">as </span>u64)
+			.saturating_add(T::DbWeight::get().reads(<span class="number">6 </span><span class="kw">as </span>u64))
+			.saturating_add(T::DbWeight::get().writes(<span class="number">5 </span><span class="kw">as </span>u64))
 	}
 	<span class="comment">// Storage: Alliance UnscrupulousAccounts (r:1 w:1)
 	// Storage: Alliance UnscrupulousWebsites (r:1 w:1)
 	</span><span class="doccomment">/// The range of component `n` is `[0, 100]`.
 	/// The range of component `l` is `[0, 255]`.
 	</span><span class="kw">fn </span>add_unscrupulous_items(n: u32, l: u32, ) -&gt; Weight {
-		<span class="comment">// Minimum execution time: 17_548 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">17_664_000 </span><span class="kw">as </span>u64)
-			<span class="comment">// Standard Error: 2_843
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">1_306_867 </span><span class="kw">as </span>u64).saturating_mul(n <span class="kw">as </span>u64))
-			<span class="comment">// Standard Error: 1_113
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">69_708 </span><span class="kw">as </span>u64).saturating_mul(l <span class="kw">as </span>u64))
+		<span class="comment">// Minimum execution time: 9_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">9_512_816 </span><span class="kw">as </span>u64)
+			<span class="comment">// Standard Error: 2_976
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">560_175 </span><span class="kw">as </span>u64).saturating_mul(n <span class="kw">as </span>u64))
+			<span class="comment">// Standard Error: 1_169
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">24_530 </span><span class="kw">as </span>u64).saturating_mul(l <span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().reads(<span class="number">2 </span><span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">2 </span><span class="kw">as </span>u64))
 	}
@@ -659,15 +627,23 @@
 	// Storage: Alliance UnscrupulousWebsites (r:1 w:1)
 	</span><span class="doccomment">/// The range of component `n` is `[0, 100]`.
 	/// The range of component `l` is `[0, 255]`.
-	</span><span class="kw">fn </span>remove_unscrupulous_items(n: u32, l: u32, ) -&gt; Weight {
-		<span class="comment">// Minimum execution time: 17_220 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">17_391_000 </span><span class="kw">as </span>u64)
-			<span class="comment">// Standard Error: 177_554
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">13_714_190 </span><span class="kw">as </span>u64).saturating_mul(n <span class="kw">as </span>u64))
-			<span class="comment">// Standard Error: 69_538
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">526_760 </span><span class="kw">as </span>u64).saturating_mul(l <span class="kw">as </span>u64))
+	</span><span class="kw">fn </span>remove_unscrupulous_items(n: u32, _l: u32, ) -&gt; Weight {
+		<span class="comment">// Minimum execution time: 10_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">10_000_000 </span><span class="kw">as </span>u64)
+			<span class="comment">// Standard Error: 94_049
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">10_887_604 </span><span class="kw">as </span>u64).saturating_mul(n <span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().reads(<span class="number">2 </span><span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">2 </span><span class="kw">as </span>u64))
+	}
+	<span class="comment">// Storage: Alliance Members (r:3 w:2)
+	// Storage: AllianceMotion Proposals (r:1 w:0)
+	// Storage: AllianceMotion Members (r:0 w:1)
+	// Storage: AllianceMotion Prime (r:0 w:1)
+	</span><span class="kw">fn </span>abdicate_fellow_status() -&gt; Weight {
+		<span class="comment">// Minimum execution time: 29_000 nanoseconds.
+		</span>Weight::from_ref_time(<span class="number">30_000_000 </span><span class="kw">as </span>u64)
+			.saturating_add(T::DbWeight::get().reads(<span class="number">4 </span><span class="kw">as </span>u64))
+			.saturating_add(T::DbWeight::get().writes(<span class="number">4 </span><span class="kw">as </span>u64))
 	}
 }
 </code></pre></div>
