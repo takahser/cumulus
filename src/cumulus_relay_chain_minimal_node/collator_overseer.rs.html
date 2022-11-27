@@ -243,35 +243,6 @@
 <span id="243">243</span>
 <span id="244">244</span>
 <span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
-<span id="248">248</span>
-<span id="249">249</span>
-<span id="250">250</span>
-<span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
-<span id="254">254</span>
-<span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Polkadot.
 
@@ -290,17 +261,10 @@
 
 </span><span class="kw">use </span>cumulus_relay_chain_interface::RelayChainError;
 <span class="kw">use </span>lru::LruCache;
-<span class="kw">use </span>polkadot_availability_distribution::{
-	AvailabilityDistributionSubsystem, IncomingRequestReceivers,
-};
-<span class="kw">use </span>polkadot_node_core_av_store::Config;
 <span class="kw">use </span>polkadot_node_network_protocol::{
 	peer_set::PeerSetProtocolNames,
 	request_response::{
-		v1::{
-			AvailableDataFetchingRequest, ChunkFetchingRequest, CollationFetchingRequest,
-			PoVFetchingRequest,
-		},
+		v1::{AvailableDataFetchingRequest, CollationFetchingRequest},
 		IncomingRequestReceiver, ReqProtocolNames,
 	},
 };
@@ -312,14 +276,13 @@
 <span class="kw">use </span>polkadot_primitives::v2::CollatorPair;
 <span class="kw">use </span>polkadot_service::{
 	overseer::{
-		AvailabilityRecoverySubsystem, AvailabilityStoreSubsystem, ChainApiSubsystem,
-		CollationGenerationSubsystem, CollatorProtocolSubsystem, NetworkBridgeMetrics,
-		NetworkBridgeRxSubsystem, NetworkBridgeTxSubsystem, ProtocolSide, RuntimeApiSubsystem,
+		AvailabilityRecoverySubsystem, CollationGenerationSubsystem, CollatorProtocolSubsystem,
+		NetworkBridgeMetrics, NetworkBridgeRxSubsystem, NetworkBridgeTxSubsystem, ProtocolSide,
+		RuntimeApiSubsystem,
 	},
 	Error, OverseerConnector,
 };
 <span class="kw">use </span>sc_authority_discovery::Service <span class="kw">as </span>AuthorityDiscoveryService;
-<span class="kw">use </span>sc_keystore::LocalKeystore;
 <span class="kw">use </span>sc_network::NetworkStateInfo;
 
 <span class="kw">use </span>std::sync::Arc;
@@ -340,13 +303,9 @@
 	</span><span class="kw">pub </span>network_service: Arc&lt;sc_network::NetworkService&lt;Block, PHash&gt;&gt;,
 	<span class="doccomment">/// Underlying authority discovery service.
 	</span><span class="kw">pub </span>authority_discovery_service: AuthorityDiscoveryService,
-	<span class="comment">// Receiver for collation request protocol
+	<span class="doccomment">/// Receiver for collation request protocol
 	</span><span class="kw">pub </span>collation_req_receiver: IncomingRequestReceiver&lt;CollationFetchingRequest&gt;,
-	<span class="comment">// Receiver for PoV request protocol
-	</span><span class="kw">pub </span>pov_req_receiver: IncomingRequestReceiver&lt;PoVFetchingRequest&gt;,
-	<span class="comment">// Receiver for chunk request protocol
-	</span><span class="kw">pub </span>chunk_req_receiver: IncomingRequestReceiver&lt;ChunkFetchingRequest&gt;,
-	<span class="comment">// Receiver for availability request protocol
+	<span class="doccomment">/// Receiver for availability request protocol
 	</span><span class="kw">pub </span>available_data_req_receiver: IncomingRequestReceiver&lt;AvailableDataFetchingRequest&gt;,
 	<span class="doccomment">/// Prometheus registry, commonly used for production systems, less so for test.
 	</span><span class="kw">pub </span>registry: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Registry&gt;,
@@ -358,10 +317,6 @@
 	</span><span class="kw">pub </span>req_protocol_names: ReqProtocolNames,
 	<span class="doccomment">/// Peerset protocols name mapping
 	</span><span class="kw">pub </span>peer_set_protocol_names: PeerSetProtocolNames,
-	<span class="doccomment">/// Config for the availability store
-	</span><span class="kw">pub </span>availability_config: Config,
-	<span class="doccomment">/// The underlying key value store for the parachains.
-	</span><span class="kw">pub </span>parachains_db: Arc&lt;<span class="kw">dyn </span>polkadot_node_subsystem_util::database::Database&gt;,
 }
 
 <span class="kw">fn </span>build_overseer&lt;<span class="lifetime">&#39;a</span>&gt;(
@@ -372,15 +327,11 @@
 		authority_discovery_service,
 		collation_req_receiver,
 		available_data_req_receiver,
-		availability_config,
 		registry,
 		spawner,
 		collator_pair,
 		req_protocol_names,
 		peer_set_protocol_names,
-		parachains_db,
-		pov_req_receiver,
-		chunk_req_receiver,
 	}: CollatorOverseerGenArgs&lt;<span class="lifetime">&#39;a</span>&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;
 	(Overseer&lt;SpawnGlue&lt;sc_service::SpawnTaskHandle&gt;, Arc&lt;BlockChainRpcClient&gt;&gt;, OverseerHandle),
@@ -388,30 +339,21 @@
 &gt; {
 	<span class="kw">let </span>leaves = Vec::new();
 	<span class="kw">let </span>metrics = &lt;OverseerMetrics <span class="kw">as </span>MetricsTrait&gt;::register(registry)<span class="question-mark">?</span>;
-	<span class="kw">let </span>keystore = Arc::new(LocalKeystore::in_memory());
 	<span class="kw">let </span>spawner = SpawnGlue(spawner);
 	<span class="kw">let </span>network_bridge_metrics: NetworkBridgeMetrics = Metrics::register(registry)<span class="question-mark">?</span>;
 	<span class="kw">let </span>builder = Overseer::builder()
-		.availability_distribution(AvailabilityDistributionSubsystem::new(
-			keystore.clone(),
-			IncomingRequestReceivers { pov_req_receiver, chunk_req_receiver },
-			Metrics::register(registry)<span class="question-mark">?</span>,
-		))
+		.availability_distribution(DummySubsystem)
 		.availability_recovery(AvailabilityRecoverySubsystem::with_chunks_only(
 			available_data_req_receiver,
 			Metrics::register(registry)<span class="question-mark">?</span>,
 		))
-		.availability_store(AvailabilityStoreSubsystem::new(
-			parachains_db.clone(),
-			availability_config,
-			Metrics::register(registry)<span class="question-mark">?</span>,
-		))
+		.availability_store(DummySubsystem)
 		.bitfield_distribution(DummySubsystem)
 		.bitfield_signing(DummySubsystem)
 		.candidate_backing(DummySubsystem)
 		.candidate_validation(DummySubsystem)
 		.pvf_checker(DummySubsystem)
-		.chain_api(ChainApiSubsystem::new(runtime_client.clone(), Metrics::register(registry)<span class="question-mark">?</span>))
+		.chain_api(DummySubsystem)
 		.collation_generation(CollationGenerationSubsystem::new(Metrics::register(registry)<span class="question-mark">?</span>))
 		.collator_protocol({
 			<span class="kw">let </span>side = ProtocolSide::Collator(
