@@ -1008,6 +1008,12 @@
 <span id="1008">1008</span>
 <span id="1009">1009</span>
 <span id="1010">1010</span>
+<span id="1011">1011</span>
+<span id="1012">1012</span>
+<span id="1013">1013</span>
+<span id="1014">1014</span>
+<span id="1015">1015</span>
+<span id="1016">1016</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1633,6 +1639,12 @@
 				Runtime::Shell =&gt; runner.async_run(|config| {
 					<span class="prelude-val">Ok</span>((
 						cmd.run::&lt;Block, <span class="kw">crate</span>::service::ShellRuntimeExecutor&gt;(config),
+						task_manager,
+					))
+				}),
+				Runtime::ContractsRococo =&gt; runner.async_run(|config| {
+					<span class="prelude-val">Ok</span>((
+						cmd.run::&lt;Block, <span class="kw">crate</span>::service::ContractsRococoRuntimeExecutor&gt;(config),
 						task_manager,
 					))
 				}),
