@@ -272,6 +272,7 @@
 <span id="272">272</span>
 <span id="273">273</span>
 <span id="274">274</span>
+<span id="275">275</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2020-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -345,7 +346,7 @@
 	</span>outstanding_concrete_asset: MultiAsset,
 }
 
-<span class="doccomment">/// Charges for exercution in the first multiasset of those selected for fee payment
+<span class="doccomment">/// Charges for execution in the first multiasset of those selected for fee payment
 /// Only succeeds for Concrete Fungible Assets
 /// First tries to convert the this MultiAsset into a local assetId
 /// Then charges for this assetId as described by FeeCharger
@@ -395,6 +396,7 @@
 		<span class="kw">let </span>weight = Weight::from_ref_time(weight);
 
 		<span class="comment">// We take the very first multiasset from payment
+		// (assets are sorted by fungibility/amount after this conversion)
 		</span><span class="kw">let </span>multiassets: MultiAssets = payment.clone().into();
 
 		<span class="comment">// Take the first multiasset from the selected MultiAssets

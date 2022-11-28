@@ -246,6 +246,8 @@
 <span id="246">246</span>
 <span id="247">247</span>
 <span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -405,6 +407,12 @@
 	),
 &gt;;
 
+<span class="kw">pub type </span>AssetFeeAsExistentialDepositMultiplierFeeCharger = AssetFeeAsExistentialDepositMultiplier&lt;
+	Runtime,
+	WeightToFee,
+	pallet_assets::BalanceToAssetBalance&lt;Balances, Runtime, ConvertInto&gt;,
+&gt;;
+
 <span class="kw">pub struct </span>XcmConfig;
 <span class="kw">impl </span>xcm_executor::Config <span class="kw">for </span>XcmConfig {
 	<span class="kw">type </span>RuntimeCall = RuntimeCall;
@@ -427,11 +435,7 @@
 		UsingComponents&lt;WeightToFee, KsmLocation, AccountId, Balances, ToStakingPot&lt;Runtime&gt;&gt;,
 		cumulus_primitives_utility::TakeFirstAssetTrader&lt;
 			AccountId,
-			AssetFeeAsExistentialDepositMultiplier&lt;
-				Runtime,
-				WeightToFee,
-				pallet_assets::BalanceToAssetBalance&lt;Balances, Runtime, ConvertInto&gt;,
-			&gt;,
+			AssetFeeAsExistentialDepositMultiplierFeeCharger,
 			ConvertedConcreteAssetId&lt;
 				AssetId,
 				Balance,
