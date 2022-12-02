@@ -1,4 +1,6 @@
 (function() {var implementors = {
+"bridge_hub_kusama_runtime":[["impl Config for <a class=\"struct\" href=\"bridge_hub_kusama_runtime/struct.Runtime.html\" title=\"struct bridge_hub_kusama_runtime::Runtime\">Runtime</a>"]],
+"bridge_hub_rococo_runtime":[["impl Config for <a class=\"struct\" href=\"bridge_hub_rococo_runtime/struct.Runtime.html\" title=\"struct bridge_hub_rococo_runtime::Runtime\">Runtime</a>"]],
 "collectives_polkadot_runtime":[["impl Config for <a class=\"struct\" href=\"collectives_polkadot_runtime/struct.Runtime.html\" title=\"struct collectives_polkadot_runtime::Runtime\">Runtime</a>"]],
 "contracts_rococo_runtime":[["impl Config for <a class=\"struct\" href=\"contracts_rococo_runtime/struct.Runtime.html\" title=\"struct contracts_rococo_runtime::Runtime\">Runtime</a>"]],
 "cumulus_test_runtime":[["impl Config for <a class=\"struct\" href=\"cumulus_test_runtime/struct.Runtime.html\" title=\"struct cumulus_test_runtime::Runtime\">Runtime</a>"]],

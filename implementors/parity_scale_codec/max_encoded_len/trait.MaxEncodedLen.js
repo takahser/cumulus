@@ -1,4 +1,6 @@
 (function() {var implementors = {
+"bridge_hub_kusama_runtime":[["impl MaxEncodedLen for <a class=\"enum\" href=\"bridge_hub_kusama_runtime/enum.OriginCaller.html\" title=\"enum bridge_hub_kusama_runtime::OriginCaller\">OriginCaller</a>"]],
+"bridge_hub_rococo_runtime":[["impl MaxEncodedLen for <a class=\"enum\" href=\"bridge_hub_rococo_runtime/enum.OriginCaller.html\" title=\"enum bridge_hub_rococo_runtime::OriginCaller\">OriginCaller</a>"]],
 "collectives_polkadot_runtime":[["impl MaxEncodedLen for <a class=\"enum\" href=\"collectives_polkadot_runtime/enum.ProxyType.html\" title=\"enum collectives_polkadot_runtime::ProxyType\">ProxyType</a>"],["impl MaxEncodedLen for <a class=\"enum\" href=\"collectives_polkadot_runtime/enum.OriginCaller.html\" title=\"enum collectives_polkadot_runtime::OriginCaller\">OriginCaller</a>"]],
 "contracts_rococo_runtime":[["impl MaxEncodedLen for <a class=\"enum\" href=\"contracts_rococo_runtime/enum.OriginCaller.html\" title=\"enum contracts_rococo_runtime::OriginCaller\">OriginCaller</a>"]],
 "cumulus_pallet_xcm":[["impl MaxEncodedLen for <a class=\"enum\" href=\"cumulus_pallet_xcm/pallet/enum.Origin.html\" title=\"enum cumulus_pallet_xcm::pallet::Origin\">Origin</a>"]],

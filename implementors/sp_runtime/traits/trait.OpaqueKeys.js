@@ -1,4 +1,6 @@
 (function() {var implementors = {
+"bridge_hub_kusama_runtime":[["impl OpaqueKeys for <a class=\"struct\" href=\"bridge_hub_kusama_runtime/struct.SessionKeys.html\" title=\"struct bridge_hub_kusama_runtime::SessionKeys\">SessionKeys</a>"]],
+"bridge_hub_rococo_runtime":[["impl OpaqueKeys for <a class=\"struct\" href=\"bridge_hub_rococo_runtime/struct.SessionKeys.html\" title=\"struct bridge_hub_rococo_runtime::SessionKeys\">SessionKeys</a>"]],
 "collectives_polkadot_runtime":[["impl OpaqueKeys for <a class=\"struct\" href=\"collectives_polkadot_runtime/struct.SessionKeys.html\" title=\"struct collectives_polkadot_runtime::SessionKeys\">SessionKeys</a>"]],
 "contracts_rococo_runtime":[["impl OpaqueKeys for <a class=\"struct\" href=\"contracts_rococo_runtime/struct.SessionKeys.html\" title=\"struct contracts_rococo_runtime::SessionKeys\">SessionKeys</a>"]],
 "cumulus_test_runtime":[["impl OpaqueKeys for <a class=\"struct\" href=\"cumulus_test_runtime/struct.SessionKeys.html\" title=\"struct cumulus_test_runtime::SessionKeys\">SessionKeys</a>"]],

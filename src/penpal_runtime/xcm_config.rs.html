@@ -314,68 +314,6 @@
 <span id="314">314</span>
 <span id="315">315</span>
 <span id="316">316</span>
-<span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
-<span id="346">346</span>
-<span id="347">347</span>
-<span id="348">348</span>
-<span id="349">349</span>
-<span id="350">350</span>
-<span id="351">351</span>
-<span id="352">352</span>
-<span id="353">353</span>
-<span id="354">354</span>
-<span id="355">355</span>
-<span id="356">356</span>
-<span id="357">357</span>
-<span id="358">358</span>
-<span id="359">359</span>
-<span id="360">360</span>
-<span id="361">361</span>
-<span id="362">362</span>
-<span id="363">363</span>
-<span id="364">364</span>
-<span id="365">365</span>
-<span id="366">366</span>
-<span id="367">367</span>
-<span id="368">368</span>
-<span id="369">369</span>
-<span id="370">370</span>
-<span id="371">371</span>
-<span id="372">372</span>
-<span id="373">373</span>
-<span id="374">374</span>
-<span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -406,7 +344,7 @@
 };
 <span class="kw">use </span>core::marker::PhantomData;
 <span class="kw">use </span>frame_support::{
-	log, match_types, parameter_types,
+	match_types, parameter_types,
 	traits::{
 		fungibles::{<span class="self">self</span>, Balanced, CreditOf},
 		Contains, Everything, Get, Nothing,
@@ -414,10 +352,11 @@
 };
 <span class="kw">use </span>pallet_asset_tx_payment::HandleCredit;
 <span class="kw">use </span>pallet_xcm::XcmPassthrough;
+<span class="kw">use </span>parachains_common::xcm_config::{DenyReserveTransferToRelayChain, DenyThenTry};
 <span class="kw">use </span>polkadot_parachain::primitives::Sibling;
 <span class="kw">use </span>polkadot_runtime_common::impls::ToAuthor;
 <span class="kw">use </span>sp_runtime::traits::Zero;
-<span class="kw">use </span>xcm::latest::{prelude::<span class="kw-2">*</span>, Weight <span class="kw">as </span>XCMWeight};
+<span class="kw">use </span>xcm::latest::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>xcm_builder::{
 	AccountId32Aliases, AllowKnownQueryResponses, AllowSubscriptionsFrom,
 	AllowTopLevelPaidExecutionFrom, AllowUnpaidExecutionFrom, AsPrefixedGeneralIndex,
@@ -428,7 +367,7 @@
 	UsingComponents,
 };
 <span class="kw">use </span>xcm_executor::{
-	traits::{FilterAssetLocation, JustTry, ShouldExecute},
+	traits::{FilterAssetLocation, JustTry},
 	XcmExecutor,
 };
 
@@ -525,69 +464,6 @@
 	<span class="kw">pub type </span>CommonGoodAssetsParachain: <span class="kw">impl </span>Contains&lt;MultiLocation&gt; = {
 		MultiLocation { parents: <span class="number">1</span>, interior: X1(Parachain(<span class="number">1000</span>)) }
 	};
-}
-
-<span class="comment">//TODO: move DenyThenTry to polkadot&#39;s xcm module.
-</span><span class="doccomment">/// Deny executing the xcm message if it matches any of the Deny filter regardless of anything else.
-/// If it passes the Deny, and matches one of the Allow cases then it is let through.
-</span><span class="kw">pub struct </span>DenyThenTry&lt;Deny, Allow&gt;(PhantomData&lt;Deny&gt;, PhantomData&lt;Allow&gt;)
-<span class="kw">where
-	</span>Deny: ShouldExecute,
-	Allow: ShouldExecute;
-
-<span class="kw">impl</span>&lt;Deny, Allow&gt; ShouldExecute <span class="kw">for </span>DenyThenTry&lt;Deny, Allow&gt;
-<span class="kw">where
-	</span>Deny: ShouldExecute,
-	Allow: ShouldExecute,
-{
-	<span class="kw">fn </span>should_execute&lt;RuntimeCall&gt;(
-		origin: <span class="kw-2">&amp;</span>MultiLocation,
-		message: <span class="kw-2">&amp;mut </span>Xcm&lt;RuntimeCall&gt;,
-		max_weight: XCMWeight,
-		weight_credit: <span class="kw-2">&amp;mut </span>XCMWeight,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
-		Deny::should_execute(origin, message, max_weight, weight_credit)<span class="question-mark">?</span>;
-		Allow::should_execute(origin, message, max_weight, weight_credit)
-	}
-}
-
-<span class="comment">// See issue &lt;https://github.com/paritytech/polkadot/issues/5233&gt;
-</span><span class="kw">pub struct </span>DenyReserveTransferToRelayChain;
-<span class="kw">impl </span>ShouldExecute <span class="kw">for </span>DenyReserveTransferToRelayChain {
-	<span class="kw">fn </span>should_execute&lt;RuntimeCall&gt;(
-		origin: <span class="kw-2">&amp;</span>MultiLocation,
-		message: <span class="kw-2">&amp;mut </span>Xcm&lt;RuntimeCall&gt;,
-		_max_weight: XCMWeight,
-		_weight_credit: <span class="kw-2">&amp;mut </span>XCMWeight,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
-		<span class="kw">if </span>message.<span class="number">0</span>.iter().any(|inst| {
-			<span class="macro">matches!</span>(
-				inst,
-				InitiateReserveWithdraw {
-					reserve: MultiLocation { parents: <span class="number">1</span>, interior: Here },
-					..
-				} | DepositReserveAsset { dest: MultiLocation { parents: <span class="number">1</span>, interior: Here }, .. } |
-					TransferReserveAsset {
-						dest: MultiLocation { parents: <span class="number">1</span>, interior: Here },
-						..
-					}
-			)
-		}) {
-			<span class="kw">return </span><span class="prelude-val">Err</span>(()) <span class="comment">// Deny
-		</span>}
-
-		<span class="comment">// allow reserve transfers to arrive from relay chain
-		</span><span class="kw">if </span><span class="macro">matches!</span>(origin, MultiLocation { parents: <span class="number">1</span>, interior: Here }) &amp;&amp;
-			message.<span class="number">0</span>.iter().any(|inst| <span class="macro">matches!</span>(inst, ReserveAssetDeposited { .. }))
-		{
-			<span class="macro">log::warn!</span>(
-				target: <span class="string">&quot;xcm::barriers&quot;</span>,
-				<span class="string">&quot;Unexpected ReserveAssetDeposited from the relay chain&quot;</span>,
-			);
-		}
-		<span class="comment">// Permit everything else
-		</span><span class="prelude-val">Ok</span>(())
-	}
 }
 
 <span class="kw">pub type </span>Barrier = DenyThenTry&lt;

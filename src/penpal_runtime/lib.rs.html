@@ -789,18 +789,6 @@
 <span id="789">789</span>
 <span id="790">790</span>
 <span id="791">791</span>
-<span id="792">792</span>
-<span id="793">793</span>
-<span id="794">794</span>
-<span id="795">795</span>
-<span id="796">796</span>
-<span id="797">797</span>
-<span id="798">798</span>
-<span id="799">799</span>
-<span id="800">800</span>
-<span id="801">801</span>
-<span id="802">802</span>
-<span id="803">803</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -838,7 +826,7 @@
 	construct_runtime,
 	dispatch::DispatchClass,
 	parameter_types,
-	traits::{AsEnsureOriginWithArg, Everything},
+	traits::{AsEnsureOriginWithArg, ConstU32, ConstU64, ConstU8, Everything},
 	weights::{
 		constants::WEIGHT_PER_SECOND, ConstantMultiplier, Weight, WeightToFeeCoefficient,
 		WeightToFeeCoefficients, WeightToFeePolynomial,
@@ -1125,37 +1113,27 @@
 	<span class="kw">type </span>MaxConsumers = frame_support::traits::ConstU32&lt;<span class="number">16</span>&gt;;
 }
 
-<span class="macro">parameter_types! </span>{
-	<span class="kw">pub const </span>MinimumPeriod: u64 = SLOT_DURATION / <span class="number">2</span>;
-}
-
 <span class="kw">impl </span>pallet_timestamp::Config <span class="kw">for </span>Runtime {
 	<span class="doccomment">/// A timestamp: milliseconds since the unix epoch.
 	</span><span class="kw">type </span>Moment = u64;
 	<span class="kw">type </span>OnTimestampSet = Aura;
-	<span class="kw">type </span>MinimumPeriod = MinimumPeriod;
+	<span class="kw">type </span>MinimumPeriod = ConstU64&lt;{ SLOT_DURATION / <span class="number">2 </span>}&gt;;
 	<span class="kw">type </span>WeightInfo = ();
-}
-
-<span class="macro">parameter_types! </span>{
-	<span class="kw">pub const </span>UncleGenerations: u32 = <span class="number">0</span>;
 }
 
 <span class="kw">impl </span>pallet_authorship::Config <span class="kw">for </span>Runtime {
 	<span class="kw">type </span>FindAuthor = pallet_session::FindAccountFromAuthorIndex&lt;<span class="self">Self</span>, Aura&gt;;
-	<span class="kw">type </span>UncleGenerations = UncleGenerations;
+	<span class="kw">type </span>UncleGenerations = ConstU32&lt;<span class="number">0</span>&gt;;
 	<span class="kw">type </span>FilterUncle = ();
 	<span class="kw">type </span>EventHandler = (CollatorSelection,);
 }
 
 <span class="macro">parameter_types! </span>{
 	<span class="kw">pub const </span>ExistentialDeposit: Balance = EXISTENTIAL_DEPOSIT;
-	<span class="kw">pub const </span>MaxLocks: u32 = <span class="number">50</span>;
-	<span class="kw">pub const </span>MaxReserves: u32 = <span class="number">50</span>;
 }
 
 <span class="kw">impl </span>pallet_balances::Config <span class="kw">for </span>Runtime {
-	<span class="kw">type </span>MaxLocks = MaxLocks;
+	<span class="kw">type </span>MaxLocks = ConstU32&lt;<span class="number">50</span>&gt;;
 	<span class="doccomment">/// The type for recording an account&#39;s balance.
 	</span><span class="kw">type </span>Balance = Balance;
 	<span class="doccomment">/// The ubiquitous event type.
@@ -1164,14 +1142,13 @@
 	<span class="kw">type </span>ExistentialDeposit = ExistentialDeposit;
 	<span class="kw">type </span>AccountStore = System;
 	<span class="kw">type </span>WeightInfo = pallet_balances::weights::SubstrateWeight&lt;Runtime&gt;;
-	<span class="kw">type </span>MaxReserves = MaxReserves;
+	<span class="kw">type </span>MaxReserves = ConstU32&lt;<span class="number">50</span>&gt;;
 	<span class="kw">type </span>ReserveIdentifier = [u8; <span class="number">8</span>];
 }
 
 <span class="macro">parameter_types! </span>{
 	<span class="doccomment">/// Relay Chain `TransactionByteFee` / 10
 	</span><span class="kw">pub const </span>TransactionByteFee: Balance = <span class="number">10 </span>* MICROUNIT;
-	<span class="kw">pub const </span>OperationalFeeMultiplier: u8 = <span class="number">5</span>;
 }
 
 <span class="kw">impl </span>pallet_transaction_payment::Config <span class="kw">for </span>Runtime {
@@ -1180,7 +1157,7 @@
 	<span class="kw">type </span>WeightToFee = WeightToFee;
 	<span class="kw">type </span>LengthToFee = ConstantMultiplier&lt;Balance, TransactionByteFee&gt;;
 	<span class="kw">type </span>FeeMultiplierUpdate = SlowAdjustingFeeUpdate&lt;<span class="self">Self</span>&gt;;
-	<span class="kw">type </span>OperationalFeeMultiplier = OperationalFeeMultiplier;
+	<span class="kw">type </span>OperationalFeeMultiplier = ConstU8&lt;<span class="number">5</span>&gt;;
 }
 
 <span class="macro">parameter_types! </span>{
@@ -1259,7 +1236,6 @@
 <span class="macro">parameter_types! </span>{
 	<span class="kw">pub const </span>Period: u32 = <span class="number">6 </span>* HOURS;
 	<span class="kw">pub const </span>Offset: u32 = <span class="number">0</span>;
-	<span class="kw">pub const </span>MaxAuthorities: u32 = <span class="number">100_000</span>;
 }
 
 <span class="kw">impl </span>pallet_session::Config <span class="kw">for </span>Runtime {
@@ -1270,7 +1246,7 @@
 	<span class="kw">type </span>ShouldEndSession = pallet_session::PeriodicSessions&lt;Period, Offset&gt;;
 	<span class="kw">type </span>NextSessionRotation = pallet_session::PeriodicSessions&lt;Period, Offset&gt;;
 	<span class="kw">type </span>SessionManager = CollatorSelection;
-	<span class="comment">// Essentially just Aura, but lets be pedantic.
+	<span class="comment">// Essentially just Aura, but let&#39;s be pedantic.
 	</span><span class="kw">type </span>SessionHandler = &lt;SessionKeys <span class="kw">as </span>sp_runtime::traits::OpaqueKeys&gt;::KeyTypeIdProviders;
 	<span class="kw">type </span>Keys = SessionKeys;
 	<span class="kw">type </span>WeightInfo = ();
@@ -1279,7 +1255,7 @@
 <span class="kw">impl </span>pallet_aura::Config <span class="kw">for </span>Runtime {
 	<span class="kw">type </span>AuthorityId = AuraId;
 	<span class="kw">type </span>DisabledValidators = ();
-	<span class="kw">type </span>MaxAuthorities = MaxAuthorities;
+	<span class="kw">type </span>MaxAuthorities = ConstU32&lt;<span class="number">100_000</span>&gt;;
 }
 
 <span class="macro">parameter_types! </span>{

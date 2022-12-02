@@ -1,4 +1,6 @@
 (function() {var implementors = {
+"bridge_hub_kusama_runtime":[["impl UnfilteredDispatchable for <a class=\"enum\" href=\"bridge_hub_kusama_runtime/enum.RuntimeCall.html\" title=\"enum bridge_hub_kusama_runtime::RuntimeCall\">RuntimeCall</a>"]],
+"bridge_hub_rococo_runtime":[["impl UnfilteredDispatchable for <a class=\"enum\" href=\"bridge_hub_rococo_runtime/enum.RuntimeCall.html\" title=\"enum bridge_hub_rococo_runtime::RuntimeCall\">RuntimeCall</a>"]],
 "collectives_polkadot_runtime":[["impl UnfilteredDispatchable for <a class=\"enum\" href=\"collectives_polkadot_runtime/enum.RuntimeCall.html\" title=\"enum collectives_polkadot_runtime::RuntimeCall\">RuntimeCall</a>"]],
 "contracts_rococo_runtime":[["impl UnfilteredDispatchable for <a class=\"enum\" href=\"contracts_rococo_runtime/enum.RuntimeCall.html\" title=\"enum contracts_rococo_runtime::RuntimeCall\">RuntimeCall</a>"]],
 "cumulus_pallet_aura_ext":[["impl&lt;T:&nbsp;<a class=\"trait\" href=\"cumulus_pallet_aura_ext/pallet/trait.Config.html\" title=\"trait cumulus_pallet_aura_ext::pallet::Config\">Config</a>&gt; UnfilteredDispatchable for <a class=\"enum\" href=\"cumulus_pallet_aura_ext/pallet/enum.Call.html\" title=\"enum cumulus_pallet_aura_ext::pallet::Call\">Call</a>&lt;T&gt;"]],

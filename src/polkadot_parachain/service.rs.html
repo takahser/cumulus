@@ -1568,6 +1568,36 @@
 <span id="1568">1568</span>
 <span id="1569">1569</span>
 <span id="1570">1570</span>
+<span id="1571">1571</span>
+<span id="1572">1572</span>
+<span id="1573">1573</span>
+<span id="1574">1574</span>
+<span id="1575">1575</span>
+<span id="1576">1576</span>
+<span id="1577">1577</span>
+<span id="1578">1578</span>
+<span id="1579">1579</span>
+<span id="1580">1580</span>
+<span id="1581">1581</span>
+<span id="1582">1582</span>
+<span id="1583">1583</span>
+<span id="1584">1584</span>
+<span id="1585">1585</span>
+<span id="1586">1586</span>
+<span id="1587">1587</span>
+<span id="1588">1588</span>
+<span id="1589">1589</span>
+<span id="1590">1590</span>
+<span id="1591">1591</span>
+<span id="1592">1592</span>
+<span id="1593">1593</span>
+<span id="1594">1594</span>
+<span id="1595">1595</span>
+<span id="1596">1596</span>
+<span id="1597">1597</span>
+<span id="1598">1598</span>
+<span id="1599">1599</span>
+<span id="1600">1600</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1717,6 +1747,36 @@
 
 	<span class="kw">fn </span>native_version() -&gt; sc_executor::NativeVersion {
 		collectives_polkadot_runtime::native_version()
+	}
+}
+
+<span class="comment">// Native BridgeHubKusama executor instance.
+</span><span class="kw">pub struct </span>BridgeHubKusamaRuntimeExecutor;
+
+<span class="kw">impl </span>sc_executor::NativeExecutionDispatch <span class="kw">for </span>BridgeHubKusamaRuntimeExecutor {
+	<span class="kw">type </span>ExtendHostFunctions = frame_benchmarking::benchmarking::HostFunctions;
+
+	<span class="kw">fn </span>dispatch(method: <span class="kw-2">&amp;</span>str, data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt; {
+		bridge_hub_kusama_runtime::api::dispatch(method, data)
+	}
+
+	<span class="kw">fn </span>native_version() -&gt; sc_executor::NativeVersion {
+		bridge_hub_kusama_runtime::native_version()
+	}
+}
+
+<span class="comment">// Native BridgeHubRococo executor instance.
+</span><span class="kw">pub struct </span>BridgeHubRococoRuntimeExecutor;
+
+<span class="kw">impl </span>sc_executor::NativeExecutionDispatch <span class="kw">for </span>BridgeHubRococoRuntimeExecutor {
+	<span class="kw">type </span>ExtendHostFunctions = frame_benchmarking::benchmarking::HostFunctions;
+
+	<span class="kw">fn </span>dispatch(method: <span class="kw-2">&amp;</span>str, data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt; {
+		bridge_hub_rococo_runtime::api::dispatch(method, data)
+	}
+
+	<span class="kw">fn </span>native_version() -&gt; sc_executor::NativeVersion {
+		bridge_hub_rococo_runtime::native_version()
 	}
 }
 
