@@ -121,6 +121,8 @@
 <span id="121">121</span>
 <span id="122">122</span>
 <span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -188,8 +190,10 @@
 				.<span class="kw">await
 				</span>.map_err(|e| e.to_string())<span class="question-mark">?</span>;
 
-			<span class="kw">let </span>inherent_data =
-				inherent_data_providers.create_inherent_data().map_err(|e| <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, e))<span class="question-mark">?</span>;
+			<span class="kw">let </span>inherent_data = inherent_data_providers
+				.create_inherent_data()
+				.<span class="kw">await
+				</span>.map_err(|e| <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, e))<span class="question-mark">?</span>;
 
 			<span class="kw">let </span>block = Block::new(block_params.header.clone(), inner_body);
 

@@ -257,6 +257,7 @@
 <span id="257">257</span>
 <span id="258">258</span>
 <span id="259">259</span>
+<span id="260">260</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -384,7 +385,8 @@
 
 		inherent_data_providers
 			.create_inherent_data()
-			.map_err(|e| {
+			.<span class="kw">await
+			</span>.map_err(|e| {
 				<span class="macro">tracing::error!</span>(
 					target: LOG_TARGET,
 					error = <span class="question-mark">?</span>e,

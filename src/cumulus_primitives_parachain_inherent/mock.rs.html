@@ -389,7 +389,7 @@
 </span><span class="kw">impl</span>&lt;R: Send + Sync + GenerateRandomness&lt;u64&gt;&gt; InherentDataProvider
 	<span class="kw">for </span>MockValidationDataInherentDataProvider&lt;R&gt;
 {
-	<span class="kw">fn </span>provide_inherent_data(
+	<span class="kw">async fn </span>provide_inherent_data(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		inherent_data: <span class="kw-2">&amp;mut </span>InherentData,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;(), sp_inherents::Error&gt; {

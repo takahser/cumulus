@@ -220,19 +220,6 @@
 <span id="220">220</span>
 <span id="221">221</span>
 <span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -274,7 +261,7 @@
 <span class="kw">use </span>sp_consensus::{EnableProofRecording, Environment, ProofRecording, Proposer, SyncOracle};
 <span class="kw">use </span>sp_consensus_aura::{AuraApi, SlotDuration};
 <span class="kw">use </span>sp_core::crypto::Pair;
-<span class="kw">use </span>sp_inherents::{CreateInherentDataProviders, InherentData, InherentDataProvider};
+<span class="kw">use </span>sp_inherents::CreateInherentDataProviders;
 <span class="kw">use </span>sp_keystore::SyncCryptoStorePtr;
 <span class="kw">use </span>sp_runtime::traits::{Block <span class="kw">as </span>BlockT, Header <span class="kw">as </span>HeaderT, Member, NumberFor};
 <span class="kw">use </span>std::{convert::TryFrom, hash::Hash, marker::PhantomData, sync::Arc};
@@ -405,9 +392,8 @@
 		parent: B::Hash,
 		validation_data: <span class="kw-2">&amp;</span>PersistedValidationData,
 		relay_parent: PHash,
-	) -&gt; <span class="prelude-ty">Option</span>&lt;(InherentData, CIDP::InherentDataProviders)&gt; {
-		<span class="kw">let </span>inherent_data_providers = <span class="self">self
-			</span>.create_inherent_data_providers
+	) -&gt; <span class="prelude-ty">Option</span>&lt;CIDP::InherentDataProviders&gt; {
+		<span class="self">self</span>.create_inherent_data_providers
 			.create_inherent_data_providers(parent, (relay_parent, validation_data.clone()))
 			.<span class="kw">await
 			</span>.map_err(|e| {
@@ -417,19 +403,7 @@
 					<span class="string">&quot;Failed to create inherent data providers.&quot;</span>,
 				)
 			})
-			.ok()<span class="question-mark">?</span>;
-
-		inherent_data_providers
-			.create_inherent_data()
-			.map_err(|e| {
-				<span class="macro">tracing::error!</span>(
-					target: LOG_TARGET,
-					error = <span class="question-mark">?</span>e,
-					<span class="string">&quot;Failed to create inherent data.&quot;</span>,
-				)
-			})
 			.ok()
-			.map(|d| (d, inherent_data_providers))
 	}
 }
 
@@ -448,12 +422,12 @@
 		relay_parent: PHash,
 		validation_data: <span class="kw-2">&amp;</span>PersistedValidationData,
 	) -&gt; <span class="prelude-ty">Option</span>&lt;ParachainCandidate&lt;B&gt;&gt; {
-		<span class="kw">let </span>(inherent_data, inherent_data_providers) =
+		<span class="kw">let </span>inherent_data_providers =
 			<span class="self">self</span>.inherent_data(parent.hash(), validation_data, relay_parent).<span class="kw">await</span><span class="question-mark">?</span>;
 
 		<span class="kw">let </span>info = SlotInfo::new(
 			inherent_data_providers.slot(),
-			inherent_data,
+			Box::new(inherent_data_providers),
 			<span class="self">self</span>.slot_duration.as_duration(),
 			parent.clone(),
 			<span class="comment">// Set the block limit to 50% of the maximum PoV size.
