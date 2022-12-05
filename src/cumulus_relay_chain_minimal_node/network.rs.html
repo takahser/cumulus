@@ -457,9 +457,9 @@
 		role: config.role.clone(),
 		executor: {
 			<span class="kw">let </span>spawn_handle = Clone::clone(<span class="kw-2">&amp;</span>spawn_handle);
-			<span class="prelude-val">Some</span>(Box::new(<span class="kw">move </span>|fut| {
+			Box::new(<span class="kw">move </span>|fut| {
 				spawn_handle.spawn(<span class="string">&quot;libp2p-node&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;networking&quot;</span>), fut);
-			}))
+			})
 		},
 		fork_id: <span class="prelude-val">None</span>,
 		chain_sync: Box::new(chain_sync),
