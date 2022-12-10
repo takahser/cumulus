@@ -483,7 +483,6 @@
 <span id="483">483</span>
 <span id="484">484</span>
 <span id="485">485</span>
-<span id="486">486</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -528,7 +527,7 @@
 //! make sure that the blocks are imported in the correct order.
 
 </span><span class="kw">use </span>sc_client_api::{BlockBackend, BlockchainEvents, UsageProvider};
-<span class="kw">use </span>sc_consensus::import_queue::{ImportQueue, IncomingBlock};
+<span class="kw">use </span>sc_consensus::import_queue::{ImportQueueService, IncomingBlock};
 <span class="kw">use </span>sp_consensus::{BlockOrigin, BlockStatus};
 <span class="kw">use </span>sp_runtime::{
 	generic::BlockId,
@@ -589,7 +588,7 @@
 }
 
 <span class="doccomment">/// Encapsulates the logic of the pov recovery.
-</span><span class="kw">pub struct </span>PoVRecovery&lt;Block: BlockT, PC, IQ, RC&gt; {
+</span><span class="kw">pub struct </span>PoVRecovery&lt;Block: BlockT, PC, RC&gt; {
 	<span class="doccomment">/// All the pending candidates that we are waiting for to be imported or that need to be
 	/// recovered when `next_candidate_to_recover` tells us to do so.
 	</span>pending_candidates: HashMap&lt;Block::Hash, PendingCandidate&lt;Block&gt;&gt;,
@@ -605,23 +604,22 @@
 	</span>waiting_for_parent: HashMap&lt;Block::Hash, Vec&lt;Block&gt;&gt;,
 	recovery_delay: RecoveryDelay,
 	parachain_client: Arc&lt;PC&gt;,
-	parachain_import_queue: IQ,
+	parachain_import_queue: Box&lt;<span class="kw">dyn </span>ImportQueueService&lt;Block&gt;&gt;,
 	relay_chain_interface: RC,
 	para_id: ParaId,
 }
 
-<span class="kw">impl</span>&lt;Block: BlockT, PC, IQ, RCInterface&gt; PoVRecovery&lt;Block, PC, IQ, RCInterface&gt;
+<span class="kw">impl</span>&lt;Block: BlockT, PC, RCInterface&gt; PoVRecovery&lt;Block, PC, RCInterface&gt;
 <span class="kw">where
 	</span>PC: BlockBackend&lt;Block&gt; + BlockchainEvents&lt;Block&gt; + UsageProvider&lt;Block&gt;,
 	RCInterface: RelayChainInterface + Clone,
-	IQ: ImportQueue&lt;Block&gt;,
 {
 	<span class="doccomment">/// Create a new instance.
 	</span><span class="kw">pub fn </span>new(
 		overseer_handle: OverseerHandle,
 		recovery_delay: RecoveryDelay,
 		parachain_client: Arc&lt;PC&gt;,
-		parachain_import_queue: IQ,
+		parachain_import_queue: Box&lt;<span class="kw">dyn </span>ImportQueueService&lt;Block&gt;&gt;,
 		relay_chain_interface: RCInterface,
 		para_id: ParaId,
 	) -&gt; <span class="self">Self </span>{

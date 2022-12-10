@@ -821,6 +821,8 @@
 <span id="821">821</span>
 <span id="822">822</span>
 <span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -871,6 +873,7 @@
 <span class="kw">use </span>polkadot_primitives::v2::{CollatorPair, Hash <span class="kw">as </span>PHash, PersistedValidationData};
 <span class="kw">use </span>polkadot_service::ProvideRuntimeApi;
 <span class="kw">use </span>sc_client_api::execution_extensions::ExecutionStrategies;
+<span class="kw">use </span>sc_consensus::ImportQueue;
 <span class="kw">use </span>sc_network::{multiaddr, NetworkBlock, NetworkService};
 <span class="kw">use </span>sc_network_common::{config::TransportConfig, service::NetworkStateInfo};
 <span class="kw">use </span>sc_service::{
@@ -1092,14 +1095,15 @@
 	<span class="kw">let </span>block_announce_validator_builder = <span class="kw">move </span>|<span class="kw">_</span>| Box::new(block_announce_validator) <span class="kw">as </span>Box&lt;<span class="kw">_</span>&gt;;
 
 	<span class="kw">let </span>prometheus_registry = parachain_config.prometheus_registry().cloned();
-	<span class="kw">let </span>import_queue = cumulus_client_service::SharedImportQueue::new(params.import_queue);
+	<span class="kw">let </span>import_queue_service = params.import_queue.service();
+
 	<span class="kw">let </span>(network, system_rpc_tx, tx_handler_controller, start_network) =
 		sc_service::build_network(sc_service::BuildNetworkParams {
 			config: <span class="kw-2">&amp;</span>parachain_config,
 			client: client.clone(),
 			transaction_pool: transaction_pool.clone(),
 			spawn_handle: task_manager.spawn_handle(),
-			import_queue: import_queue.clone(),
+			import_queue: params.import_queue,
 			block_announce_validator_builder: <span class="prelude-val">Some</span>(Box::new(block_announce_validator_builder)),
 			warp_sync: <span class="prelude-val">None</span>,
 		})<span class="question-mark">?</span>;
@@ -1185,7 +1189,7 @@
 			parachain_consensus,
 			relay_chain_interface,
 			collator_key,
-			import_queue,
+			import_queue: import_queue_service,
 			relay_chain_slot_duration: Duration::from_secs(<span class="number">6</span>),
 		};
 
@@ -1197,7 +1201,7 @@
 			task_manager: <span class="kw-2">&amp;mut </span>task_manager,
 			para_id,
 			relay_chain_interface,
-			import_queue,
+			import_queue: import_queue_service,
 			<span class="comment">// The slot duration is currently used internally only to configure
 			// the recovery delay of pov-recovery. We don&#39;t want to wait for too
 			// long on the full node to recover, so we reduce this time here.

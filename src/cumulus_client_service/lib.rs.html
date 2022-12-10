@@ -217,48 +217,6 @@
 <span id="217">217</span>
 <span id="218">218</span>
 <span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
-<span id="248">248</span>
-<span id="249">249</span>
-<span id="250">250</span>
-<span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
-<span id="254">254</span>
-<span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2020-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -286,23 +244,16 @@
 <span class="kw">use </span>sc_client_api::{
 	Backend <span class="kw">as </span>BackendT, BlockBackend, BlockchainEvents, Finalizer, UsageProvider,
 };
-<span class="kw">use </span>sc_consensus::{
-	import_queue::{ImportQueue, IncomingBlock, Link, RuntimeOrigin},
-	BlockImport,
-};
+<span class="kw">use </span>sc_consensus::{import_queue::ImportQueueService, BlockImport};
 <span class="kw">use </span>sc_service::{Configuration, TaskManager};
 <span class="kw">use </span>sp_api::ProvideRuntimeApi;
 <span class="kw">use </span>sp_blockchain::HeaderBackend;
-<span class="kw">use </span>sp_consensus::BlockOrigin;
 <span class="kw">use </span>sp_core::traits::SpawnNamed;
-<span class="kw">use </span>sp_runtime::{
-	traits::{Block <span class="kw">as </span>BlockT, NumberFor},
-	Justifications,
-};
+<span class="kw">use </span>sp_runtime::traits::Block <span class="kw">as </span>BlockT;
 <span class="kw">use </span>std::{sync::Arc, time::Duration};
 
 <span class="doccomment">/// Parameters given to [`start_collator`].
-</span><span class="kw">pub struct </span>StartCollatorParams&lt;<span class="lifetime">&#39;a</span>, Block: BlockT, BS, Client, RCInterface, Spawner, IQ&gt; {
+</span><span class="kw">pub struct </span>StartCollatorParams&lt;<span class="lifetime">&#39;a</span>, Block: BlockT, BS, Client, RCInterface, Spawner&gt; {
 	<span class="kw">pub </span>block_status: Arc&lt;BS&gt;,
 	<span class="kw">pub </span>client: Arc&lt;Client&gt;,
 	<span class="kw">pub </span>announce_block: Arc&lt;<span class="kw">dyn </span>Fn(Block::Hash, <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;) + Send + Sync&gt;,
@@ -311,7 +262,7 @@
 	<span class="kw">pub </span>relay_chain_interface: RCInterface,
 	<span class="kw">pub </span>task_manager: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>TaskManager,
 	<span class="kw">pub </span>parachain_consensus: Box&lt;<span class="kw">dyn </span>ParachainConsensus&lt;Block&gt;&gt;,
-	<span class="kw">pub </span>import_queue: IQ,
+	<span class="kw">pub </span>import_queue: Box&lt;<span class="kw">dyn </span>ImportQueueService&lt;Block&gt;&gt;,
 	<span class="kw">pub </span>collator_key: CollatorPair,
 	<span class="kw">pub </span>relay_chain_slot_duration: Duration,
 }
@@ -321,7 +272,7 @@
 /// A collator is similar to a validator in a normal blockchain.
 /// It is responsible for producing blocks and sending the blocks to a
 /// parachain validator for validation and inclusion into the relay chain.
-</span><span class="kw">pub async fn </span>start_collator&lt;<span class="lifetime">&#39;a</span>, Block, BS, Client, Backend, RCInterface, Spawner, IQ&gt;(
+</span><span class="kw">pub async fn </span>start_collator&lt;<span class="lifetime">&#39;a</span>, Block, BS, Client, Backend, RCInterface, Spawner&gt;(
 	StartCollatorParams {
 		block_status,
 		client,
@@ -334,7 +285,7 @@
 		import_queue,
 		collator_key,
 		relay_chain_slot_duration,
-	}: StartCollatorParams&lt;<span class="lifetime">&#39;a</span>, Block, BS, Client, RCInterface, Spawner, IQ&gt;,
+	}: StartCollatorParams&lt;<span class="lifetime">&#39;a</span>, Block, BS, Client, RCInterface, Spawner&gt;,
 ) -&gt; sc_service::error::Result&lt;()&gt;
 <span class="kw">where
 	</span>Block: BlockT,
@@ -353,7 +304,6 @@
 	Spawner: SpawnNamed + Clone + Send + Sync + <span class="lifetime">&#39;static</span>,
 	RCInterface: RelayChainInterface + Clone + <span class="lifetime">&#39;static</span>,
 	Backend: BackendT&lt;Block&gt; + <span class="lifetime">&#39;static</span>,
-	IQ: ImportQueue&lt;Block&gt; + <span class="lifetime">&#39;static</span>,
 {
 	<span class="kw">let </span>consensus = cumulus_client_consensus_common::run_parachain_consensus(
 		para_id,
@@ -400,21 +350,21 @@
 }
 
 <span class="doccomment">/// Parameters given to [`start_full_node`].
-</span><span class="kw">pub struct </span>StartFullNodeParams&lt;<span class="lifetime">&#39;a</span>, Block: BlockT, Client, RCInterface, IQ&gt; {
+</span><span class="kw">pub struct </span>StartFullNodeParams&lt;<span class="lifetime">&#39;a</span>, Block: BlockT, Client, RCInterface&gt; {
 	<span class="kw">pub </span>para_id: ParaId,
 	<span class="kw">pub </span>client: Arc&lt;Client&gt;,
 	<span class="kw">pub </span>relay_chain_interface: RCInterface,
 	<span class="kw">pub </span>task_manager: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>TaskManager,
 	<span class="kw">pub </span>announce_block: Arc&lt;<span class="kw">dyn </span>Fn(Block::Hash, <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;) + Send + Sync&gt;,
 	<span class="kw">pub </span>relay_chain_slot_duration: Duration,
-	<span class="kw">pub </span>import_queue: IQ,
+	<span class="kw">pub </span>import_queue: Box&lt;<span class="kw">dyn </span>ImportQueueService&lt;Block&gt;&gt;,
 }
 
 <span class="doccomment">/// Start a full node for a parachain.
 ///
 /// A full node will only sync the given parachain and will follow the
 /// tip of the chain.
-</span><span class="kw">pub fn </span>start_full_node&lt;Block, Client, Backend, RCInterface, IQ&gt;(
+</span><span class="kw">pub fn </span>start_full_node&lt;Block, Client, Backend, RCInterface&gt;(
 	StartFullNodeParams {
 		client,
 		announce_block,
@@ -423,7 +373,7 @@
 		para_id,
 		relay_chain_slot_duration,
 		import_queue,
-	}: StartFullNodeParams&lt;Block, Client, RCInterface, IQ&gt;,
+	}: StartFullNodeParams&lt;Block, Client, RCInterface&gt;,
 ) -&gt; sc_service::error::Result&lt;()&gt;
 <span class="kw">where
 	</span>Block: BlockT,
@@ -437,7 +387,6 @@
 	<span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Client: BlockImport&lt;Block&gt;,
 	Backend: BackendT&lt;Block&gt; + <span class="lifetime">&#39;static</span>,
 	RCInterface: RelayChainInterface + Clone + <span class="lifetime">&#39;static</span>,
-	IQ: ImportQueue&lt;Block&gt; + <span class="lifetime">&#39;static</span>,
 {
 	<span class="kw">let </span>consensus = cumulus_client_consensus_common::run_parachain_consensus(
 		para_id,
@@ -486,39 +435,6 @@
 	parachain_config.announce_block = <span class="bool-val">false</span>;
 
 	parachain_config
-}
-
-<span class="doccomment">/// A shared import queue
-///
-/// This is basically a hack until the Substrate side is implemented properly.
-</span><span class="attribute">#[derive(Clone)]
-</span><span class="kw">pub struct </span>SharedImportQueue&lt;Block: BlockT&gt;(Arc&lt;parking_lot::Mutex&lt;<span class="kw">dyn </span>ImportQueue&lt;Block&gt;&gt;&gt;);
-
-<span class="kw">impl</span>&lt;Block: BlockT&gt; SharedImportQueue&lt;Block&gt; {
-	<span class="doccomment">/// Create a new instance of the shared import queue.
-	</span><span class="kw">pub fn </span>new&lt;IQ: ImportQueue&lt;Block&gt; + <span class="lifetime">&#39;static</span>&gt;(import_queue: IQ) -&gt; <span class="self">Self </span>{
-		<span class="self">Self</span>(Arc::new(parking_lot::Mutex::new(import_queue)))
-	}
-}
-
-<span class="kw">impl</span>&lt;Block: BlockT&gt; ImportQueue&lt;Block&gt; <span class="kw">for </span>SharedImportQueue&lt;Block&gt; {
-	<span class="kw">fn </span>import_blocks(<span class="kw-2">&amp;mut </span><span class="self">self</span>, origin: BlockOrigin, blocks: Vec&lt;IncomingBlock&lt;Block&gt;&gt;) {
-		<span class="self">self</span>.<span class="number">0</span>.lock().import_blocks(origin, blocks)
-	}
-
-	<span class="kw">fn </span>import_justifications(
-		<span class="kw-2">&amp;mut </span><span class="self">self</span>,
-		who: RuntimeOrigin,
-		hash: Block::Hash,
-		number: NumberFor&lt;Block&gt;,
-		justifications: Justifications,
-	) {
-		<span class="self">self</span>.<span class="number">0</span>.lock().import_justifications(who, hash, number, justifications)
-	}
-
-	<span class="kw">fn </span>poll_actions(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>std::task::Context, link: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Link&lt;Block&gt;) {
-		<span class="self">self</span>.<span class="number">0</span>.lock().poll_actions(cx, link)
-	}
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cumulus_client_service" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
