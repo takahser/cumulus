@@ -790,6 +790,10 @@
 <span id="790">790</span>
 <span id="791">791</span>
 <span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -917,6 +921,9 @@
 <span class="doccomment">/// Extrinsic type that has already been checked.
 </span><span class="kw">pub type </span>CheckedExtrinsic = generic::CheckedExtrinsic&lt;AccountId, RuntimeCall, SignedExtra&gt;;
 
+<span class="kw">pub type </span>Migrations =
+	(pallet_balances::migration::MigrateToTrackInactive&lt;Runtime, xcm_config::CheckingAccount&gt;,);
+
 <span class="doccomment">/// Executive: handles dispatch to the various modules.
 </span><span class="kw">pub type </span>Executive = frame_executive::Executive&lt;
 	Runtime,
@@ -924,6 +931,7 @@
 	frame_system::ChainContext&lt;Runtime&gt;,
 	Runtime,
 	AllPalletsWithSystem,
+	Migrations,
 &gt;;
 
 <span class="doccomment">/// Handles converting a weight scalar to a fee value, based on the scale and granularity of the
