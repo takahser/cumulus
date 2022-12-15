@@ -413,30 +413,6 @@
 <span id="413">413</span>
 <span id="414">414</span>
 <span id="415">415</span>
-<span id="416">416</span>
-<span id="417">417</span>
-<span id="418">418</span>
-<span id="419">419</span>
-<span id="420">420</span>
-<span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
-<span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
-<span id="433">433</span>
-<span id="434">434</span>
-<span id="435">435</span>
-<span id="436">436</span>
-<span id="437">437</span>
-<span id="438">438</span>
-<span id="439">439</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Service and ServiceFactory implementation. Specialized wrapper over substrate service.
 
 </span><span class="comment">// std
@@ -453,12 +429,11 @@
 };
 <span class="kw">use </span>cumulus_client_network::BlockAnnounceValidator;
 <span class="kw">use </span>cumulus_client_service::{
-	prepare_node_config, start_collator, start_full_node, StartCollatorParams, StartFullNodeParams,
+	build_relay_chain_interface, prepare_node_config, start_collator, start_full_node,
+	StartCollatorParams, StartFullNodeParams,
 };
 <span class="kw">use </span>cumulus_primitives_core::ParaId;
-<span class="kw">use </span>cumulus_relay_chain_inprocess_interface::build_inprocess_relay_chain;
-<span class="kw">use </span>cumulus_relay_chain_interface::{RelayChainError, RelayChainInterface, RelayChainResult};
-<span class="kw">use </span>cumulus_relay_chain_minimal_node::build_minimal_relay_chain_node;
+<span class="kw">use </span>cumulus_relay_chain_interface::{RelayChainError, RelayChainInterface};
 
 <span class="comment">// Substrate Imports
 </span><span class="kw">use </span>sc_consensus::ImportQueue;
@@ -469,8 +444,6 @@
 <span class="kw">use </span>sc_telemetry::{Telemetry, TelemetryHandle, TelemetryWorker, TelemetryWorkerHandle};
 <span class="kw">use </span>sp_keystore::SyncCryptoStorePtr;
 <span class="kw">use </span>substrate_prometheus_endpoint::Registry;
-
-<span class="kw">use </span>polkadot_service::CollatorPair;
 
 <span class="doccomment">/// Native executor type.
 </span><span class="kw">pub struct </span>ParachainNativeExecutor;
@@ -573,27 +546,6 @@
 		select_chain: (),
 		other: (block_import, telemetry, telemetry_worker_handle),
 	})
-}
-
-<span class="kw">async fn </span>build_relay_chain_interface(
-	polkadot_config: Configuration,
-	parachain_config: <span class="kw-2">&amp;</span>Configuration,
-	telemetry_worker_handle: <span class="prelude-ty">Option</span>&lt;TelemetryWorkerHandle&gt;,
-	task_manager: <span class="kw-2">&amp;mut </span>TaskManager,
-	collator_options: CollatorOptions,
-	hwbench: <span class="prelude-ty">Option</span>&lt;sc_sysinfo::HwBench&gt;,
-) -&gt; RelayChainResult&lt;(Arc&lt;(<span class="kw">dyn </span>RelayChainInterface + <span class="lifetime">&#39;static</span>)&gt;, <span class="prelude-ty">Option</span>&lt;CollatorPair&gt;)&gt; {
-	<span class="kw">match </span>collator_options.relay_chain_rpc_url {
-		<span class="prelude-val">Some</span>(relay_chain_url) =&gt;
-			build_minimal_relay_chain_node(polkadot_config, task_manager, relay_chain_url).<span class="kw">await</span>,
-		<span class="prelude-val">None </span>=&gt; build_inprocess_relay_chain(
-			polkadot_config,
-			parachain_config,
-			telemetry_worker_handle,
-			task_manager,
-			hwbench,
-		),
-	}
 }
 
 <span class="doccomment">/// Start a node with the given parachain `Configuration` and relay chain `Configuration`.

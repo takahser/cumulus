@@ -826,13 +826,13 @@
 	<span class="kw">pub async fn </span>import_notification_stream(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 	) -&gt; RelayChainResult&lt;Pin&lt;Box&lt;<span class="kw">dyn </span>Stream&lt;Item = Header&gt; + Send&gt;&gt;&gt; {
-		<span class="prelude-val">Ok</span>(<span class="self">self</span>.rpc_client.get_imported_heads_stream().<span class="kw">await</span><span class="question-mark">?</span>.boxed())
+		<span class="prelude-val">Ok</span>(<span class="self">self</span>.rpc_client.get_imported_heads_stream()<span class="question-mark">?</span>.boxed())
 	}
 
 	<span class="kw">pub async fn </span>finality_notification_stream(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 	) -&gt; RelayChainResult&lt;Pin&lt;Box&lt;<span class="kw">dyn </span>Stream&lt;Item = Header&gt; + Send&gt;&gt;&gt; {
-		<span class="prelude-val">Ok</span>(<span class="self">self</span>.rpc_client.get_finalized_heads_stream().<span class="kw">await</span><span class="question-mark">?</span>.boxed())
+		<span class="prelude-val">Ok</span>(<span class="self">self</span>.rpc_client.get_finalized_heads_stream()<span class="question-mark">?</span>.boxed())
 	}
 }
 

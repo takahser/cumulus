@@ -217,6 +217,39 @@
 <span id="217">217</span>
 <span id="218">218</span>
 <span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2020-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -237,15 +270,19 @@
 //!
 //! Provides functions for starting a collator node or a normal full node.
 
-</span><span class="kw">use </span>cumulus_client_consensus_common::ParachainConsensus;
+</span><span class="kw">use </span>cumulus_client_cli::CollatorOptions;
+<span class="kw">use </span>cumulus_client_consensus_common::ParachainConsensus;
 <span class="kw">use </span>cumulus_primitives_core::{CollectCollationInfo, ParaId};
-<span class="kw">use </span>cumulus_relay_chain_interface::RelayChainInterface;
+<span class="kw">use </span>cumulus_relay_chain_inprocess_interface::build_inprocess_relay_chain;
+<span class="kw">use </span>cumulus_relay_chain_interface::{RelayChainInterface, RelayChainResult};
+<span class="kw">use </span>cumulus_relay_chain_minimal_node::build_minimal_relay_chain_node;
 <span class="kw">use </span>polkadot_primitives::v2::CollatorPair;
 <span class="kw">use </span>sc_client_api::{
 	Backend <span class="kw">as </span>BackendT, BlockBackend, BlockchainEvents, Finalizer, UsageProvider,
 };
 <span class="kw">use </span>sc_consensus::{import_queue::ImportQueueService, BlockImport};
 <span class="kw">use </span>sc_service::{Configuration, TaskManager};
+<span class="kw">use </span>sc_telemetry::TelemetryWorkerHandle;
 <span class="kw">use </span>sp_api::ProvideRuntimeApi;
 <span class="kw">use </span>sp_blockchain::HeaderBackend;
 <span class="kw">use </span>sp_core::traits::SpawnNamed;
@@ -435,6 +472,35 @@
 	parachain_config.announce_block = <span class="bool-val">false</span>;
 
 	parachain_config
+}
+
+<span class="doccomment">/// Build a relay chain interface.
+/// Will return a minimal relay chain node with RPC
+/// client or an inprocess node, based on the [`CollatorOptions`] passed in.
+</span><span class="kw">pub async fn </span>build_relay_chain_interface(
+	polkadot_config: Configuration,
+	parachain_config: <span class="kw-2">&amp;</span>Configuration,
+	telemetry_worker_handle: <span class="prelude-ty">Option</span>&lt;TelemetryWorkerHandle&gt;,
+	task_manager: <span class="kw-2">&amp;mut </span>TaskManager,
+	collator_options: CollatorOptions,
+	hwbench: <span class="prelude-ty">Option</span>&lt;sc_sysinfo::HwBench&gt;,
+) -&gt; RelayChainResult&lt;(Arc&lt;(<span class="kw">dyn </span>RelayChainInterface + <span class="lifetime">&#39;static</span>)&gt;, <span class="prelude-ty">Option</span>&lt;CollatorPair&gt;)&gt; {
+	<span class="kw">if </span>!collator_options.relay_chain_rpc_urls.is_empty() {
+		build_minimal_relay_chain_node(
+			polkadot_config,
+			task_manager,
+			collator_options.relay_chain_rpc_urls,
+		)
+		.<span class="kw">await
+	</span>} <span class="kw">else </span>{
+		build_inprocess_relay_chain(
+			polkadot_config,
+			parachain_config,
+			telemetry_worker_handle,
+			task_manager,
+			hwbench,
+		)
+	}
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cumulus_client_service" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

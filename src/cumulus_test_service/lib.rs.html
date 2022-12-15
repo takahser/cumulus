@@ -823,6 +823,10 @@
 <span id="823">823</span>
 <span id="824">824</span>
 <span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1015,10 +1019,14 @@
 	collator_options: CollatorOptions,
 	task_manager: <span class="kw-2">&amp;mut </span>TaskManager,
 ) -&gt; RelayChainResult&lt;Arc&lt;<span class="kw">dyn </span>RelayChainInterface + <span class="lifetime">&#39;static</span>&gt;&gt; {
-	<span class="kw">if let </span><span class="prelude-val">Some</span>(relay_chain_url) = collator_options.relay_chain_rpc_url {
-		<span class="kw">return </span>build_minimal_relay_chain_node(relay_chain_config, task_manager, relay_chain_url)
-			.<span class="kw">await
-			</span>.map(|r| r.<span class="number">0</span>)
+	<span class="kw">if </span>!collator_options.relay_chain_rpc_urls.is_empty() {
+		<span class="kw">return </span>build_minimal_relay_chain_node(
+			relay_chain_config,
+			task_manager,
+			collator_options.relay_chain_rpc_urls,
+		)
+		.<span class="kw">await
+		</span>.map(|r| r.<span class="number">0</span>)
 	}
 
 	<span class="kw">let </span>relay_chain_full_node = polkadot_test_service::new_full(
@@ -1254,7 +1262,7 @@
 	storage_update_func_parachain: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>Fn()&gt;&gt;,
 	storage_update_func_relay_chain: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>Fn()&gt;&gt;,
 	consensus: Consensus,
-	relay_chain_full_node_url: <span class="prelude-ty">Option</span>&lt;Url&gt;,
+	relay_chain_full_node_url: Vec&lt;Url&gt;,
 }
 
 <span class="kw">impl </span>TestNodeBuilder {
@@ -1276,7 +1284,7 @@
 			storage_update_func_parachain: <span class="prelude-val">None</span>,
 			storage_update_func_relay_chain: <span class="prelude-val">None</span>,
 			consensus: Consensus::RelayChain,
-			relay_chain_full_node_url: <span class="prelude-val">None</span>,
+			relay_chain_full_node_url: <span class="macro">vec!</span>[],
 		}
 	}
 
@@ -1370,7 +1378,7 @@
 
 	<span class="doccomment">/// Connect to full node via RPC.
 	</span><span class="kw">pub fn </span>use_external_relay_chain_node_at_url(<span class="kw-2">mut </span><span class="self">self</span>, network_address: Url) -&gt; <span class="self">Self </span>{
-		<span class="self">self</span>.relay_chain_full_node_url = <span class="prelude-val">Some</span>(network_address);
+		<span class="self">self</span>.relay_chain_full_node_url = <span class="macro">vec!</span>[network_address];
 		<span class="self">self
 	</span>}
 
@@ -1379,7 +1387,7 @@
 		<span class="kw">let </span><span class="kw-2">mut </span>localhost_url =
 			Url::parse(<span class="string">&quot;ws://localhost&quot;</span>).expect(<span class="string">&quot;Should be able to parse localhost Url&quot;</span>);
 		localhost_url.set_port(<span class="prelude-val">Some</span>(port)).expect(<span class="string">&quot;Should be able to set port&quot;</span>);
-		<span class="self">self</span>.relay_chain_full_node_url = <span class="prelude-val">Some</span>(localhost_url);
+		<span class="self">self</span>.relay_chain_full_node_url = <span class="macro">vec!</span>[localhost_url];
 		<span class="self">self
 	</span>}
 
@@ -1405,7 +1413,7 @@
 		);
 
 		<span class="kw">let </span>collator_options =
-			CollatorOptions { relay_chain_rpc_url: <span class="self">self</span>.relay_chain_full_node_url };
+			CollatorOptions { relay_chain_rpc_urls: <span class="self">self</span>.relay_chain_full_node_url };
 
 		relay_chain_config.network.node_name =
 			<span class="macro">format!</span>(<span class="string">&quot;{} (relay chain)&quot;</span>, relay_chain_config.network.node_name);

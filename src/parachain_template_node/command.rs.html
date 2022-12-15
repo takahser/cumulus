@@ -733,7 +733,7 @@
 				<span class="macro">info!</span>(<span class="string">&quot;Parachain genesis state: {}&quot;</span>, genesis_state);
 				<span class="macro">info!</span>(<span class="string">&quot;Is collating: {}&quot;</span>, <span class="kw">if </span>config.role.is_authority() { <span class="string">&quot;yes&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;no&quot; </span>});
 
-				<span class="kw">if </span>collator_options.relay_chain_rpc_url.is_some() &amp;&amp; cli.relay_chain_args.len() &gt; <span class="number">0 </span>{
+				<span class="kw">if </span>!collator_options.relay_chain_rpc_urls.is_empty() &amp;&amp; cli.relay_chain_args.len() &gt; <span class="number">0 </span>{
 					<span class="macro">warn!</span>(<span class="string">&quot;Detected relay chain node arguments together with --relay-chain-rpc-url. This command starts a minimal Polkadot node that only uses a network-related subset of all relay chain CLI options.&quot;</span>);
 				}
 

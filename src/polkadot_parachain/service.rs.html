@@ -1578,29 +1578,6 @@
 <span id="1578">1578</span>
 <span id="1579">1579</span>
 <span id="1580">1580</span>
-<span id="1581">1581</span>
-<span id="1582">1582</span>
-<span id="1583">1583</span>
-<span id="1584">1584</span>
-<span id="1585">1585</span>
-<span id="1586">1586</span>
-<span id="1587">1587</span>
-<span id="1588">1588</span>
-<span id="1589">1589</span>
-<span id="1590">1590</span>
-<span id="1591">1591</span>
-<span id="1592">1592</span>
-<span id="1593">1593</span>
-<span id="1594">1594</span>
-<span id="1595">1595</span>
-<span id="1596">1596</span>
-<span id="1597">1597</span>
-<span id="1598">1598</span>
-<span id="1599">1599</span>
-<span id="1600">1600</span>
-<span id="1601">1601</span>
-<span id="1602">1602</span>
-<span id="1603">1603</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1625,16 +1602,14 @@
 };
 <span class="kw">use </span>cumulus_client_network::BlockAnnounceValidator;
 <span class="kw">use </span>cumulus_client_service::{
-	prepare_node_config, start_collator, start_full_node, StartCollatorParams, StartFullNodeParams,
+	build_relay_chain_interface, prepare_node_config, start_collator, start_full_node,
+	StartCollatorParams, StartFullNodeParams,
 };
 <span class="kw">use </span>cumulus_primitives_core::{
 	relay_chain::v2::{Hash <span class="kw">as </span>PHash, PersistedValidationData},
 	ParaId,
 };
-<span class="kw">use </span>cumulus_relay_chain_inprocess_interface::build_inprocess_relay_chain;
-<span class="kw">use </span>cumulus_relay_chain_interface::{RelayChainError, RelayChainInterface, RelayChainResult};
-<span class="kw">use </span>cumulus_relay_chain_minimal_node::build_minimal_relay_chain_node;
-<span class="kw">use </span>polkadot_service::CollatorPair;
+<span class="kw">use </span>cumulus_relay_chain_interface::{RelayChainError, RelayChainInterface};
 <span class="kw">use </span>sp_core::Pair;
 
 <span class="kw">use </span>jsonrpsee::RpcModule;
@@ -1902,27 +1877,6 @@
 	};
 
 	<span class="prelude-val">Ok</span>(params)
-}
-
-<span class="kw">async fn </span>build_relay_chain_interface(
-	polkadot_config: Configuration,
-	parachain_config: <span class="kw-2">&amp;</span>Configuration,
-	telemetry_worker_handle: <span class="prelude-ty">Option</span>&lt;TelemetryWorkerHandle&gt;,
-	task_manager: <span class="kw-2">&amp;mut </span>TaskManager,
-	collator_options: CollatorOptions,
-	hwbench: <span class="prelude-ty">Option</span>&lt;sc_sysinfo::HwBench&gt;,
-) -&gt; RelayChainResult&lt;(Arc&lt;(<span class="kw">dyn </span>RelayChainInterface + <span class="lifetime">&#39;static</span>)&gt;, <span class="prelude-ty">Option</span>&lt;CollatorPair&gt;)&gt; {
-	<span class="kw">match </span>collator_options.relay_chain_rpc_url {
-		<span class="prelude-val">Some</span>(relay_chain_url) =&gt;
-			build_minimal_relay_chain_node(polkadot_config, task_manager, relay_chain_url).<span class="kw">await</span>,
-		<span class="prelude-val">None </span>=&gt; build_inprocess_relay_chain(
-			polkadot_config,
-			parachain_config,
-			telemetry_worker_handle,
-			task_manager,
-			hwbench,
-		),
-	}
 }
 
 <span class="doccomment">/// Start a shell node with the given parachain `Configuration` and relay chain `Configuration`.
