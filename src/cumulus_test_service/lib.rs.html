@@ -827,6 +827,10 @@
 <span id="827">827</span>
 <span id="828">828</span>
 <span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -946,10 +950,14 @@
 	sc_executor::NativeElseWasmExecutor&lt;RuntimeExecutor&gt;,
 &gt;;
 
+<span class="doccomment">/// The backend type being used by the test service.
+</span><span class="kw">pub type </span>Backend = TFullBackend&lt;Block&gt;;
+
+<span class="doccomment">/// The block-import type being used by the test service.
+</span><span class="kw">pub type </span>ParachainBlockImport = TParachainBlockImport&lt;Block, Arc&lt;Client&gt;, Backend&gt;;
+
 <span class="doccomment">/// Transaction pool type used by the test service
 </span><span class="kw">pub type </span>TransactionPool = Arc&lt;sc_transaction_pool::FullPool&lt;Block, Client&gt;&gt;;
-
-<span class="kw">type </span>ParachainBlockImport = TParachainBlockImport&lt;Arc&lt;Client&gt;&gt;;
 
 <span class="doccomment">/// Starts a `ServiceBuilder` for a full service.
 ///
@@ -960,7 +968,7 @@
 ) -&gt; <span class="prelude-ty">Result</span>&lt;
 	PartialComponents&lt;
 		Client,
-		TFullBackend&lt;Block&gt;,
+		Backend,
 		(),
 		sc_consensus::import_queue::BasicQueue&lt;Block, PrefixedMemoryDB&lt;BlakeTwo256&gt;&gt;,
 		sc_transaction_pool::FullPool&lt;Block, Client&gt;,
@@ -979,7 +987,7 @@
 		sc_service::new_full_parts::&lt;Block, RuntimeApi, <span class="kw">_</span>&gt;(config, <span class="prelude-val">None</span>, executor)<span class="question-mark">?</span>;
 	<span class="kw">let </span>client = Arc::new(client);
 
-	<span class="kw">let </span>block_import = ParachainBlockImport::new(client.clone());
+	<span class="kw">let </span>block_import = ParachainBlockImport::new(client.clone(), backend.clone());
 
 	<span class="kw">let </span>registry = config.prometheus_registry();
 
@@ -1128,7 +1136,7 @@
 		task_manager: <span class="kw-2">&amp;mut </span>task_manager,
 		config: parachain_config,
 		keystore: params.keystore_container.sync_keystore(),
-		backend,
+		backend: backend.clone(),
 		network: network.clone(),
 		system_rpc_tx,
 		tx_handler_controller,

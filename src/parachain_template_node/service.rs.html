@@ -413,6 +413,7 @@
 <span id="413">413</span>
 <span id="414">414</span>
 <span id="415">415</span>
+<span id="416">416</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Service and ServiceFactory implementation. Specialized wrapper over substrate service.
 
 </span><span class="comment">// std
@@ -466,7 +467,7 @@
 
 <span class="kw">type </span>ParachainBackend = TFullBackend&lt;Block&gt;;
 
-<span class="kw">type </span>ParachainBlockImport = TParachainBlockImport&lt;Arc&lt;ParachainClient&gt;&gt;;
+<span class="kw">type </span>ParachainBlockImport = TParachainBlockImport&lt;Block, Arc&lt;ParachainClient&gt;, ParachainBackend&gt;;
 
 <span class="doccomment">/// Starts a `ServiceBuilder` for a full service.
 ///
@@ -526,7 +527,7 @@
 		client.clone(),
 	);
 
-	<span class="kw">let </span>block_import = ParachainBlockImport::new(client.clone());
+	<span class="kw">let </span>block_import = ParachainBlockImport::new(client.clone(), backend.clone());
 
 	<span class="kw">let </span>import_queue = build_import_queue(
 		client.clone(),
@@ -556,7 +557,7 @@
 	parachain_config: Configuration,
 	polkadot_config: Configuration,
 	collator_options: CollatorOptions,
-	id: ParaId,
+	para_id: ParaId,
 	hwbench: <span class="prelude-ty">Option</span>&lt;sc_sysinfo::HwBench&gt;,
 ) -&gt; sc_service::error::Result&lt;(TaskManager, Arc&lt;ParachainClient&gt;)&gt; {
 	<span class="kw">let </span>parachain_config = prepare_node_config(parachain_config);
@@ -582,7 +583,8 @@
 		s =&gt; s.to_string().into(),
 	})<span class="question-mark">?</span>;
 
-	<span class="kw">let </span>block_announce_validator = BlockAnnounceValidator::new(relay_chain_interface.clone(), id);
+	<span class="kw">let </span>block_announce_validator =
+		BlockAnnounceValidator::new(relay_chain_interface.clone(), para_id);
 
 	<span class="kw">let </span>force_authoring = parachain_config.force_authoring;
 	<span class="kw">let </span>validator = parachain_config.role.is_authority();
@@ -634,7 +636,7 @@
 		task_manager: <span class="kw-2">&amp;mut </span>task_manager,
 		config: parachain_config,
 		keystore: params.keystore_container.sync_keystore(),
-		backend: backend.clone(),
+		backend,
 		network: network.clone(),
 		system_rpc_tx,
 		tx_handler_controller,
@@ -673,12 +675,12 @@
 			network,
 			params.keystore_container.sync_keystore(),
 			force_authoring,
-			id,
+			para_id,
 		)<span class="question-mark">?</span>;
 
 		<span class="kw">let </span>spawner = task_manager.spawn_handle();
 		<span class="kw">let </span>params = StartCollatorParams {
-			para_id: id,
+			para_id,
 			block_status: client.clone(),
 			announce_block,
 			client: client.clone(),
@@ -697,7 +699,7 @@
 			client: client.clone(),
 			announce_block,
 			task_manager: <span class="kw-2">&amp;mut </span>task_manager,
-			para_id: id,
+			para_id,
 			relay_chain_interface,
 			relay_chain_slot_duration,
 			import_queue: import_queue_service,
@@ -760,7 +762,7 @@
 	sync_oracle: Arc&lt;NetworkService&lt;Block, Hash&gt;&gt;,
 	keystore: SyncCryptoStorePtr,
 	force_authoring: bool,
-	id: ParaId,
+	para_id: ParaId,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>ParachainConsensus&lt;Block&gt;&gt;, sc_service::Error&gt; {
 	<span class="kw">let </span>slot_duration = cumulus_client_consensus_aura::slot_duration(<span class="kw-2">&amp;*</span>client)<span class="question-mark">?</span>;
 
@@ -782,7 +784,7 @@
 						relay_parent,
 						<span class="kw-2">&amp;</span>relay_chain_interface,
 						<span class="kw-2">&amp;</span>validation_data,
-						id,
+						para_id,
 					)
 					.<span class="kw">await</span>;
 				<span class="kw">let </span>timestamp = sp_timestamp::InherentDataProvider::from_system_time();
@@ -823,10 +825,10 @@
 	parachain_config: Configuration,
 	polkadot_config: Configuration,
 	collator_options: CollatorOptions,
-	id: ParaId,
+	para_id: ParaId,
 	hwbench: <span class="prelude-ty">Option</span>&lt;sc_sysinfo::HwBench&gt;,
 ) -&gt; sc_service::error::Result&lt;(TaskManager, Arc&lt;ParachainClient&gt;)&gt; {
-	start_node_impl(parachain_config, polkadot_config, collator_options, id, hwbench).<span class="kw">await
+	start_node_impl(parachain_config, polkadot_config, collator_options, para_id, hwbench).<span class="kw">await
 </span>}
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="parachain_template_node" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

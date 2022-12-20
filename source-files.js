@@ -7,7 +7,7 @@ var sourcesIndex = JSON.parse('{\
 "cumulus_client_cli":["",[],["lib.rs"]],\
 "cumulus_client_collator":["",[],["lib.rs"]],\
 "cumulus_client_consensus_aura":["",[],["import_queue.rs","lib.rs"]],\
-"cumulus_client_consensus_common":["",[],["lib.rs","parachain_consensus.rs"]],\
+"cumulus_client_consensus_common":["",[],["level_monitor.rs","lib.rs","parachain_consensus.rs"]],\
 "cumulus_client_consensus_relay_chain":["",[],["import_queue.rs","lib.rs"]],\
 "cumulus_client_network":["",[],["lib.rs"]],\
 "cumulus_client_pov_recovery":["",[],["active_candidate_recovery.rs","lib.rs"]],\

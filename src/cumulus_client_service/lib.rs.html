@@ -250,6 +250,20 @@
 <span id="250">250</span>
 <span id="251">251</span>
 <span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2020-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -272,11 +286,13 @@
 
 </span><span class="kw">use </span>cumulus_client_cli::CollatorOptions;
 <span class="kw">use </span>cumulus_client_consensus_common::ParachainConsensus;
+<span class="kw">use </span>cumulus_client_pov_recovery::{PoVRecovery, RecoveryDelay};
 <span class="kw">use </span>cumulus_primitives_core::{CollectCollationInfo, ParaId};
 <span class="kw">use </span>cumulus_relay_chain_inprocess_interface::build_inprocess_relay_chain;
 <span class="kw">use </span>cumulus_relay_chain_interface::{RelayChainInterface, RelayChainResult};
 <span class="kw">use </span>cumulus_relay_chain_minimal_node::build_minimal_relay_chain_node;
 <span class="kw">use </span>polkadot_primitives::v2::CollatorPair;
+
 <span class="kw">use </span>sc_client_api::{
 	Backend <span class="kw">as </span>BackendT, BlockBackend, BlockchainEvents, Finalizer, UsageProvider,
 };
@@ -287,7 +303,14 @@
 <span class="kw">use </span>sp_blockchain::HeaderBackend;
 <span class="kw">use </span>sp_core::traits::SpawnNamed;
 <span class="kw">use </span>sp_runtime::traits::Block <span class="kw">as </span>BlockT;
+
+<span class="kw">use </span>futures::channel::mpsc;
 <span class="kw">use </span>std::{sync::Arc, time::Duration};
+
+<span class="comment">// Given the sporadic nature of the explicit recovery operation and the
+// possibility to retry infinite times this value is more than enough.
+// In practice here we expect no more than one queued messages.
+</span><span class="kw">const </span>RECOVERY_CHAN_SIZE: usize = <span class="number">8</span>;
 
 <span class="doccomment">/// Parameters given to [`start_collator`].
 </span><span class="kw">pub struct </span>StartCollatorParams&lt;<span class="lifetime">&#39;a</span>, Block: BlockT, BS, Client, RCInterface, Spawner&gt; {
@@ -342,11 +365,14 @@
 	RCInterface: RelayChainInterface + Clone + <span class="lifetime">&#39;static</span>,
 	Backend: BackendT&lt;Block&gt; + <span class="lifetime">&#39;static</span>,
 {
+	<span class="kw">let </span>(recovery_chan_tx, recovery_chan_rx) = mpsc::channel(RECOVERY_CHAN_SIZE);
+
 	<span class="kw">let </span>consensus = cumulus_client_consensus_common::run_parachain_consensus(
 		para_id,
 		client.clone(),
 		relay_chain_interface.clone(),
 		announce_block.clone(),
+		<span class="prelude-val">Some</span>(recovery_chan_tx),
 	);
 
 	task_manager
@@ -357,15 +383,16 @@
 		.overseer_handle()
 		.map_err(|e| sc_service::Error::Application(Box::new(e)))<span class="question-mark">?</span>;
 
-	<span class="kw">let </span>pov_recovery = cumulus_client_pov_recovery::PoVRecovery::new(
+	<span class="kw">let </span>pov_recovery = PoVRecovery::new(
 		overseer_handle.clone(),
 		<span class="comment">// We want that collators wait at maximum the relay chain slot duration before starting
 		// to recover blocks.
-		</span>cumulus_client_pov_recovery::RecoveryDelay::WithMax { max: relay_chain_slot_duration },
+		</span>RecoveryDelay { min: core::time::Duration::ZERO, max: relay_chain_slot_duration },
 		client.clone(),
 		import_queue,
 		relay_chain_interface.clone(),
 		para_id,
+		recovery_chan_rx,
 	);
 
 	task_manager
@@ -425,11 +452,14 @@
 	Backend: BackendT&lt;Block&gt; + <span class="lifetime">&#39;static</span>,
 	RCInterface: RelayChainInterface + Clone + <span class="lifetime">&#39;static</span>,
 {
+	<span class="kw">let </span>(recovery_chan_tx, recovery_chan_rx) = mpsc::channel(RECOVERY_CHAN_SIZE);
+
 	<span class="kw">let </span>consensus = cumulus_client_consensus_common::run_parachain_consensus(
 		para_id,
 		client.clone(),
 		relay_chain_interface.clone(),
 		announce_block,
+		<span class="prelude-val">Some</span>(recovery_chan_tx),
 	);
 
 	task_manager
@@ -440,21 +470,19 @@
 		.overseer_handle()
 		.map_err(|e| sc_service::Error::Application(Box::new(e)))<span class="question-mark">?</span>;
 
-	<span class="kw">let </span>pov_recovery = cumulus_client_pov_recovery::PoVRecovery::new(
+	<span class="kw">let </span>pov_recovery = PoVRecovery::new(
 		overseer_handle,
 		<span class="comment">// Full nodes should at least wait 2.5 minutes (assuming 6 seconds slot duration) and
 		// in maximum 5 minutes before starting to recover blocks. Collators should already start
 		// the recovery way before full nodes try to recover a certain block and then share the
 		// block with the network using &quot;the normal way&quot;. Full nodes are just the &quot;last resort&quot;
 		// for block recovery.
-		</span>cumulus_client_pov_recovery::RecoveryDelay::WithMinAndMax {
-			min: relay_chain_slot_duration * <span class="number">25</span>,
-			max: relay_chain_slot_duration * <span class="number">50</span>,
-		},
+		</span>RecoveryDelay { min: relay_chain_slot_duration * <span class="number">25</span>, max: relay_chain_slot_duration * <span class="number">50 </span>},
 		client,
 		import_queue,
 		relay_chain_interface,
 		para_id,
+		recovery_chan_rx,
 	);
 
 	task_manager
