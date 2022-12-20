@@ -814,6 +814,7 @@
 <span id="814">814</span>
 <span id="815">815</span>
 <span id="816">816</span>
+<span id="817">817</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2020-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -972,7 +973,8 @@
 		///
 		/// Events:
 		/// - `OverweightServiced`: On success.
-		</span><span class="attribute">#[pallet::weight(Weight::from_ref_time(weight_limit.saturating_add(<span class="number">1_000_000</span>)))]
+		</span><span class="attribute">#[pallet::call_index(<span class="number">0</span>)]
+		#[pallet::weight(Weight::from_ref_time(weight_limit.saturating_add(<span class="number">1_000_000</span>)))]
 		</span><span class="kw">pub fn </span>service_overweight(
 			origin: OriginFor&lt;T&gt;,
 			index: OverweightIndex,
