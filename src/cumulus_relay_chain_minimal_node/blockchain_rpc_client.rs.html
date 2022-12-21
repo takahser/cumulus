@@ -438,18 +438,6 @@
 <span id="438">438</span>
 <span id="439">439</span>
 <span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -471,7 +459,7 @@
 <span class="kw">use </span>cumulus_relay_chain_interface::{RelayChainError, RelayChainResult};
 <span class="kw">use </span>cumulus_relay_chain_rpc_interface::RelayChainRpcClient;
 <span class="kw">use </span>futures::{Future, Stream, StreamExt};
-<span class="kw">use </span>polkadot_core_primitives::{Block, BlockId, Hash, Header};
+<span class="kw">use </span>polkadot_core_primitives::{Block, Hash, Header};
 <span class="kw">use </span>polkadot_overseer::RuntimeApiSubsystemClient;
 <span class="kw">use </span>polkadot_service::{AuxStore, HeaderBackend};
 <span class="kw">use </span>sc_authority_discovery::AuthorityDiscovery;
@@ -863,21 +851,9 @@
 
 	<span class="kw">fn </span>status(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
-		id: sp_api::BlockId&lt;Block&gt;,
+		hash: &lt;Block <span class="kw">as </span>polkadot_service::BlockT&gt;::Hash,
 	) -&gt; sp_blockchain::Result&lt;sp_blockchain::BlockStatus&gt; {
-		<span class="kw">let </span>exists = <span class="kw">match </span>id {
-			BlockId::Hash(hash) =&gt; <span class="self">self</span>.header(hash)<span class="question-mark">?</span>.is_some(),
-			BlockId::Number(n) =&gt; {
-				<span class="kw">let </span>best_header = block_local(<span class="self">self</span>.rpc_client.chain_get_header(<span class="prelude-val">None</span>))<span class="question-mark">?</span>;
-				<span class="kw">if let </span><span class="prelude-val">Some</span>(best) = best_header {
-					n &lt; best.number
-				} <span class="kw">else </span>{
-					<span class="bool-val">false
-				</span>}
-			},
-		};
-
-		<span class="kw">if </span>exists {
+		<span class="kw">if </span><span class="self">self</span>.header(hash)<span class="question-mark">?</span>.is_some() {
 			<span class="prelude-val">Ok</span>(sc_client_api::blockchain::BlockStatus::InChain)
 		} <span class="kw">else </span>{
 			<span class="prelude-val">Ok</span>(sc_client_api::blockchain::BlockStatus::Unknown)
