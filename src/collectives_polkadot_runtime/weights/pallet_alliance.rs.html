@@ -310,19 +310,6 @@
 <span id="310">310</span>
 <span id="311">311</span>
 <span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -401,19 +388,6 @@
 			</span>.saturating_add(Weight::from_ref_time(<span class="number">43_152 </span><span class="kw">as </span>u64).saturating_mul(m <span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().reads(<span class="number">2 </span><span class="kw">as </span>u64))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">1 </span><span class="kw">as </span>u64))
-	}
-	<span class="comment">// Storage: Alliance Members (r:1 w:0)
-	// Storage: AllianceMotion ProposalOf (r:1 w:1)
-	// Storage: AllianceMotion Proposals (r:1 w:1)
-	// Storage: AllianceMotion Voting (r:0 w:1)
-	</span><span class="doccomment">/// The range of component `p` is `[1, 100]`.
-	</span><span class="kw">fn </span>veto(p: u32, ) -&gt; Weight {
-		<span class="comment">// Minimum execution time: 23_000 nanoseconds.
-		</span>Weight::from_ref_time(<span class="number">26_045_752 </span><span class="kw">as </span>u64)
-			<span class="comment">// Standard Error: 2_154
-			</span>.saturating_add(Weight::from_ref_time(<span class="number">61_220 </span><span class="kw">as </span>u64).saturating_mul(p <span class="kw">as </span>u64))
-			.saturating_add(T::DbWeight::get().reads(<span class="number">3 </span><span class="kw">as </span>u64))
-			.saturating_add(T::DbWeight::get().writes(<span class="number">3 </span><span class="kw">as </span>u64))
 	}
 	<span class="comment">// Storage: Alliance Members (r:1 w:0)
 	// Storage: AllianceMotion Voting (r:1 w:1)
