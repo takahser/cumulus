@@ -584,7 +584,7 @@
 	///
 	/// Returns `true` if the block could be found and is good to be build on.
 	</span><span class="kw">fn </span>check_block_status(<span class="kw-2">&amp;</span><span class="self">self</span>, hash: Block::Hash, header: <span class="kw-2">&amp;</span>Block::Header) -&gt; bool {
-		<span class="kw">match </span><span class="self">self</span>.block_status.block_status(<span class="kw-2">&amp;</span>BlockId::Hash(hash)) {
+		<span class="kw">match </span><span class="self">self</span>.block_status.block_status(hash) {
 			<span class="prelude-val">Ok</span>(BlockStatus::Queued) =&gt; {
 				<span class="macro">tracing::debug!</span>(
 					target: LOG_TARGET,
