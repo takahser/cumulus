@@ -1054,11 +1054,6 @@
 <span id="1054">1054</span>
 <span id="1055">1055</span>
 <span id="1056">1056</span>
-<span id="1057">1057</span>
-<span id="1058">1058</span>
-<span id="1059">1059</span>
-<span id="1060">1060</span>
-<span id="1061">1061</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2021-2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -1714,11 +1709,6 @@
 <span class="doccomment">/// Extrinsic type that has already been checked.
 </span><span class="kw">pub type </span>CheckedExtrinsic = generic::CheckedExtrinsic&lt;AccountId, RuntimeCall, SignedExtra&gt;;
 
-<span class="kw">pub type </span>Migrations = (
-	pallet_balances::migration::MigrateToTrackInactive&lt;Runtime, xcm_config::CheckingAccount&gt;,
-	pallet_assets::migration::v1::MigrateToV1&lt;Runtime&gt;,
-);
-
 <span class="doccomment">/// Executive: handles dispatch to the various modules.
 </span><span class="kw">pub type </span>Executive = frame_executive::Executive&lt;
 	Runtime,
@@ -1726,7 +1716,7 @@
 	frame_system::ChainContext&lt;Runtime&gt;,
 	Runtime,
 	AllPalletsWithSystem,
-	Migrations,
+	pallet_balances::migration::MigrateToTrackInactive&lt;Runtime, xcm_config::CheckingAccount&gt;,
 &gt;;
 
 <span class="attribute">#[cfg(feature = <span class="string">&quot;runtime-benchmarks&quot;</span>)]
