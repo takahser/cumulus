@@ -435,34 +435,6 @@
 <span id="435">435</span>
 <span id="436">436</span>
 <span id="437">437</span>
-<span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -479,8 +451,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Cumulus.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span>async_trait::async_trait;
-<span class="kw">use </span>sc_client_api::{
+</span><span class="kw">use </span>sc_client_api::{
 	Backend, BlockBackend, BlockImportNotification, BlockchainEvents, Finalizer, UsageProvider,
 };
 <span class="kw">use </span>sc_consensus::{BlockImport, BlockImportParams, ForkChoiceStrategy};
@@ -494,9 +465,9 @@
 <span class="kw">use </span>polkadot_primitives::v2::{Hash <span class="kw">as </span>PHash, Id <span class="kw">as </span>ParaId, OccupiedCoreAssumption};
 
 <span class="kw">use </span>codec::Decode;
-<span class="kw">use </span>futures::{channel::mpsc::Sender, select, FutureExt, Stream, StreamExt};
+<span class="kw">use </span>futures::{channel::mpsc::Sender, pin_mut, select, FutureExt, Stream, StreamExt};
 
-<span class="kw">use </span>std::{pin::Pin, sync::Arc, time::Duration};
+<span class="kw">use </span>std::{sync::Arc, time::Duration};
 
 <span class="kw">const </span>LOG_TARGET: <span class="kw-2">&amp;</span>str = <span class="string">&quot;cumulus-consensus&quot;</span>;
 
@@ -507,29 +478,6 @@
 </span><span class="kw">const </span>RECOVERY_DELAY: RecoveryDelay =
 	RecoveryDelay { min: Duration::ZERO, max: Duration::from_secs(<span class="number">30</span>) };
 
-<span class="doccomment">/// Helper for the relay chain client. This is expected to be a lightweight handle like an `Arc`.
-</span><span class="attribute">#[async_trait]
-</span><span class="kw">pub trait </span>RelaychainClient: Clone + <span class="lifetime">&#39;static </span>{
-	<span class="doccomment">/// The error type for interacting with the Polkadot client.
-	</span><span class="kw">type </span>Error: std::fmt::Debug + Send;
-
-	<span class="doccomment">/// A stream that yields head-data for a parachain.
-	</span><span class="kw">type </span>HeadStream: Stream&lt;Item = Vec&lt;u8&gt;&gt; + Send + Unpin;
-
-	<span class="doccomment">/// Get a stream of new best heads for the given parachain.
-	</span><span class="kw">async fn </span>new_best_heads(<span class="kw-2">&amp;</span><span class="self">self</span>, para_id: ParaId) -&gt; RelayChainResult&lt;<span class="self">Self</span>::HeadStream&gt;;
-
-	<span class="doccomment">/// Get a stream of finalized heads for the given parachain.
-	</span><span class="kw">async fn </span>finalized_heads(<span class="kw-2">&amp;</span><span class="self">self</span>, para_id: ParaId) -&gt; RelayChainResult&lt;<span class="self">Self</span>::HeadStream&gt;;
-
-	<span class="doccomment">/// Returns the parachain head for the given `para_id` at the given block id.
-	</span><span class="kw">async fn </span>parachain_head_at(
-		<span class="kw-2">&amp;</span><span class="self">self</span>,
-		at: PHash,
-		para_id: ParaId,
-	) -&gt; RelayChainResult&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;&gt;;
-}
-
 <span class="doccomment">/// Follow the finalized head of the given parachain.
 ///
 /// For every finalized block of the relay chain, it will get the included parachain header
@@ -538,16 +486,18 @@
 <span class="kw">where
 	</span>Block: BlockT,
 	P: Finalizer&lt;Block, B&gt; + UsageProvider&lt;Block&gt;,
-	R: RelaychainClient,
+	R: RelayChainInterface + Clone,
 	B: Backend&lt;Block&gt;,
 {
-	<span class="kw">let </span><span class="kw-2">mut </span>finalized_heads = <span class="kw">match </span>relay_chain.finalized_heads(para_id).<span class="kw">await </span>{
+	<span class="kw">let </span>finalized_heads = <span class="kw">match </span>finalized_heads(relay_chain, para_id).<span class="kw">await </span>{
 		<span class="prelude-val">Ok</span>(finalized_heads_stream) =&gt; finalized_heads_stream,
 		<span class="prelude-val">Err</span>(err) =&gt; {
 			<span class="macro">tracing::error!</span>(target: LOG_TARGET, error = <span class="question-mark">?</span>err, <span class="string">&quot;Unable to retrieve finalized heads stream.&quot;</span>);
 			<span class="kw">return
 		</span>},
 	};
+
+	<span class="macro">pin_mut!</span>(finalized_heads);
 
 	<span class="kw">loop </span>{
 		<span class="kw">let </span>finalized_head = <span class="kw">if let </span><span class="prelude-val">Some</span>(h) = finalized_heads.next().<span class="kw">await </span>{
@@ -617,7 +567,7 @@
 		+ BlockBackend&lt;Block&gt;
 		+ BlockchainEvents&lt;Block&gt;,
 	<span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>P: BlockImport&lt;Block&gt;,
-	R: RelaychainClient,
+	R: RelayChainInterface + Clone,
 	B: Backend&lt;Block&gt;,
 {
 	<span class="kw">let </span>follow_new_best = follow_new_best(
@@ -640,7 +590,7 @@
 	parachain: Arc&lt;P&gt;,
 	relay_chain: R,
 	announce_block: Arc&lt;<span class="kw">dyn </span>Fn(Block::Hash, <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;) + Send + Sync&gt;,
-	recovery_chan_tx: <span class="prelude-ty">Option</span>&lt;Sender&lt;RecoveryRequest&lt;Block&gt;&gt;&gt;,
+	<span class="kw-2">mut </span>recovery_chan_tx: <span class="prelude-ty">Option</span>&lt;Sender&lt;RecoveryRequest&lt;Block&gt;&gt;&gt;,
 ) <span class="kw">where
 	</span>Block: BlockT,
 	P: Finalizer&lt;Block, B&gt;
@@ -650,10 +600,10 @@
 		+ BlockBackend&lt;Block&gt;
 		+ BlockchainEvents&lt;Block&gt;,
 	<span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>P: BlockImport&lt;Block&gt;,
-	R: RelaychainClient,
+	R: RelayChainInterface + Clone,
 	B: Backend&lt;Block&gt;,
 {
-	<span class="kw">let </span><span class="kw-2">mut </span>new_best_heads = <span class="kw">match </span>relay_chain.new_best_heads(para_id).<span class="kw">await </span>{
+	<span class="kw">let </span>new_best_heads = <span class="kw">match </span>new_best_heads(relay_chain, para_id).<span class="kw">await </span>{
 		<span class="prelude-val">Ok</span>(best_heads_stream) =&gt; best_heads_stream.fuse(),
 		<span class="prelude-val">Err</span>(err) =&gt; {
 			<span class="macro">tracing::error!</span>(target: LOG_TARGET, error = <span class="question-mark">?</span>err, <span class="string">&quot;Unable to retrieve best heads stream.&quot;</span>);
@@ -661,9 +611,11 @@
 		</span>},
 	};
 
+	<span class="macro">pin_mut!</span>(new_best_heads);
+
 	<span class="kw">let </span><span class="kw-2">mut </span>imported_blocks = parachain.import_notification_stream().fuse();
 	<span class="comment">// The unset best header of the parachain. Will be `Some(_)` when we have imported a relay chain
-	// block before the parachain block it included. In this case we need to wait for this block to
+	// block before the associated parachain block. In this case we need to wait for this block to
 	// be imported to set it as new best.
 	</span><span class="kw">let </span><span class="kw-2">mut </span>unset_best_header = <span class="prelude-val">None</span>;
 
@@ -675,7 +627,7 @@
 						h,
 						<span class="kw-2">&amp;*</span>parachain,
 						<span class="kw-2">&amp;mut </span>unset_best_header,
-						recovery_chan_tx.clone(),
+						recovery_chan_tx.as_mut(),
 					).<span class="kw">await</span>,
 					<span class="prelude-val">None </span>=&gt; {
 						<span class="macro">tracing::debug!</span>(
@@ -769,7 +721,7 @@
 	head: Vec&lt;u8&gt;,
 	parachain: <span class="kw-2">&amp;</span>P,
 	unset_best_header: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;Block::Header&gt;,
-	<span class="kw-2">mut </span>recovery_chan_tx: <span class="prelude-ty">Option</span>&lt;Sender&lt;RecoveryRequest&lt;Block&gt;&gt;&gt;,
+	<span class="kw-2">mut </span>recovery_chan_tx: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Sender&lt;RecoveryRequest&lt;Block&gt;&gt;&gt;,
 ) <span class="kw">where
 	</span>Block: BlockT,
 	P: UsageProvider&lt;Block&gt; + Send + Sync + BlockBackend&lt;Block&gt;,
@@ -881,52 +833,44 @@
 	}
 }
 
-<span class="attribute">#[async_trait]
-</span><span class="kw">impl</span>&lt;RCInterface&gt; RelaychainClient <span class="kw">for </span>RCInterface
-<span class="kw">where
-	</span>RCInterface: RelayChainInterface + Clone + <span class="lifetime">&#39;static</span>,
-{
-	<span class="kw">type </span>Error = ClientError;
+<span class="doccomment">/// Returns a stream that will yield best heads for the given `para_id`.
+</span><span class="kw">async fn </span>new_best_heads(
+	relay_chain: <span class="kw">impl </span>RelayChainInterface + Clone,
+	para_id: ParaId,
+) -&gt; RelayChainResult&lt;<span class="kw">impl </span>Stream&lt;Item = Vec&lt;u8&gt;&gt;&gt; {
+	<span class="kw">let </span>new_best_notification_stream =
+		relay_chain.new_best_notification_stream().<span class="kw">await</span><span class="question-mark">?</span>.filter_map(<span class="kw">move </span>|n| {
+			<span class="kw">let </span>relay_chain = relay_chain.clone();
+			<span class="kw">async move </span>{ parachain_head_at(<span class="kw-2">&amp;</span>relay_chain, n.hash(), para_id).<span class="kw">await</span>.ok().flatten() }
+		});
 
-	<span class="kw">type </span>HeadStream = Pin&lt;Box&lt;<span class="kw">dyn </span>Stream&lt;Item = Vec&lt;u8&gt;&gt; + Send&gt;&gt;;
+	<span class="prelude-val">Ok</span>(new_best_notification_stream)
+}
 
-	<span class="kw">async fn </span>new_best_heads(<span class="kw-2">&amp;</span><span class="self">self</span>, para_id: ParaId) -&gt; RelayChainResult&lt;<span class="self">Self</span>::HeadStream&gt; {
-		<span class="kw">let </span>relay_chain = <span class="self">self</span>.clone();
+<span class="doccomment">/// Returns a stream that will yield finalized heads for the given `para_id`.
+</span><span class="kw">async fn </span>finalized_heads(
+	relay_chain: <span class="kw">impl </span>RelayChainInterface + Clone,
+	para_id: ParaId,
+) -&gt; RelayChainResult&lt;<span class="kw">impl </span>Stream&lt;Item = Vec&lt;u8&gt;&gt;&gt; {
+	<span class="kw">let </span>finality_notification_stream =
+		relay_chain.finality_notification_stream().<span class="kw">await</span><span class="question-mark">?</span>.filter_map(<span class="kw">move </span>|n| {
+			<span class="kw">let </span>relay_chain = relay_chain.clone();
+			<span class="kw">async move </span>{ parachain_head_at(<span class="kw-2">&amp;</span>relay_chain, n.hash(), para_id).<span class="kw">await</span>.ok().flatten() }
+		});
 
-		<span class="kw">let </span>new_best_notification_stream = <span class="self">self
-			</span>.new_best_notification_stream()
-			.<span class="kw">await</span><span class="question-mark">?
-			</span>.filter_map(<span class="kw">move </span>|n| {
-				<span class="kw">let </span>relay_chain = relay_chain.clone();
-				<span class="kw">async move </span>{ relay_chain.parachain_head_at(n.hash(), para_id).<span class="kw">await</span>.ok().flatten() }
-			})
-			.boxed();
-		<span class="prelude-val">Ok</span>(new_best_notification_stream)
-	}
+	<span class="prelude-val">Ok</span>(finality_notification_stream)
+}
 
-	<span class="kw">async fn </span>finalized_heads(<span class="kw-2">&amp;</span><span class="self">self</span>, para_id: ParaId) -&gt; RelayChainResult&lt;<span class="self">Self</span>::HeadStream&gt; {
-		<span class="kw">let </span>relay_chain = <span class="self">self</span>.clone();
-
-		<span class="kw">let </span>finality_notification_stream = <span class="self">self
-			</span>.finality_notification_stream()
-			.<span class="kw">await</span><span class="question-mark">?
-			</span>.filter_map(<span class="kw">move </span>|n| {
-				<span class="kw">let </span>relay_chain = relay_chain.clone();
-				<span class="kw">async move </span>{ relay_chain.parachain_head_at(n.hash(), para_id).<span class="kw">await</span>.ok().flatten() }
-			})
-			.boxed();
-		<span class="prelude-val">Ok</span>(finality_notification_stream)
-	}
-
-	<span class="kw">async fn </span>parachain_head_at(
-		<span class="kw-2">&amp;</span><span class="self">self</span>,
-		at: PHash,
-		para_id: ParaId,
-	) -&gt; RelayChainResult&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;&gt; {
-		<span class="self">self</span>.persisted_validation_data(at, para_id, OccupiedCoreAssumption::TimedOut)
-			.<span class="kw">await
-			</span>.map(|s| s.map(|s| s.parent_head.<span class="number">0</span>))
-	}
+<span class="doccomment">/// Returns head of the parachain at the given relay chain block.
+</span><span class="kw">async fn </span>parachain_head_at(
+	relay_chain: <span class="kw-2">&amp;</span><span class="kw">impl </span>RelayChainInterface,
+	at: PHash,
+	para_id: ParaId,
+) -&gt; RelayChainResult&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;&gt; {
+	relay_chain
+		.persisted_validation_data(at, para_id, OccupiedCoreAssumption::TimedOut)
+		.<span class="kw">await
+		</span>.map(|s| s.map(|s| s.parent_head.<span class="number">0</span>))
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cumulus_client_consensus_common" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
