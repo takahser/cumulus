@@ -1099,36 +1099,6 @@
 <span id="1099">1099</span>
 <span id="1100">1100</span>
 <span id="1101">1101</span>
-<span id="1102">1102</span>
-<span id="1103">1103</span>
-<span id="1104">1104</span>
-<span id="1105">1105</span>
-<span id="1106">1106</span>
-<span id="1107">1107</span>
-<span id="1108">1108</span>
-<span id="1109">1109</span>
-<span id="1110">1110</span>
-<span id="1111">1111</span>
-<span id="1112">1112</span>
-<span id="1113">1113</span>
-<span id="1114">1114</span>
-<span id="1115">1115</span>
-<span id="1116">1116</span>
-<span id="1117">1117</span>
-<span id="1118">1118</span>
-<span id="1119">1119</span>
-<span id="1120">1120</span>
-<span id="1121">1121</span>
-<span id="1122">1122</span>
-<span id="1123">1123</span>
-<span id="1124">1124</span>
-<span id="1125">1125</span>
-<span id="1126">1126</span>
-<span id="1127">1127</span>
-<span id="1128">1128</span>
-<span id="1129">1129</span>
-<span id="1130">1130</span>
-<span id="1131">1131</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2020 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1485,8 +1455,6 @@
 				downward_messages,
 				horizontal_messages,
 			} = data;
-
-			<span class="self">Self</span>::validate_validation_data(<span class="kw-2">&amp;</span>vfp);
 
 			<span class="comment">// Check that the associated relay chain block number is as expected.
 			</span>T::CheckAssociatedRelayNumber::check_associated_relay_number(
@@ -1900,34 +1868,6 @@
 }
 
 <span class="kw">impl</span>&lt;T: Config&gt; Pallet&lt;T&gt; {
-	<span class="doccomment">/// Validate the given [`PersistedValidationData`] against the
-	/// [`ValidationParams`](polkadot_parachain::primitives::ValidationParams).
-	///
-	/// This check will only be executed when the block is currently being executed in the context
-	/// of [`validate_block`]. If this is being executed in the context of block building or block
-	/// import, this is a no-op.
-	///
-	/// # Panics
-	///
-	/// Panics while validating the `PoV` on the relay chain if the [`PersistedValidationData`]
-	/// passed by the block author was incorrect.
-	</span><span class="kw">fn </span>validate_validation_data(validation_data: <span class="kw-2">&amp;</span>PersistedValidationData) {
-		validate_block::with_validation_params(|params| {
-			<span class="macro">assert_eq!</span>(
-				params.parent_head, validation_data.parent_head,
-				<span class="string">&quot;Parent head doesn&#39;t match&quot;
-			</span>);
-			<span class="macro">assert_eq!</span>(
-				params.relay_parent_number, validation_data.relay_parent_number,
-				<span class="string">&quot;Relay parent number doesn&#39;t match&quot;</span>,
-			);
-			<span class="macro">assert_eq!</span>(
-				params.relay_parent_storage_root, validation_data.relay_parent_storage_root,
-				<span class="string">&quot;Relay parent storage root doesn&#39;t match&quot;</span>,
-			);
-		});
-	}
-
 	<span class="doccomment">/// Process all inbound downward messages relayed by the collator.
 	///
 	/// Checks if the sequence of the messages is valid, dispatches them and communicates the

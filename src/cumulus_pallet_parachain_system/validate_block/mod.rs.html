@@ -49,6 +49,13 @@
 <span id="49">49</span>
 <span id="50">50</span>
 <span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Substrate.
 
@@ -67,9 +74,7 @@
 
 </span><span class="doccomment">//! A module that enables a runtime to work as parachain.
 
-</span><span class="kw">use </span>polkadot_parachain::primitives::ValidationParams;
-
-<span class="attribute">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+</span><span class="attribute">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
 #[doc(hidden)]
 </span><span class="kw">pub mod </span>implementation;
 <span class="attribute">#[cfg(test)]
@@ -77,28 +82,37 @@
 
 <span class="attribute">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
 #[doc(hidden)]
+</span><span class="kw">pub use </span>bytes;
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+#[doc(hidden)]
+</span><span class="kw">pub use </span>codec::decode_from_bytes;
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+#[doc(hidden)]
 </span><span class="kw">pub use </span>polkadot_parachain;
 <span class="attribute">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
 #[doc(hidden)]
 </span><span class="kw">pub use </span>sp_runtime::traits::GetRuntimeBlockType;
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+#[doc(hidden)]
+</span><span class="kw">pub use </span>sp_std;
 
-<span class="comment">// Stores the [`ValidationParams`] that are being passed to `validate_block`.
-//
-// This value will only be set when a parachain validator validates a given `PoV`.
-</span><span class="macro">environmental::environmental!</span>(VALIDATION_PARAMS: ValidationParams);
-
-<span class="doccomment">/// Execute the given closure with the [`ValidationParams`].
+<span class="doccomment">/// Basically the same as [`ValidationParams`](polkadot_parachain::primitives::ValidationParams),
+/// but a little bit optimized for our use case here.
 ///
-/// Returns `None` if the [`ValidationParams`] are not set, because the code is currently not being
-/// executed in the context of `validate_block`.
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>with_validation_params&lt;R&gt;(f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>ValidationParams) -&gt; R) -&gt; <span class="prelude-ty">Option</span>&lt;R&gt; {
-	VALIDATION_PARAMS::with(|v| f(v))
-}
-
-<span class="doccomment">/// Set the [`ValidationParams`] for the local context and execute the given closure in this context.
-</span><span class="attribute">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
-</span><span class="kw">fn </span>set_and_run_with_validation_params&lt;R&gt;(<span class="kw-2">mut </span>params: ValidationParams, f: <span class="kw">impl </span>FnOnce() -&gt; R) -&gt; R {
-	VALIDATION_PARAMS::using(<span class="kw-2">&amp;mut </span>params, f)
+/// `block_data` and `head_data` are represented as [`bytes::Bytes`] to make them reuse
+/// the memory of the input parameter of the exported `validate_blocks` function.
+///
+/// The layout of this type must match exactly the layout of
+/// [`ValidationParams`](polkadot_parachain::primitives::ValidationParams) to have the same
+/// SCALE encoding.
+</span><span class="attribute">#[derive(codec::Decode)]
+#[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(codec::Encode))]
+#[doc(hidden)]
+</span><span class="kw">pub struct </span>MemoryOptimizedValidationParams {
+	<span class="kw">pub </span>parent_head: bytes::Bytes,
+	<span class="kw">pub </span>block_data: bytes::Bytes,
+	<span class="kw">pub </span>relay_parent_number: cumulus_primitives_core::relay_chain::v2::BlockNumber,
+	<span class="kw">pub </span>relay_parent_storage_root: cumulus_primitives_core::relay_chain::v2::Hash,
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cumulus_pallet_parachain_system" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

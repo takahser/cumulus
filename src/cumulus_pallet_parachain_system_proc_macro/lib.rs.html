@@ -136,6 +136,15 @@
 <span id="136">136</span>
 <span id="137">137</span>
 <span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -252,11 +261,20 @@
 				<span class="kw">use super</span>::<span class="kw-2">*</span>;
 
 				<span class="attribute">#[no_mangle]
-				</span><span class="kw">unsafe fn </span>validate_block(arguments: <span class="kw-2">*const </span>u8, arguments_len: usize) -&gt; u64 {
-					<span class="kw">let </span>params = #crate_::validate_block::polkadot_parachain::load_params(
-						arguments,
-						arguments_len,
+				</span><span class="kw">unsafe fn </span>validate_block(arguments: <span class="kw-2">*mut </span>u8, arguments_len: usize) -&gt; u64 {
+					<span class="comment">// We convert the `arguments` into a boxed slice and then into `Bytes`.
+					</span><span class="kw">let </span>args = #crate_::validate_block::sp_std::boxed::Box::from_raw(
+						#crate_::validate_block::sp_std::slice::from_raw_parts_mut(
+							arguments,
+							arguments_len,
+						)
 					);
+					<span class="kw">let </span>args = #crate_::validate_block::bytes::Bytes::from(args);
+
+					<span class="comment">// Then we decode from these bytes the `MemoryOptimizedValidationParams`.
+					</span><span class="kw">let </span>params = #crate_::validate_block::decode_from_bytes::&lt;
+						#crate_::validate_block::MemoryOptimizedValidationParams
+					&gt;(args).expect(<span class="string">&quot;Invalid arguments to `validate_block`.&quot;</span>);
 
 					<span class="kw">let </span>res = #crate_::validate_block::implementation::validate_block::&lt;
 						&lt;#runtime <span class="kw">as </span>#crate_::validate_block::GetRuntimeBlockType&gt;::RuntimeBlock,
