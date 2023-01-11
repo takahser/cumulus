@@ -176,7 +176,7 @@
 
 <span class="kw">use </span>cli::{RelayChainCli, Subcommand, TestCollatorCli};
 <span class="kw">use </span>cumulus_client_cli::generate_genesis_block;
-<span class="kw">use </span>cumulus_primitives_core::{relay_chain::v2::CollatorPair, ParaId};
+<span class="kw">use </span>cumulus_primitives_core::{relay_chain::CollatorPair, ParaId};
 <span class="kw">use </span>cumulus_test_service::AnnounceBlockFn;
 <span class="kw">use </span>polkadot_service::runtime_traits::AccountIdConversion;
 <span class="kw">use </span>sc_cli::{CliConfiguration, SubstrateCli};
@@ -255,7 +255,7 @@
 			);
 
 			<span class="kw">let </span>parachain_account =
-				AccountIdConversion::&lt;polkadot_primitives::v2::AccountId&gt;::into_account_truncating(
+				AccountIdConversion::&lt;polkadot_primitives::AccountId&gt;::into_account_truncating(
 					<span class="kw-2">&amp;</span>parachain_id,
 				);
 

@@ -537,9 +537,9 @@
 <span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>cumulus_primitives_core::{
 	relay_chain::{
-		runtime_api::ParachainHost,
-		v2::{CommittedCandidateReceipt, OccupiedCoreAssumption, SessionIndex, ValidatorId},
-		Block <span class="kw">as </span>PBlock, BlockId, Hash <span class="kw">as </span>PHash, Header <span class="kw">as </span>PHeader, InboundHrmpMessage,
+		runtime_api::ParachainHost, Block <span class="kw">as </span>PBlock, BlockId, CommittedCandidateReceipt,
+		Hash <span class="kw">as </span>PHash, Header <span class="kw">as </span>PHeader, InboundHrmpMessage, OccupiedCoreAssumption, SessionIndex,
+		ValidatorId,
 	},
 	InboundDownwardMessage, ParaId, PersistedValidationData,
 };
@@ -906,7 +906,7 @@
 </span><span class="kw">mod </span>tests {
 	<span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-	<span class="kw">use </span>polkadot_primitives::v2::Block <span class="kw">as </span>PBlock;
+	<span class="kw">use </span>polkadot_primitives::Block <span class="kw">as </span>PBlock;
 	<span class="kw">use </span>polkadot_test_client::{
 		construct_transfer_extrinsic, BlockBuilderExt, Client, ClientBlockImportExt,
 		DefaultTestClientBuilderExt, ExecutionStrategy, InitPolkadotBlockBuilder,

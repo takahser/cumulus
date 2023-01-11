@@ -480,8 +480,6 @@
 <span id="480">480</span>
 <span id="481">481</span>
 <span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -501,13 +499,11 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::reconnecting_ws_client::ReconnectingWsClient;
 <span class="kw">use </span>cumulus_primitives_core::{
 	relay_chain::{
-		v2::{
-			CandidateCommitments, CandidateEvent, CommittedCandidateReceipt, CoreState,
-			DisputeState, GroupRotationInfo, OccupiedCoreAssumption, OldV1SessionInfo,
-			PvfCheckStatement, ScrapedOnChainVotes, SessionIndex, SessionInfo, ValidationCode,
-			ValidationCodeHash, ValidatorId, ValidatorIndex, ValidatorSignature,
-		},
-		CandidateHash, Hash <span class="kw">as </span>RelayHash, Header <span class="kw">as </span>RelayHeader, InboundHrmpMessage,
+		CandidateCommitments, CandidateEvent, CandidateHash, CommittedCandidateReceipt, CoreState,
+		DisputeState, GroupRotationInfo, Hash <span class="kw">as </span>RelayHash, Header <span class="kw">as </span>RelayHeader,
+		InboundHrmpMessage, OccupiedCoreAssumption, OldV1SessionInfo, PvfCheckStatement,
+		ScrapedOnChainVotes, SessionIndex, SessionInfo, ValidationCode, ValidationCodeHash,
+		ValidatorId, ValidatorIndex, ValidatorSignature,
 	},
 	InboundDownwardMessage, ParaId, PersistedValidationData,
 };

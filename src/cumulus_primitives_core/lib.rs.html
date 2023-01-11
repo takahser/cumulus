@@ -286,21 +286,21 @@
 	DmpMessageHandler, Id <span class="kw">as </span>ParaId, IsSystem, UpwardMessage, ValidationParams, XcmpMessageFormat,
 	XcmpMessageHandler,
 };
-<span class="kw">pub use </span>polkadot_primitives::v2::{
+<span class="kw">pub use </span>polkadot_primitives::{
 	AbridgedHostConfiguration, AbridgedHrmpChannel, PersistedValidationData,
 };
 
 <span class="doccomment">/// A module that re-exports relevant relay chain definitions.
 </span><span class="kw">pub mod </span>relay_chain {
 	<span class="kw">pub use </span>polkadot_core_primitives::<span class="kw-2">*</span>;
-	<span class="kw">pub use </span>polkadot_primitives::{runtime_api, v2, v2::well_known_keys};
+	<span class="kw">pub use </span>polkadot_primitives::<span class="kw-2">*</span>;
 }
 
 <span class="doccomment">/// An inbound HRMP message.
-</span><span class="kw">pub type </span>InboundHrmpMessage = polkadot_primitives::v2::InboundHrmpMessage&lt;relay_chain::BlockNumber&gt;;
+</span><span class="kw">pub type </span>InboundHrmpMessage = polkadot_primitives::InboundHrmpMessage&lt;relay_chain::BlockNumber&gt;;
 
 <span class="doccomment">/// And outbound HRMP message
-</span><span class="kw">pub type </span>OutboundHrmpMessage = polkadot_primitives::v2::OutboundHrmpMessage&lt;ParaId&gt;;
+</span><span class="kw">pub type </span>OutboundHrmpMessage = polkadot_primitives::OutboundHrmpMessage&lt;ParaId&gt;;
 
 <span class="doccomment">/// Error description of a message send failure.
 </span><span class="attribute">#[derive(Eq, PartialEq, Copy, Clone, RuntimeDebug, Encode, Decode)]
@@ -462,11 +462,11 @@
 	<span class="doccomment">/// The horizontal messages sent by the parachain.
 	</span><span class="kw">pub </span>horizontal_messages: Vec&lt;OutboundHrmpMessage&gt;,
 	<span class="doccomment">/// New validation code.
-	</span><span class="kw">pub </span>new_validation_code: <span class="prelude-ty">Option</span>&lt;relay_chain::v2::ValidationCode&gt;,
+	</span><span class="kw">pub </span>new_validation_code: <span class="prelude-ty">Option</span>&lt;relay_chain::ValidationCode&gt;,
 	<span class="doccomment">/// The number of messages processed from the DMQ.
 	</span><span class="kw">pub </span>processed_downward_messages: u32,
 	<span class="doccomment">/// The mark which specifies the block number up to which all inbound HRMP messages are processed.
-	</span><span class="kw">pub </span>hrmp_watermark: relay_chain::v2::BlockNumber,
+	</span><span class="kw">pub </span>hrmp_watermark: relay_chain::BlockNumber,
 }
 
 <span class="kw">impl </span>CollationInfoV1 {
@@ -491,11 +491,11 @@
 	<span class="doccomment">/// The horizontal messages sent by the parachain.
 	</span><span class="kw">pub </span>horizontal_messages: Vec&lt;OutboundHrmpMessage&gt;,
 	<span class="doccomment">/// New validation code.
-	</span><span class="kw">pub </span>new_validation_code: <span class="prelude-ty">Option</span>&lt;relay_chain::v2::ValidationCode&gt;,
+	</span><span class="kw">pub </span>new_validation_code: <span class="prelude-ty">Option</span>&lt;relay_chain::ValidationCode&gt;,
 	<span class="doccomment">/// The number of messages processed from the DMQ.
 	</span><span class="kw">pub </span>processed_downward_messages: u32,
 	<span class="doccomment">/// The mark which specifies the block number up to which all inbound HRMP messages are processed.
-	</span><span class="kw">pub </span>hrmp_watermark: relay_chain::v2::BlockNumber,
+	</span><span class="kw">pub </span>hrmp_watermark: relay_chain::BlockNumber,
 	<span class="doccomment">/// The head data, aka encoded header, of the block that corresponds to the collation.
 	</span><span class="kw">pub </span>head_data: HeadData,
 }

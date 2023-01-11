@@ -189,7 +189,7 @@
 </span><span class="kw">use </span>cumulus_primitives_core::{
 	relay_chain, AbridgedHostConfiguration, AbridgedHrmpChannel, ParaId,
 };
-<span class="kw">use </span>polkadot_primitives::v2::UpgradeGoAhead;
+<span class="kw">use </span>polkadot_primitives::UpgradeGoAhead;
 <span class="kw">use </span>sp_runtime::traits::HashFor;
 <span class="kw">use </span>sp_state_machine::MemoryDB;
 <span class="kw">use </span>sp_std::collections::btree_map::BTreeMap;
@@ -213,8 +213,8 @@
 	<span class="kw">pub </span>relay_dispatch_queue_size: <span class="prelude-ty">Option</span>&lt;(u32, u32)&gt;,
 	<span class="kw">pub </span>hrmp_ingress_channel_index: <span class="prelude-ty">Option</span>&lt;Vec&lt;ParaId&gt;&gt;,
 	<span class="kw">pub </span>hrmp_egress_channel_index: <span class="prelude-ty">Option</span>&lt;Vec&lt;ParaId&gt;&gt;,
-	<span class="kw">pub </span>hrmp_channels: BTreeMap&lt;relay_chain::v2::HrmpChannelId, AbridgedHrmpChannel&gt;,
-	<span class="kw">pub </span>current_slot: relay_chain::v2::Slot,
+	<span class="kw">pub </span>hrmp_channels: BTreeMap&lt;relay_chain::HrmpChannelId, AbridgedHrmpChannel&gt;,
+	<span class="kw">pub </span>current_slot: relay_chain::Slot,
 	<span class="kw">pub </span>current_epoch: u64,
 	<span class="kw">pub </span>randomness: relay_chain::Hash,
 }
@@ -260,7 +260,7 @@
 		}
 
 		<span class="self">self</span>.hrmp_channels
-			.entry(relay_chain::v2::HrmpChannelId { sender, recipient: <span class="self">self</span>.para_id })
+			.entry(relay_chain::HrmpChannelId { sender, recipient: <span class="self">self</span>.para_id })
 			.or_insert_with(|| AbridgedHrmpChannel {
 				max_capacity: <span class="number">0</span>,
 				max_total_size: <span class="number">0</span>,
@@ -273,8 +273,8 @@
 
 	<span class="kw">pub fn </span>into_state_root_and_proof(
 		<span class="self">self</span>,
-	) -&gt; (polkadot_primitives::v2::Hash, sp_state_machine::StorageProof) {
-		<span class="kw">let </span>(db, root) = MemoryDB::&lt;HashFor&lt;polkadot_primitives::v2::Block&gt;&gt;::default_with_root();
+	) -&gt; (polkadot_primitives::Hash, sp_state_machine::StorageProof) {
+		<span class="kw">let </span>(db, root) = MemoryDB::&lt;HashFor&lt;polkadot_primitives::Block&gt;&gt;::default_with_root();
 		<span class="kw">let </span>state_version = Default::default(); <span class="comment">// for test using default.
 		</span><span class="kw">let </span><span class="kw-2">mut </span>backend = sp_state_machine::TrieBackendBuilder::new(db, root).build();
 

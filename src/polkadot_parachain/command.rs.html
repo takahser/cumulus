@@ -1941,7 +1941,7 @@
 				<span class="kw">let </span>id = ParaId::from(para_id);
 
 				<span class="kw">let </span>parachain_account =
-					AccountIdConversion::&lt;polkadot_primitives::v2::AccountId&gt;::into_account_truncating(<span class="kw-2">&amp;</span>id);
+					AccountIdConversion::&lt;polkadot_primitives::AccountId&gt;::into_account_truncating(<span class="kw-2">&amp;</span>id);
 
 				<span class="kw">let </span>state_version = Cli::native_runtime_version(<span class="kw-2">&amp;</span>config.chain_spec).state_version();
 

@@ -462,7 +462,7 @@
 <span class="kw">use </span>cumulus_client_pov_recovery::{RecoveryDelay, RecoveryKind, RecoveryRequest};
 <span class="kw">use </span>cumulus_relay_chain_interface::{RelayChainInterface, RelayChainResult};
 
-<span class="kw">use </span>polkadot_primitives::v2::{Hash <span class="kw">as </span>PHash, Id <span class="kw">as </span>ParaId, OccupiedCoreAssumption};
+<span class="kw">use </span>polkadot_primitives::{Hash <span class="kw">as </span>PHash, Id <span class="kw">as </span>ParaId, OccupiedCoreAssumption};
 
 <span class="kw">use </span>codec::Decode;
 <span class="kw">use </span>futures::{channel::mpsc::Sender, pin_mut, select, FutureExt, Stream, StreamExt};

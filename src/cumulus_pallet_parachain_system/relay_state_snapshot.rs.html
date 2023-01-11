@@ -453,7 +453,7 @@
 	/// `proof`.
 	</span><span class="kw">pub fn </span>new(
 		para_id: ParaId,
-		relay_parent_storage_root: relay_chain::v2::Hash,
+		relay_parent_storage_root: relay_chain::Hash,
 		proof: StorageProof,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
 		<span class="kw">let </span>db = proof.into_memory_db::&lt;HashFor&lt;relay_chain::Block&gt;&gt;();
@@ -499,7 +499,7 @@
 
 		<span class="kw">let </span><span class="kw-2">mut </span>ingress_channels = Vec::with_capacity(ingress_channel_index.len());
 		<span class="kw">for </span>sender <span class="kw">in </span>ingress_channel_index {
-			<span class="kw">let </span>channel_id = relay_chain::v2::HrmpChannelId { sender, recipient: <span class="self">self</span>.para_id };
+			<span class="kw">let </span>channel_id = relay_chain::HrmpChannelId { sender, recipient: <span class="self">self</span>.para_id };
 			<span class="kw">let </span>hrmp_channel: AbridgedHrmpChannel = read_entry(
 				<span class="kw-2">&amp;</span><span class="self">self</span>.trie_backend,
 				<span class="kw-2">&amp;</span>relay_chain::well_known_keys::hrmp_channels(channel_id),
@@ -511,7 +511,7 @@
 
 		<span class="kw">let </span><span class="kw-2">mut </span>egress_channels = Vec::with_capacity(egress_channel_index.len());
 		<span class="kw">for </span>recipient <span class="kw">in </span>egress_channel_index {
-			<span class="kw">let </span>channel_id = relay_chain::v2::HrmpChannelId { sender: <span class="self">self</span>.para_id, recipient };
+			<span class="kw">let </span>channel_id = relay_chain::HrmpChannelId { sender: <span class="self">self</span>.para_id, recipient };
 			<span class="kw">let </span>hrmp_channel: AbridgedHrmpChannel = read_entry(
 				<span class="kw-2">&amp;</span><span class="self">self</span>.trie_backend,
 				<span class="kw-2">&amp;</span>relay_chain::well_known_keys::hrmp_channels(channel_id),
@@ -539,12 +539,12 @@
 			.map_err(Error::Config)
 	}
 
-	<span class="doccomment">/// Read the [`Slot`](relay_chain::v2::Slot) from the relay chain state proof.
+	<span class="doccomment">/// Read the [`Slot`](relay_chain::Slot) from the relay chain state proof.
 	///
 	/// The slot is slot of the relay chain block this state proof was extracted from.
 	///
 	/// Returns an error if anything failed at reading or decoding.
-	</span><span class="kw">pub fn </span>read_slot(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;relay_chain::v2::Slot, Error&gt; {
+	</span><span class="kw">pub fn </span>read_slot(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;relay_chain::Slot, Error&gt; {
 		read_entry(<span class="kw-2">&amp;</span><span class="self">self</span>.trie_backend, relay_chain::well_known_keys::CURRENT_SLOT, <span class="prelude-val">None</span>)
 			.map_err(Error::Slot)
 	}
@@ -558,7 +558,7 @@
 	/// Returns an error if anything failed at reading or decoding.
 	</span><span class="kw">pub fn </span>read_upgrade_go_ahead_signal(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;relay_chain::v2::UpgradeGoAhead&gt;, Error&gt; {
+	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;relay_chain::UpgradeGoAhead&gt;, Error&gt; {
 		read_optional_entry(
 			<span class="kw-2">&amp;</span><span class="self">self</span>.trie_backend,
 			<span class="kw-2">&amp;</span>relay_chain::well_known_keys::upgrade_go_ahead_signal(<span class="self">self</span>.para_id),
@@ -574,7 +574,7 @@
 	/// Returns an error if anything failed at reading or decoding.
 	</span><span class="kw">pub fn </span>read_upgrade_restriction_signal(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;relay_chain::v2::UpgradeRestriction&gt;, Error&gt; {
+	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;relay_chain::UpgradeRestriction&gt;, Error&gt; {
 		read_optional_entry(
 			<span class="kw-2">&amp;</span><span class="self">self</span>.trie_backend,
 			<span class="kw-2">&amp;</span>relay_chain::well_known_keys::upgrade_restriction_signal(<span class="self">self</span>.para_id),

@@ -437,7 +437,6 @@
 <span id="437">437</span>
 <span id="438">438</span>
 <span id="439">439</span>
-<span id="440">440</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -522,7 +521,7 @@
 	<span class="kw">async fn </span>validators(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		at: Hash,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;polkadot_primitives::v2::ValidatorId&gt;, sp_api::ApiError&gt; {
+	) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;polkadot_primitives::ValidatorId&gt;, sp_api::ApiError&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self</span>.rpc_client.parachain_host_validators(at).<span class="kw">await</span><span class="question-mark">?</span>)
 	}
 
@@ -531,8 +530,8 @@
 		at: Hash,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;
 		(
-			Vec&lt;Vec&lt;polkadot_primitives::v2::ValidatorIndex&gt;&gt;,
-			polkadot_primitives::v2::GroupRotationInfo&lt;polkadot_core_primitives::BlockNumber&gt;,
+			Vec&lt;Vec&lt;polkadot_primitives::ValidatorIndex&gt;&gt;,
+			polkadot_primitives::GroupRotationInfo&lt;polkadot_core_primitives::BlockNumber&gt;,
 		),
 		sp_api::ApiError,
 	&gt; {
@@ -543,7 +542,7 @@
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		at: Hash,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;
-		Vec&lt;polkadot_primitives::v2::CoreState&lt;Hash, polkadot_core_primitives::BlockNumber&gt;&gt;,
+		Vec&lt;polkadot_primitives::CoreState&lt;Hash, polkadot_core_primitives::BlockNumber&gt;&gt;,
 		sp_api::ApiError,
 	&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self</span>.rpc_client.parachain_host_availability_cores(at).<span class="kw">await</span><span class="question-mark">?</span>)
@@ -553,7 +552,7 @@
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		at: Hash,
 		para_id: cumulus_primitives_core::ParaId,
-		assumption: polkadot_primitives::v2::OccupiedCoreAssumption,
+		assumption: polkadot_primitives::OccupiedCoreAssumption,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;
 		<span class="prelude-ty">Option</span>&lt;
 			cumulus_primitives_core::PersistedValidationData&lt;
@@ -580,7 +579,7 @@
 				Hash,
 				polkadot_core_primitives::BlockNumber,
 			&gt;,
-			polkadot_primitives::v2::ValidationCodeHash,
+			polkadot_primitives::ValidationCodeHash,
 		)&gt;,
 		sp_api::ApiError,
 	&gt; {
@@ -598,7 +597,7 @@
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		at: Hash,
 		para_id: cumulus_primitives_core::ParaId,
-		outputs: polkadot_primitives::v2::CandidateCommitments,
+		outputs: polkadot_primitives::CandidateCommitments,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;bool, sp_api::ApiError&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self
 			</span>.rpc_client
@@ -609,7 +608,7 @@
 	<span class="kw">async fn </span>session_index_for_child(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		at: Hash,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;polkadot_primitives::v2::SessionIndex, sp_api::ApiError&gt; {
+	) -&gt; <span class="prelude-ty">Result</span>&lt;polkadot_primitives::SessionIndex, sp_api::ApiError&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self</span>.rpc_client.parachain_host_session_index_for_child(at).<span class="kw">await</span><span class="question-mark">?</span>)
 	}
 
@@ -617,8 +616,8 @@
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		at: Hash,
 		para_id: cumulus_primitives_core::ParaId,
-		assumption: polkadot_primitives::v2::OccupiedCoreAssumption,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;polkadot_primitives::v2::ValidationCode&gt;, sp_api::ApiError&gt; {
+		assumption: polkadot_primitives::OccupiedCoreAssumption,
+	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;polkadot_primitives::ValidationCode&gt;, sp_api::ApiError&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self</span>.rpc_client.parachain_host_validation_code(at, para_id, assumption).<span class="kw">await</span><span class="question-mark">?</span>)
 	}
 
@@ -626,8 +625,7 @@
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		at: Hash,
 		para_id: cumulus_primitives_core::ParaId,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;polkadot_primitives::v2::CommittedCandidateReceipt&lt;Hash&gt;&gt;, sp_api::ApiError&gt;
-	{
+	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;polkadot_primitives::CommittedCandidateReceipt&lt;Hash&gt;&gt;, sp_api::ApiError&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self
 			</span>.rpc_client
 			.parachain_host_candidate_pending_availability(at, para_id)
@@ -637,7 +635,7 @@
 	<span class="kw">async fn </span>candidate_events(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		at: Hash,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;polkadot_primitives::v2::CandidateEvent&lt;Hash&gt;&gt;, sp_api::ApiError&gt; {
+	) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;polkadot_primitives::CandidateEvent&lt;Hash&gt;&gt;, sp_api::ApiError&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self</span>.rpc_client.parachain_host_candidate_events(at).<span class="kw">await</span><span class="question-mark">?</span>)
 	}
 
@@ -674,8 +672,8 @@
 	<span class="kw">async fn </span>validation_code_by_hash(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		at: Hash,
-		validation_code_hash: polkadot_primitives::v2::ValidationCodeHash,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;polkadot_primitives::v2::ValidationCode&gt;, sp_api::ApiError&gt; {
+		validation_code_hash: polkadot_primitives::ValidationCodeHash,
+	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;polkadot_primitives::ValidationCode&gt;, sp_api::ApiError&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self
 			</span>.rpc_client
 			.parachain_host_validation_code_by_hash(at, validation_code_hash)
@@ -685,31 +683,31 @@
 	<span class="kw">async fn </span>on_chain_votes(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		at: Hash,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;polkadot_primitives::v2::ScrapedOnChainVotes&lt;Hash&gt;&gt;, sp_api::ApiError&gt; {
+	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;polkadot_primitives::ScrapedOnChainVotes&lt;Hash&gt;&gt;, sp_api::ApiError&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self</span>.rpc_client.parachain_host_on_chain_votes(at).<span class="kw">await</span><span class="question-mark">?</span>)
 	}
 
 	<span class="kw">async fn </span>session_info(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		at: Hash,
-		index: polkadot_primitives::v2::SessionIndex,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;polkadot_primitives::v2::SessionInfo&gt;, sp_api::ApiError&gt; {
+		index: polkadot_primitives::SessionIndex,
+	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;polkadot_primitives::SessionInfo&gt;, sp_api::ApiError&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self</span>.rpc_client.parachain_host_session_info(at, index).<span class="kw">await</span><span class="question-mark">?</span>)
 	}
 
 	<span class="kw">async fn </span>session_info_before_version_2(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		at: Hash,
-		index: polkadot_primitives::v2::SessionIndex,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;polkadot_primitives::v2::OldV1SessionInfo&gt;, sp_api::ApiError&gt; {
+		index: polkadot_primitives::SessionIndex,
+	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;polkadot_primitives::OldV1SessionInfo&gt;, sp_api::ApiError&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self</span>.rpc_client.parachain_host_session_info_before_version_2(at, index).<span class="kw">await</span><span class="question-mark">?</span>)
 	}
 
 	<span class="kw">async fn </span>submit_pvf_check_statement(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		at: Hash,
-		stmt: polkadot_primitives::v2::PvfCheckStatement,
-		signature: polkadot_primitives::v2::ValidatorSignature,
+		stmt: polkadot_primitives::PvfCheckStatement,
+		signature: polkadot_primitives::ValidatorSignature,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;(), sp_api::ApiError&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self
 			</span>.rpc_client
@@ -720,7 +718,7 @@
 	<span class="kw">async fn </span>pvfs_require_precheck(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		at: Hash,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;polkadot_primitives::v2::ValidationCodeHash&gt;, sp_api::ApiError&gt; {
+	) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;polkadot_primitives::ValidationCodeHash&gt;, sp_api::ApiError&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self</span>.rpc_client.parachain_host_pvfs_require_precheck(at).<span class="kw">await</span><span class="question-mark">?</span>)
 	}
 
@@ -728,8 +726,8 @@
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		at: Hash,
 		para_id: cumulus_primitives_core::ParaId,
-		assumption: polkadot_primitives::v2::OccupiedCoreAssumption,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;polkadot_primitives::v2::ValidationCodeHash&gt;, sp_api::ApiError&gt; {
+		assumption: polkadot_primitives::OccupiedCoreAssumption,
+	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;polkadot_primitives::ValidationCodeHash&gt;, sp_api::ApiError&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self
 			</span>.rpc_client
 			.parachain_host_validation_code_hash(at, para_id, assumption)
@@ -743,7 +741,7 @@
 	<span class="kw">async fn </span>authorities(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		at: Hash,
-	) -&gt; std::result::Result&lt;Vec&lt;polkadot_primitives::v2::AuthorityDiscoveryId&gt;, sp_api::ApiError&gt; {
+	) -&gt; std::result::Result&lt;Vec&lt;polkadot_primitives::AuthorityDiscoveryId&gt;, sp_api::ApiError&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self</span>.rpc_client.authority_discovery_authorities(at).<span class="kw">await</span><span class="question-mark">?</span>)
 	}
 
@@ -757,9 +755,9 @@
 		at: Hash,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;
 		Vec&lt;(
-			polkadot_primitives::v2::SessionIndex,
-			polkadot_primitives::v2::CandidateHash,
-			polkadot_primitives::v2::DisputeState&lt;polkadot_primitives::v2::BlockNumber&gt;,
+			polkadot_primitives::SessionIndex,
+			polkadot_primitives::CandidateHash,
+			polkadot_primitives::DisputeState&lt;polkadot_primitives::BlockNumber&gt;,
 		)&gt;,
 		ApiError,
 	&gt; {
@@ -772,7 +770,7 @@
 	<span class="kw">async fn </span>authorities(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		at: Hash,
-	) -&gt; std::result::Result&lt;Vec&lt;polkadot_primitives::v2::AuthorityDiscoveryId&gt;, sp_api::ApiError&gt; {
+	) -&gt; std::result::Result&lt;Vec&lt;polkadot_primitives::AuthorityDiscoveryId&gt;, sp_api::ApiError&gt; {
 		<span class="kw">let </span>result = <span class="self">self</span>.rpc_client.authority_discovery_authorities(at).<span class="kw">await</span><span class="question-mark">?</span>;
 		<span class="prelude-val">Ok</span>(result)
 	}

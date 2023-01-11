@@ -277,9 +277,6 @@
 <span id="277">277</span>
 <span id="278">278</span>
 <span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2021 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -321,8 +318,7 @@
 <span class="kw">impl</span>&lt;R&gt; OnUnbalanced&lt;NegativeImbalance&lt;R&gt;&gt; <span class="kw">for </span>ToStakingPot&lt;R&gt;
 <span class="kw">where
 	</span>R: pallet_balances::Config + pallet_collator_selection::Config,
-	AccountIdOf&lt;R&gt;:
-		From&lt;polkadot_primitives::v2::AccountId&gt; + Into&lt;polkadot_primitives::v2::AccountId&gt;,
+	AccountIdOf&lt;R&gt;: From&lt;polkadot_primitives::AccountId&gt; + Into&lt;polkadot_primitives::AccountId&gt;,
 	&lt;R <span class="kw">as </span>frame_system::Config&gt;::RuntimeEvent: From&lt;pallet_balances::Event&lt;R&gt;&gt;,
 {
 	<span class="kw">fn </span>on_nonzero_unbalanced(amount: NegativeImbalance&lt;R&gt;) {
@@ -337,8 +333,7 @@
 <span class="kw">impl</span>&lt;R&gt; OnUnbalanced&lt;NegativeImbalance&lt;R&gt;&gt; <span class="kw">for </span>DealWithFees&lt;R&gt;
 <span class="kw">where
 	</span>R: pallet_balances::Config + pallet_collator_selection::Config,
-	AccountIdOf&lt;R&gt;:
-		From&lt;polkadot_primitives::v2::AccountId&gt; + Into&lt;polkadot_primitives::v2::AccountId&gt;,
+	AccountIdOf&lt;R&gt;: From&lt;polkadot_primitives::AccountId&gt; + Into&lt;polkadot_primitives::AccountId&gt;,
 	&lt;R <span class="kw">as </span>frame_system::Config&gt;::RuntimeEvent: From&lt;pallet_balances::Event&lt;R&gt;&gt;,
 {
 	<span class="kw">fn </span>on_unbalanceds&lt;B&gt;(<span class="kw-2">mut </span>fees_then_tips: <span class="kw">impl </span>Iterator&lt;Item = NegativeImbalance&lt;R&gt;&gt;) {
@@ -357,8 +352,7 @@
 <span class="kw">impl</span>&lt;R&gt; HandleCredit&lt;AccountIdOf&lt;R&gt;, pallet_assets::Pallet&lt;R&gt;&gt; <span class="kw">for </span>AssetsToBlockAuthor&lt;R&gt;
 <span class="kw">where
 	</span>R: pallet_authorship::Config + pallet_assets::Config,
-	AccountIdOf&lt;R&gt;:
-		From&lt;polkadot_primitives::v2::AccountId&gt; + Into&lt;polkadot_primitives::v2::AccountId&gt;,
+	AccountIdOf&lt;R&gt;: From&lt;polkadot_primitives::AccountId&gt; + Into&lt;polkadot_primitives::AccountId&gt;,
 {
 	<span class="kw">fn </span>handle_credit(credit: CreditOf&lt;AccountIdOf&lt;R&gt;, pallet_assets::Pallet&lt;R&gt;&gt;) {
 		<span class="kw">if let </span><span class="prelude-val">Some</span>(author) = pallet_authorship::Pallet::&lt;R&gt;::author() {
@@ -401,7 +395,7 @@
 	};
 	<span class="kw">use </span>frame_system::{limits, EnsureRoot};
 	<span class="kw">use </span>pallet_collator_selection::IdentityCollator;
-	<span class="kw">use </span>polkadot_primitives::v2::AccountId;
+	<span class="kw">use </span>polkadot_primitives::AccountId;
 	<span class="kw">use </span>sp_core::H256;
 	<span class="kw">use </span>sp_runtime::{
 		testing::Header,

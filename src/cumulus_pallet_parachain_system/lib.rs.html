@@ -1477,7 +1477,7 @@
 				.read_upgrade_go_ahead_signal()
 				.expect(<span class="string">&quot;Invalid upgrade go ahead signal&quot;</span>);
 			<span class="kw">match </span>upgrade_go_ahead_signal {
-				<span class="prelude-val">Some</span>(relay_chain::v2::UpgradeGoAhead::GoAhead) =&gt; {
+				<span class="prelude-val">Some</span>(relay_chain::UpgradeGoAhead::GoAhead) =&gt; {
 					<span class="macro">assert!</span>(
 						&lt;PendingValidationCode&lt;T&gt;&gt;::exists(),
 						<span class="string">&quot;No new validation function found in storage, GoAhead signal is not expected&quot;</span>,
@@ -1490,7 +1490,7 @@
 						relay_chain_block_num: vfp.relay_parent_number,
 					});
 				},
-				<span class="prelude-val">Some</span>(relay_chain::v2::UpgradeGoAhead::Abort) =&gt; {
+				<span class="prelude-val">Some</span>(relay_chain::UpgradeGoAhead::Abort) =&gt; {
 					&lt;PendingValidationCode&lt;T&gt;&gt;::kill();
 					<span class="self">Self</span>::deposit_event(Event::ValidationFunctionDiscarded);
 				},
@@ -1647,7 +1647,7 @@
 	/// set after the inherent.
 	</span><span class="attribute">#[pallet::storage]
 	</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type </span>UpgradeRestrictionSignal&lt;T: Config&gt; =
-		StorageValue&lt;<span class="kw">_</span>, <span class="prelude-ty">Option</span>&lt;relay_chain::v2::UpgradeRestriction&gt;, ValueQuery&gt;;
+		StorageValue&lt;<span class="kw">_</span>, <span class="prelude-ty">Option</span>&lt;relay_chain::UpgradeRestriction&gt;, ValueQuery&gt;;
 
 	<span class="doccomment">/// The state proof for the last relay parent block.
 	///
@@ -1706,7 +1706,7 @@
 	/// This will be cleared in `on_initialize` of each new block.
 	</span><span class="attribute">#[pallet::storage]
 	</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type </span>HrmpWatermark&lt;T: Config&gt; =
-		StorageValue&lt;<span class="kw">_</span>, relay_chain::v2::BlockNumber, ValueQuery&gt;;
+		StorageValue&lt;<span class="kw">_</span>, relay_chain::BlockNumber, ValueQuery&gt;;
 
 	<span class="doccomment">/// HRMP messages that were sent in a block.
 	///
@@ -1929,7 +1929,7 @@
 	</span><span class="kw">fn </span>process_inbound_horizontal_messages(
 		ingress_channels: <span class="kw-2">&amp;</span>[(ParaId, cumulus_primitives_core::AbridgedHrmpChannel)],
 		horizontal_messages: BTreeMap&lt;ParaId, Vec&lt;InboundHrmpMessage&gt;&gt;,
-		relay_parent_number: relay_chain::v2::BlockNumber,
+		relay_parent_number: relay_chain::BlockNumber,
 	) -&gt; Weight {
 		<span class="comment">// First, check that all submitted messages are sent from channels that exist. The
 		// channel exists if its MQC head is present in `vfp.hrmp_mqc_heads`.

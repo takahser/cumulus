@@ -214,7 +214,7 @@
 		&lt;Runtime <span class="kw">as </span>pallet_assets::Config&gt;::Balance,
 	&gt;,
 	AccountIdOf&lt;Runtime&gt;:
-		From&lt;polkadot_primitives::v2::AccountId&gt; + Into&lt;polkadot_primitives::v2::AccountId&gt;,
+		From&lt;polkadot_primitives::AccountId&gt; + Into&lt;polkadot_primitives::AccountId&gt;,
 {
 	<span class="kw">fn </span>charge_weight_in_fungibles(
 		asset_id: &lt;pallet_assets::Pallet&lt;Runtime&gt; <span class="kw">as </span>Inspect&lt;AccountIdOf&lt;Runtime&gt;&gt;&gt;::AssetId,
