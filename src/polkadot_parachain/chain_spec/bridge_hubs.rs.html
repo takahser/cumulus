@@ -495,6 +495,26 @@
 <span id="495">495</span>
 <span id="496">496</span>
 <span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -532,6 +552,9 @@
 	KusamaLocal,
 	<span class="comment">// used by benchmarks
 	</span>KusamaDevelopment,
+
+	<span class="comment">// used with kusama runtime
+	</span>Westend,
 }
 
 <span class="kw">impl </span>FromStr <span class="kw">for </span>BridgeHubRuntimeType {
@@ -542,6 +565,7 @@
 			kusama::BRIDGE_HUB_KUSAMA =&gt; <span class="prelude-val">Ok</span>(BridgeHubRuntimeType::Kusama),
 			kusama::BRIDGE_HUB_KUSAMA_LOCAL =&gt; <span class="prelude-val">Ok</span>(BridgeHubRuntimeType::KusamaLocal),
 			kusama::BRIDGE_HUB_KUSAMA_DEVELOPMENT =&gt; <span class="prelude-val">Ok</span>(BridgeHubRuntimeType::KusamaDevelopment),
+			westend::BRIDGE_HUB_WESTEND =&gt; <span class="prelude-val">Ok</span>(BridgeHubRuntimeType::Westend),
 			rococo::BRIDGE_HUB_ROCOCO =&gt; <span class="prelude-val">Ok</span>(BridgeHubRuntimeType::Rococo),
 			rococo::BRIDGE_HUB_ROCOCO_LOCAL =&gt; <span class="prelude-val">Ok</span>(BridgeHubRuntimeType::RococoLocal),
 			rococo::BRIDGE_HUB_ROCOCO_DEVELOPMENT =&gt; <span class="prelude-val">Ok</span>(BridgeHubRuntimeType::RococoDevelopment),
@@ -561,6 +585,8 @@
 			BridgeHubRuntimeType::KusamaLocal |
 			BridgeHubRuntimeType::KusamaDevelopment =&gt;
 				<span class="prelude-val">Ok</span>(Box::new(kusama::BridgeHubChainSpec::from_json_file(path)<span class="question-mark">?</span>)),
+			BridgeHubRuntimeType::Westend =&gt;
+				<span class="prelude-val">Ok</span>(Box::new(westend::BridgeHubChainSpec::from_json_file(path)<span class="question-mark">?</span>)),
 			BridgeHubRuntimeType::Rococo |
 			BridgeHubRuntimeType::RococoLocal |
 			BridgeHubRuntimeType::RococoDevelopment =&gt;
@@ -588,6 +614,10 @@
 				<span class="string">&quot;kusama-dev&quot;</span>,
 				ParaId::new(<span class="number">1003</span>),
 			))),
+			BridgeHubRuntimeType::Westend =&gt;
+				<span class="prelude-val">Ok</span>(Box::new(westend::BridgeHubChainSpec::from_json_bytes(
+					<span class="kw-2">&amp;</span><span class="macro">include_bytes!</span>(<span class="string">&quot;../../../parachains/chain-specs/bridge-hub-westend.json&quot;</span>)[..],
+				)<span class="question-mark">?</span>)),
 			BridgeHubRuntimeType::Rococo =&gt; <span class="prelude-val">Ok</span>(Box::new(rococo::live_config(
 				rococo::BRIDGE_HUB_ROCOCO,
 				<span class="string">&quot;Rococo BridgeHub&quot;</span>,
@@ -629,6 +659,7 @@
 			BridgeHubRuntimeType::Kusama |
 			BridgeHubRuntimeType::KusamaLocal |
 			BridgeHubRuntimeType::KusamaDevelopment =&gt; <span class="kw-2">&amp;</span>bridge_hub_kusama_runtime::VERSION,
+			BridgeHubRuntimeType::Westend =&gt; <span class="kw-2">&amp;</span>bridge_hub_kusama_runtime::VERSION,
 			BridgeHubRuntimeType::Rococo |
 			BridgeHubRuntimeType::RococoLocal |
 			BridgeHubRuntimeType::RococoDevelopment |
@@ -870,7 +901,7 @@
 	}
 }
 
-<span class="doccomment">/// Sub-module for Kusama setup (reuses stuff from Rococo)
+<span class="doccomment">/// Sub-module for Kusama setup
 </span><span class="kw">pub mod </span>kusama {
 	<span class="kw">use super</span>::{BridgeHubBalance, ParaId};
 	<span class="kw">use </span><span class="kw">crate</span>::chain_spec::{
@@ -991,6 +1022,15 @@
 			},
 		}
 	}
+}
+
+<span class="doccomment">/// Sub-module for Westend setup (uses Kusama runtime)
+</span><span class="kw">pub mod </span>westend {
+	<span class="kw">use </span><span class="kw">crate</span>::chain_spec::bridge_hubs::kusama;
+
+	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>BRIDGE_HUB_WESTEND: <span class="kw-2">&amp;</span>str = <span class="string">&quot;bridge-hub-westend&quot;</span>;
+	<span class="kw">pub type </span>BridgeHubChainSpec = kusama::BridgeHubChainSpec;
+	<span class="kw">pub type </span>RuntimeApi = bridge_hub_kusama_runtime::RuntimeApi;
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="polkadot_parachain" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>
