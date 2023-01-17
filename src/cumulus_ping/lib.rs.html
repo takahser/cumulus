@@ -238,6 +238,13 @@
 <span id="238">238</span>
 <span id="239">239</span>
 <span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2020-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -318,9 +325,9 @@
 	<span class="attribute">#[pallet::event]
 	#[pallet::generate_deposit(<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>deposit_event)]
 	</span><span class="kw">pub enum </span>Event&lt;T: Config&gt; {
-		PingSent(ParaId, u32, Vec&lt;u8&gt;),
+		PingSent(ParaId, u32, Vec&lt;u8&gt;, XcmHash, MultiAssets),
 		Pinged(ParaId, u32, Vec&lt;u8&gt;),
-		PongSent(ParaId, u32, Vec&lt;u8&gt;),
+		PongSent(ParaId, u32, Vec&lt;u8&gt;, XcmHash, MultiAssets),
 		Ponged(ParaId, u32, Vec&lt;u8&gt;, T::BlockNumber),
 		ErrorSendingPing(SendError, ParaId, u32, Vec&lt;u8&gt;),
 		ErrorSendingPong(SendError, ParaId, u32, Vec&lt;u8&gt;),
@@ -343,11 +350,11 @@
 					<span class="kw-2">*</span>seq += <span class="number">1</span>;
 					<span class="kw-2">*</span>seq
 				});
-				<span class="kw">match </span>T::XcmSender::send_xcm(
-					(<span class="number">1</span>, Junction::Parachain(para.into())),
+				<span class="kw">match </span>send_xcm::&lt;T::XcmSender&gt;(
+					(Parent, Junction::Parachain(para.into())).into(),
 					Xcm(<span class="macro">vec!</span>[Transact {
-						origin_type: OriginKind::Native,
-						require_weight_at_most: <span class="number">1_000</span>,
+						origin_kind: OriginKind::Native,
+						require_weight_at_most: Weight::from_parts(<span class="number">1_000</span>, <span class="number">1_000</span>),
 						call: &lt;T <span class="kw">as </span>Config&gt;::RuntimeCall::from(Call::&lt;T&gt;::ping {
 							seq,
 							payload: payload.clone().to_vec(),
@@ -356,9 +363,15 @@
 						.into(),
 					}]),
 				) {
-					<span class="prelude-val">Ok</span>(()) =&gt; {
+					<span class="prelude-val">Ok</span>((hash, cost)) =&gt; {
 						Pings::&lt;T&gt;::insert(seq, n);
-						<span class="self">Self</span>::deposit_event(Event::PingSent(para, seq, payload.to_vec()));
+						<span class="self">Self</span>::deposit_event(Event::PingSent(
+							para,
+							seq,
+							payload.to_vec(),
+							hash,
+							cost,
+						));
 					},
 					<span class="prelude-val">Err</span>(e) =&gt; {
 						<span class="self">Self</span>::deposit_event(Event::ErrorSendingPing(
@@ -438,11 +451,11 @@
 			</span><span class="kw">let </span>para = ensure_sibling_para(&lt;T <span class="kw">as </span>Config&gt;::RuntimeOrigin::from(origin))<span class="question-mark">?</span>;
 
 			<span class="self">Self</span>::deposit_event(Event::Pinged(para, seq, payload.clone()));
-			<span class="kw">match </span>T::XcmSender::send_xcm(
-				(<span class="number">1</span>, Junction::Parachain(para.into())),
+			<span class="kw">match </span>send_xcm::&lt;T::XcmSender&gt;(
+				(Parent, Junction::Parachain(para.into())).into(),
 				Xcm(<span class="macro">vec!</span>[Transact {
-					origin_type: OriginKind::Native,
-					require_weight_at_most: <span class="number">1_000</span>,
+					origin_kind: OriginKind::Native,
+					require_weight_at_most: Weight::from_parts(<span class="number">1_000</span>, <span class="number">1_000</span>),
 					call: &lt;T <span class="kw">as </span>Config&gt;::RuntimeCall::from(Call::&lt;T&gt;::pong {
 						seq,
 						payload: payload.clone(),
@@ -451,7 +464,8 @@
 					.into(),
 				}]),
 			) {
-				<span class="prelude-val">Ok</span>(()) =&gt; <span class="self">Self</span>::deposit_event(Event::PongSent(para, seq, payload)),
+				<span class="prelude-val">Ok</span>((hash, cost)) =&gt;
+					<span class="self">Self</span>::deposit_event(Event::PongSent(para, seq, payload, hash, cost)),
 				<span class="prelude-val">Err</span>(e) =&gt; <span class="self">Self</span>::deposit_event(Event::ErrorSendingPong(e, para, seq, payload)),
 			}
 			<span class="prelude-val">Ok</span>(())

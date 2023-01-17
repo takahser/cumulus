@@ -313,6 +313,36 @@
 <span id="313">313</span>
 <span id="314">314</span>
 <span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -337,17 +367,18 @@
 //! with statemine as the reserve. At present no derivative tokens are minted on receipt of a
 //! ReserveAssetTransferDeposited message but that will but the intension will be to support this soon.
 </span><span class="kw">use super</span>::{
-	AccountId, AssetId <span class="kw">as </span>AssetIdPalletAssets, Assets, Balance, Balances, ParachainInfo,
-	ParachainSystem, PolkadotXcm, Runtime, RuntimeCall, RuntimeEvent, RuntimeOrigin, WeightToFee,
-	XcmpQueue,
+	AccountId, AllPalletsWithSystem, AssetId <span class="kw">as </span>AssetIdPalletAssets, Assets, Balance, Balances,
+	ParachainInfo, ParachainSystem, PolkadotXcm, Runtime, RuntimeCall, RuntimeEvent, RuntimeOrigin,
+	WeightToFee, XcmpQueue,
 };
 <span class="kw">use </span>core::marker::PhantomData;
 <span class="kw">use </span>frame_support::{
 	match_types, parameter_types,
 	traits::{
 		fungibles::{<span class="self">self</span>, Balanced, CreditOf},
-		Contains, Everything, Get, Nothing,
+		ConstU32, Contains, ContainsPair, Everything, Get, Nothing,
 	},
+	weights::Weight,
 };
 <span class="kw">use </span>pallet_asset_tx_payment::HandleCredit;
 <span class="kw">use </span>pallet_xcm::XcmPassthrough;
@@ -357,24 +388,21 @@
 <span class="kw">use </span>sp_runtime::traits::Zero;
 <span class="kw">use </span>xcm::latest::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>xcm_builder::{
-	AccountId32Aliases, AllowKnownQueryResponses, AllowSubscriptionsFrom,
-	AllowTopLevelPaidExecutionFrom, AllowUnpaidExecutionFrom, AsPrefixedGeneralIndex,
-	ConvertedConcreteAssetId, CurrencyAdapter, EnsureXcmOrigin, FixedWeightBounds,
-	FungiblesAdapter, IsConcrete, LocationInverter, NativeAsset, ParentIsPreset,
-	RelayChainAsNative, SiblingParachainAsNative, SiblingParachainConvertsVia,
-	SignedAccountId32AsNative, SignedToAccountId32, SovereignSignedViaLocation, TakeWeightCredit,
-	UsingComponents,
+	AccountId32Aliases, AllowExplicitUnpaidExecutionFrom, AllowKnownQueryResponses,
+	AllowSubscriptionsFrom, AllowTopLevelPaidExecutionFrom, AsPrefixedGeneralIndex,
+	ConvertedConcreteId, CurrencyAdapter, EnsureXcmOrigin, FixedWeightBounds, FungiblesAdapter,
+	IsConcrete, LocalMint, NativeAsset, ParentIsPreset, RelayChainAsNative,
+	SiblingParachainAsNative, SiblingParachainConvertsVia, SignedAccountId32AsNative,
+	SignedToAccountId32, SovereignSignedViaLocation, TakeWeightCredit, UsingComponents,
+	WithComputedOrigin,
 };
-<span class="kw">use </span>xcm_executor::{
-	traits::{FilterAssetLocation, JustTry},
-	XcmExecutor,
-};
+<span class="kw">use </span>xcm_executor::{traits::JustTry, XcmExecutor};
 
 <span class="macro">parameter_types! </span>{
 	<span class="kw">pub const </span>RelayLocation: MultiLocation = MultiLocation::parent();
-	<span class="kw">pub const </span>RelayNetwork: NetworkId = NetworkId::Any;
+	<span class="kw">pub const </span>RelayNetwork: <span class="prelude-ty">Option</span>&lt;NetworkId&gt; = <span class="prelude-val">None</span>;
 	<span class="kw">pub </span>RelayChainOrigin: RuntimeOrigin = cumulus_pallet_xcm::Origin::Relay.into();
-	<span class="kw">pub </span>Ancestry: MultiLocation = Parachain(ParachainInfo::parachain_id().into()).into();
+	<span class="kw">pub </span>UniversalLocation: InteriorMultiLocation = X1(Parachain(ParachainInfo::parachain_id().into()));
 }
 
 <span class="doccomment">/// Type for specifying how a `MultiLocation` can be converted into an `AccountId`. This is used
@@ -408,7 +436,7 @@
 	<span class="comment">// Use this fungibles implementation:
 	</span>Assets,
 	<span class="comment">// Use this currency when it is a fungible asset matching the given location or name:
-	</span>ConvertedConcreteAssetId&lt;
+	</span>ConvertedConcreteId&lt;
 		AssetIdPalletAssets,
 		Balance,
 		AsPrefixedGeneralIndex&lt;CommonGoodAssetsPalletLocation, AssetIdPalletAssets, JustTry&gt;,
@@ -420,7 +448,7 @@
 	</span>AccountId,
 	<span class="comment">// We only want to allow teleports of known assets. We use non-zero issuance as an indication
 	// that this asset is known.
-	</span>NonZeroIssuance&lt;AccountId, Assets&gt;,
+	</span>LocalMint&lt;NonZeroIssuance&lt;AccountId, Assets&gt;&gt;,
 	<span class="comment">// The account to use for tracking teleports.
 	</span>CheckingAccount,
 &gt;;
@@ -451,8 +479,9 @@
 
 <span class="macro">parameter_types! </span>{
 	<span class="comment">// One XCM operation is 1_000_000_000 weight - almost certainly a conservative estimate.
-	</span><span class="kw">pub </span>UnitWeightCost: u64 = <span class="number">1_000_000_000</span>;
+	</span><span class="kw">pub </span>UnitWeightCost: Weight = Weight::from_parts(<span class="number">1_000_000_000</span>, <span class="number">64 </span>* <span class="number">1024</span>);
 	<span class="kw">pub const </span>MaxInstructions: u32 = <span class="number">100</span>;
+	<span class="kw">pub const </span>MaxAssetsIntoHolding: u32 = <span class="number">64</span>;
 }
 
 <span class="macro">match_types! </span>{
@@ -469,15 +498,24 @@
 	DenyReserveTransferToRelayChain,
 	(
 		TakeWeightCredit,
-		AllowTopLevelPaidExecutionFrom&lt;Everything&gt;,
-		<span class="comment">// Parent and its exec plurality get free execution
-		</span>AllowUnpaidExecutionFrom&lt;ParentOrParentsExecutivePlurality&gt;,
-		<span class="comment">// Assets Common Good parachain gets free execution
-		</span>AllowUnpaidExecutionFrom&lt;CommonGoodAssetsParachain&gt;,
 		<span class="comment">// Expected responses are OK.
 		</span>AllowKnownQueryResponses&lt;PolkadotXcm&gt;,
-		<span class="comment">// Subscriptions for version tracking are OK.
-		</span>AllowSubscriptionsFrom&lt;Everything&gt;,
+		<span class="comment">// Allow XCMs with some computed origins to pass through.
+		</span>WithComputedOrigin&lt;
+			(
+				<span class="comment">// If the message is one that immediately attemps to pay for execution, then allow it.
+				</span>AllowTopLevelPaidExecutionFrom&lt;Everything&gt;,
+				<span class="comment">// Common Good Assets parachain, parent and its exec plurality get free execution
+				</span>AllowExplicitUnpaidExecutionFrom&lt;(
+					CommonGoodAssetsParachain,
+					ParentOrParentsExecutivePlurality,
+				)&gt;,
+				<span class="comment">// Subscriptions for version tracking are OK.
+				</span>AllowSubscriptionsFrom&lt;Everything&gt;,
+			),
+			UniversalLocation,
+			ConstU32&lt;<span class="number">8</span>&gt;,
+		&gt;,
 	),
 &gt;;
 
@@ -486,8 +524,8 @@
 
 <span class="doccomment">/// Asset filter that allows all assets from a certain location.
 </span><span class="kw">pub struct </span>AssetsFrom&lt;T&gt;(PhantomData&lt;T&gt;);
-<span class="kw">impl</span>&lt;T: Get&lt;MultiLocation&gt;&gt; FilterAssetLocation <span class="kw">for </span>AssetsFrom&lt;T&gt; {
-	<span class="kw">fn </span>filter_asset_location(asset: <span class="kw-2">&amp;</span>MultiAsset, origin: <span class="kw-2">&amp;</span>MultiLocation) -&gt; bool {
+<span class="kw">impl</span>&lt;T: Get&lt;MultiLocation&gt;&gt; ContainsPair&lt;MultiAsset, MultiLocation&gt; <span class="kw">for </span>AssetsFrom&lt;T&gt; {
+	<span class="kw">fn </span>contains(asset: <span class="kw-2">&amp;</span>MultiAsset, origin: <span class="kw-2">&amp;</span>MultiLocation) -&gt; bool {
 		<span class="kw">let </span>loc = T::get();
 		<span class="kw-2">&amp;</span>loc == origin &amp;&amp;
 			<span class="macro">matches!</span>(asset, MultiAsset { id: AssetId::Concrete(asset_loc), fun: Fungible(_a) }
@@ -549,8 +587,8 @@
 <span class="doccomment">/// A `FilterAssetLocation` implementation. Filters multi native assets whose
 /// reserve is same with `origin`.
 </span><span class="kw">pub struct </span>MultiNativeAsset;
-<span class="kw">impl </span>FilterAssetLocation <span class="kw">for </span>MultiNativeAsset {
-	<span class="kw">fn </span>filter_asset_location(asset: <span class="kw-2">&amp;</span>MultiAsset, origin: <span class="kw-2">&amp;</span>MultiLocation) -&gt; bool {
+<span class="kw">impl </span>ContainsPair&lt;MultiAsset, MultiLocation&gt; <span class="kw">for </span>MultiNativeAsset {
+	<span class="kw">fn </span>contains(asset: <span class="kw-2">&amp;</span>MultiAsset, origin: <span class="kw-2">&amp;</span>MultiLocation) -&gt; bool {
 		<span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>reserve) = asset.reserve() {
 			<span class="kw">if </span>reserve == origin {
 				<span class="kw">return </span><span class="bool-val">true
@@ -580,7 +618,7 @@
 	<span class="kw">type </span>OriginConverter = XcmOriginToTransactDispatchOrigin;
 	<span class="kw">type </span>IsReserve = MultiNativeAsset; <span class="comment">// TODO: maybe needed to be replaced by Reserves
 	</span><span class="kw">type </span>IsTeleporter = NativeAsset;
-	<span class="kw">type </span>LocationInverter = LocationInverter&lt;Ancestry&gt;;
+	<span class="kw">type </span>UniversalLocation = UniversalLocation;
 	<span class="kw">type </span>Barrier = Barrier;
 	<span class="kw">type </span>Weigher = FixedWeightBounds&lt;UnitWeightCost, RuntimeCall, MaxInstructions&gt;;
 	<span class="kw">type </span>Trader =
@@ -589,6 +627,15 @@
 	<span class="kw">type </span>AssetTrap = PolkadotXcm;
 	<span class="kw">type </span>AssetClaims = PolkadotXcm;
 	<span class="kw">type </span>SubscriptionService = PolkadotXcm;
+	<span class="kw">type </span>PalletInstancesInfo = AllPalletsWithSystem;
+	<span class="kw">type </span>MaxAssetsIntoHolding = MaxAssetsIntoHolding;
+	<span class="kw">type </span>AssetLocker = ();
+	<span class="kw">type </span>AssetExchanger = ();
+	<span class="kw">type </span>FeeManager = ();
+	<span class="kw">type </span>MessageExporter = ();
+	<span class="kw">type </span>UniversalAliases = Nothing;
+	<span class="kw">type </span>CallDispatcher = RuntimeCall;
+	<span class="kw">type </span>SafeCallFilter = Everything;
 }
 
 <span class="doccomment">/// No local origins on this chain are allowed to dispatch XCM sends/executions.
@@ -598,10 +645,15 @@
 /// queues.
 </span><span class="kw">pub type </span>XcmRouter = (
 	<span class="comment">// Two routers - use UMP to communicate with the relay chain:
-	</span>cumulus_primitives_utility::ParentAsUmp&lt;ParachainSystem, PolkadotXcm&gt;,
+	</span>cumulus_primitives_utility::ParentAsUmp&lt;ParachainSystem, PolkadotXcm, ()&gt;,
 	<span class="comment">// ..and XCMP to communicate with the sibling chains.
 	</span>XcmpQueue,
 );
+
+<span class="attribute">#[cfg(feature = <span class="string">&quot;runtime-benchmarks&quot;</span>)]
+</span><span class="macro">parameter_types! </span>{
+	<span class="kw">pub </span>ReachableDest: <span class="prelude-ty">Option</span>&lt;MultiLocation&gt; = <span class="prelude-val">Some</span>(Parent.into());
+}
 
 <span class="kw">impl </span>pallet_xcm::Config <span class="kw">for </span>Runtime {
 	<span class="kw">type </span>RuntimeEvent = RuntimeEvent;
@@ -615,13 +667,21 @@
 	<span class="kw">type </span>XcmTeleportFilter = Everything;
 	<span class="kw">type </span>XcmReserveTransferFilter = Everything;
 	<span class="kw">type </span>Weigher = FixedWeightBounds&lt;UnitWeightCost, RuntimeCall, MaxInstructions&gt;;
-	<span class="kw">type </span>LocationInverter = LocationInverter&lt;Ancestry&gt;;
+	<span class="kw">type </span>UniversalLocation = UniversalLocation;
 	<span class="kw">type </span>RuntimeOrigin = RuntimeOrigin;
 	<span class="kw">type </span>RuntimeCall = RuntimeCall;
 
 	<span class="kw">const </span>VERSION_DISCOVERY_QUEUE_SIZE: u32 = <span class="number">100</span>;
 	<span class="comment">// ^ Override for AdvertisedXcmVersion default
 	</span><span class="kw">type </span>AdvertisedXcmVersion = pallet_xcm::CurrentXcmVersion;
+	<span class="kw">type </span>Currency = Balances;
+	<span class="kw">type </span>CurrencyMatcher = ();
+	<span class="kw">type </span>TrustedLockers = ();
+	<span class="kw">type </span>SovereignAccountOf = LocationToAccountId;
+	<span class="kw">type </span>MaxLockers = ConstU32&lt;<span class="number">8</span>&gt;;
+	<span class="kw">type </span>WeightInfo = pallet_xcm::TestWeightInfo;
+	<span class="attribute">#[cfg(feature = <span class="string">&quot;runtime-benchmarks&quot;</span>)]
+	</span><span class="kw">type </span>ReachableDest = ReachableDest;
 }
 
 <span class="kw">impl </span>cumulus_pallet_xcm::Config <span class="kw">for </span>Runtime {

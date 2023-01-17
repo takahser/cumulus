@@ -133,6 +133,18 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2021 Parity Technologies (UK) Ltd.
 // This file is part of Polkadot.
 
@@ -157,7 +169,6 @@
 	traits::StorageVersion,
 	weights::{constants::WEIGHT_REF_TIME_PER_MILLIS, Weight},
 };
-<span class="kw">use </span>xcm::latest::Weight <span class="kw">as </span>XcmWeight;
 
 <span class="doccomment">/// The current storage version.
 </span><span class="kw">pub const </span>STORAGE_VERSION: StorageVersion = StorageVersion::new(<span class="number">2</span>);
@@ -168,8 +179,15 @@
 	<span class="kw">let </span><span class="kw-2">mut </span>weight = T::DbWeight::get().reads(<span class="number">1</span>);
 
 	<span class="kw">if </span>StorageVersion::get::&lt;Pallet&lt;T&gt;&gt;() == <span class="number">1 </span>{
-		weight += migrate_to_v2::&lt;T&gt;();
+		weight.saturating_accrue(migrate_to_v2::&lt;T&gt;());
 		StorageVersion::new(<span class="number">2</span>).put::&lt;Pallet&lt;T&gt;&gt;();
+		weight.saturating_accrue(T::DbWeight::get().writes(<span class="number">1</span>));
+	}
+
+	<span class="kw">if </span>StorageVersion::get::&lt;Pallet&lt;T&gt;&gt;() == <span class="number">2 </span>{
+		weight.saturating_accrue(migrate_to_v3::&lt;T&gt;());
+		StorageVersion::new(<span class="number">3</span>).put::&lt;Pallet&lt;T&gt;&gt;();
+		weight.saturating_accrue(T::DbWeight::get().writes(<span class="number">1</span>));
 	}
 
 	weight
@@ -184,9 +202,9 @@
 		<span class="kw">pub </span>suspend_threshold: u32,
 		<span class="kw">pub </span>drop_threshold: u32,
 		<span class="kw">pub </span>resume_threshold: u32,
-		<span class="kw">pub </span>threshold_weight: XcmWeight,
-		<span class="kw">pub </span>weight_restrict_decay: XcmWeight,
-		<span class="kw">pub </span>xcmp_max_individual_weight: XcmWeight,
+		<span class="kw">pub </span>threshold_weight: u64,
+		<span class="kw">pub </span>weight_restrict_decay: u64,
+		<span class="kw">pub </span>xcmp_max_individual_weight: u64,
 	}
 
 	<span class="kw">impl </span>Default <span class="kw">for </span>QueueConfigData {
@@ -231,6 +249,12 @@
 	}
 
 	T::DbWeight::get().reads_writes(<span class="number">1</span>, <span class="number">1</span>)
+}
+
+<span class="kw">pub fn </span>migrate_to_v3&lt;T: Config&gt;() -&gt; Weight {
+	<span class="kw">let </span>overweight_messages = &lt;Pallet&lt;T&gt; <span class="kw">as </span>Store&gt;::Overweight::initialize_counter() <span class="kw">as </span>u64;
+
+	T::DbWeight::get().reads_writes(overweight_messages, <span class="number">1</span>)
 }
 
 <span class="attribute">#[cfg(test)]

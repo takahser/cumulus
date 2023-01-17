@@ -259,13 +259,13 @@
 	</span><span class="kw">pub enum </span>Event&lt;T: Config&gt; {
 		<span class="doccomment">/// Downward message is invalid XCM.
 		/// \[ id \]
-		</span>InvalidFormat([u8; <span class="number">8</span>]),
+		</span>InvalidFormat([u8; <span class="number">32</span>]),
 		<span class="doccomment">/// Downward message is unsupported version of XCM.
 		/// \[ id \]
-		</span>UnsupportedVersion([u8; <span class="number">8</span>]),
+		</span>UnsupportedVersion([u8; <span class="number">32</span>]),
 		<span class="doccomment">/// Downward message executed with the given outcome.
 		/// \[ id, outcome \]
-		</span>ExecutedDownward([u8; <span class="number">8</span>], Outcome),
+		</span>ExecutedDownward([u8; <span class="number">32</span>], Outcome),
 	}
 
 	<span class="doccomment">/// Origin for the parachains module.
@@ -305,7 +305,7 @@
 	) -&gt; Weight {
 		<span class="kw">let </span><span class="kw-2">mut </span>used = Weight::zero();
 		<span class="kw">for </span>(_sent_at, data) <span class="kw">in </span>iter {
-			<span class="kw">let </span>id = sp_io::hashing::twox_64(<span class="kw-2">&amp;</span>data[..]);
+			<span class="kw">let </span>id = sp_io::hashing::blake2_256(<span class="kw-2">&amp;</span>data[..]);
 			<span class="kw">let </span>msg = VersionedXcm::&lt;T::RuntimeCall&gt;::decode_all_with_depth_limit(
 				MAX_XCM_DECODE_DEPTH,
 				<span class="kw-2">&amp;mut </span>data.as_slice(),
@@ -315,8 +315,8 @@
 				<span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; Pallet::&lt;T&gt;::deposit_event(Event::InvalidFormat(id)),
 				<span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(())) =&gt; Pallet::&lt;T&gt;::deposit_event(Event::UnsupportedVersion(id)),
 				<span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(x)) =&gt; {
-					<span class="kw">let </span>outcome = T::XcmExecutor::execute_xcm(Parent, x, limit.ref_time());
-					used += Weight::from_ref_time(outcome.weight_used());
+					<span class="kw">let </span>outcome = T::XcmExecutor::execute_xcm(Parent, x, id, limit);
+					used = used.saturating_add(outcome.weight_used());
 					Pallet::&lt;T&gt;::deposit_event(Event::ExecutedDownward(id, outcome));
 				},
 			}
@@ -338,7 +338,7 @@
 	) -&gt; Weight {
 		<span class="kw">let </span><span class="kw-2">mut </span>used = Weight::zero();
 		<span class="kw">for </span>(_sent_at, data) <span class="kw">in </span>iter {
-			<span class="kw">let </span>id = sp_io::hashing::twox_64(<span class="kw-2">&amp;</span>data[..]);
+			<span class="kw">let </span>id = sp_io::hashing::blake2_256(<span class="kw-2">&amp;</span>data[..]);
 			<span class="kw">let </span>msg = VersionedXcm::&lt;T::RuntimeCall&gt;::decode_all_with_depth_limit(
 				MAX_XCM_DECODE_DEPTH,
 				<span class="kw-2">&amp;mut </span>data.as_slice(),
@@ -349,8 +349,8 @@
 				<span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(())) =&gt; Pallet::&lt;T&gt;::deposit_event(Event::UnsupportedVersion(id)),
 				<span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(x)) =&gt; {
 					<span class="kw">let </span>weight_limit = limit.saturating_sub(used);
-					<span class="kw">let </span>outcome = T::XcmExecutor::execute_xcm(Parent, x, weight_limit.ref_time());
-					used += Weight::from_ref_time(outcome.weight_used());
+					<span class="kw">let </span>outcome = T::XcmExecutor::execute_xcm(Parent, x, id, weight_limit);
+					used = used.saturating_add(outcome.weight_used());
 					Pallet::&lt;T&gt;::deposit_event(Event::ExecutedDownward(id, outcome));
 				},
 			}

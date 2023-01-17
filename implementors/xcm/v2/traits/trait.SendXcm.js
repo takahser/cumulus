@@ -1,4 +1,0 @@
-(function() {var implementors = {
-"cumulus_pallet_xcmp_queue":[["impl&lt;T:&nbsp;<a class=\"trait\" href=\"cumulus_pallet_xcmp_queue/pallet/trait.Config.html\" title=\"trait cumulus_pallet_xcmp_queue::pallet::Config\">Config</a>&gt; SendXcm for <a class=\"struct\" href=\"cumulus_pallet_xcmp_queue/pallet/struct.Pallet.html\" title=\"struct cumulus_pallet_xcmp_queue::pallet::Pallet\">Pallet</a>&lt;T&gt;"]],
-"cumulus_primitives_utility":[["impl&lt;T:&nbsp;UpwardMessageSender, W:&nbsp;WrapVersion&gt; SendXcm for <a class=\"struct\" href=\"cumulus_primitives_utility/struct.ParentAsUmp.html\" title=\"struct cumulus_primitives_utility::ParentAsUmp\">ParentAsUmp</a>&lt;T, W&gt;"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

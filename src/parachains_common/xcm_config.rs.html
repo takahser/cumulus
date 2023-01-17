@@ -119,16 +119,18 @@
 <span id="119">119</span>
 <span id="120">120</span>
 <span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::impls::AccountIdOf;
 <span class="kw">use </span>core::marker::PhantomData;
 <span class="kw">use </span>frame_support::{
 	log,
-	traits::{fungibles::Inspect, tokens::BalanceConversion},
+	traits::{fungibles::Inspect, tokens::BalanceConversion, ContainsPair},
 	weights::{Weight, WeightToFee, WeightToFeePolynomial},
 };
 <span class="kw">use </span>sp_runtime::traits::Get;
-<span class="kw">use </span>xcm::latest::{prelude::<span class="kw-2">*</span>, Weight <span class="kw">as </span>XCMWeight};
-<span class="kw">use </span>xcm_executor::traits::{FilterAssetLocation, ShouldExecute};
+<span class="kw">use </span>xcm::latest::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>xcm_executor::traits::ShouldExecute;
 
 <span class="comment">//TODO: move DenyThenTry to polkadot&#39;s xcm module.
 </span><span class="doccomment">/// Deny executing the XCM if it matches any of the Deny filter regardless of anything else.
@@ -145,9 +147,9 @@
 {
 	<span class="kw">fn </span>should_execute&lt;RuntimeCall&gt;(
 		origin: <span class="kw-2">&amp;</span>MultiLocation,
-		message: <span class="kw-2">&amp;mut </span>Xcm&lt;RuntimeCall&gt;,
-		max_weight: XCMWeight,
-		weight_credit: <span class="kw-2">&amp;mut </span>XCMWeight,
+		message: <span class="kw-2">&amp;mut </span>[Instruction&lt;RuntimeCall&gt;],
+		max_weight: Weight,
+		weight_credit: <span class="kw-2">&amp;mut </span>Weight,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
 		Deny::should_execute(origin, message, max_weight, weight_credit)<span class="question-mark">?</span>;
 		Allow::should_execute(origin, message, max_weight, weight_credit)
@@ -159,11 +161,11 @@
 <span class="kw">impl </span>ShouldExecute <span class="kw">for </span>DenyReserveTransferToRelayChain {
 	<span class="kw">fn </span>should_execute&lt;RuntimeCall&gt;(
 		origin: <span class="kw-2">&amp;</span>MultiLocation,
-		message: <span class="kw-2">&amp;mut </span>Xcm&lt;RuntimeCall&gt;,
-		_max_weight: XCMWeight,
-		_weight_credit: <span class="kw-2">&amp;mut </span>XCMWeight,
+		message: <span class="kw-2">&amp;mut </span>[Instruction&lt;RuntimeCall&gt;],
+		_max_weight: Weight,
+		_weight_credit: <span class="kw-2">&amp;mut </span>Weight,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
-		<span class="kw">if </span>message.<span class="number">0</span>.iter().any(|inst| {
+		<span class="kw">if </span>message.iter().any(|inst| {
 			<span class="macro">matches!</span>(
 				inst,
 				InitiateReserveWithdraw {
@@ -182,7 +184,7 @@
 		<span class="comment">// An unexpected reserve transfer has arrived from the Relay Chain. Generally, `IsReserve`
 		// should not allow this, but we just log it here.
 		</span><span class="kw">if </span><span class="macro">matches!</span>(origin, MultiLocation { parents: <span class="number">1</span>, interior: Here }) &amp;&amp;
-			message.<span class="number">0</span>.iter().any(|inst| <span class="macro">matches!</span>(inst, ReserveAssetDeposited { .. }))
+			message.iter().any(|inst| <span class="macro">matches!</span>(inst, ReserveAssetDeposited { .. }))
 		{
 			<span class="macro">log::warn!</span>(
 				target: <span class="string">&quot;xcm::barriers&quot;</span>,
@@ -232,8 +234,10 @@
 
 <span class="doccomment">/// Accepts an asset if it is a native asset from a particular `MultiLocation`.
 </span><span class="kw">pub struct </span>ConcreteNativeAssetFrom&lt;Location&gt;(PhantomData&lt;Location&gt;);
-<span class="kw">impl</span>&lt;Location: Get&lt;MultiLocation&gt;&gt; FilterAssetLocation <span class="kw">for </span>ConcreteNativeAssetFrom&lt;Location&gt; {
-	<span class="kw">fn </span>filter_asset_location(asset: <span class="kw-2">&amp;</span>MultiAsset, origin: <span class="kw-2">&amp;</span>MultiLocation) -&gt; bool {
+<span class="kw">impl</span>&lt;Location: Get&lt;MultiLocation&gt;&gt; ContainsPair&lt;MultiAsset, MultiLocation&gt;
+	<span class="kw">for </span>ConcreteNativeAssetFrom&lt;Location&gt;
+{
+	<span class="kw">fn </span>contains(asset: <span class="kw-2">&amp;</span>MultiAsset, origin: <span class="kw-2">&amp;</span>MultiLocation) -&gt; bool {
 		<span class="macro">log::trace!</span>(target: <span class="string">&quot;xcm::filter_asset_location&quot;</span>,
 			<span class="string">&quot;ConcreteNativeAsset asset: {:?}, origin: {:?}, location: {:?}&quot;</span>,
 			asset, origin, Location::get());

@@ -256,6 +256,9 @@
 <span id="256">256</span>
 <span id="257">257</span>
 <span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2020-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -289,6 +292,8 @@
 <span class="kw">pub use </span>polkadot_primitives::{
 	AbridgedHostConfiguration, AbridgedHrmpChannel, PersistedValidationData,
 };
+
+<span class="kw">pub use </span>xcm::latest::prelude::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// A module that re-exports relevant relay chain definitions.
 </span><span class="kw">pub mod </span>relay_chain {
@@ -352,10 +357,11 @@
 </span><span class="kw">pub trait </span>UpwardMessageSender {
 	<span class="doccomment">/// Send the given UMP message; return the expected number of blocks before the message will
 	/// be dispatched or an error if the message cannot be sent.
-	</span><span class="kw">fn </span>send_upward_message(msg: UpwardMessage) -&gt; <span class="prelude-ty">Result</span>&lt;u32, MessageSendError&gt;;
+	/// return the hash of the message sent
+	</span><span class="kw">fn </span>send_upward_message(msg: UpwardMessage) -&gt; <span class="prelude-ty">Result</span>&lt;(u32, XcmHash), MessageSendError&gt;;
 }
 <span class="kw">impl </span>UpwardMessageSender <span class="kw">for </span>() {
-	<span class="kw">fn </span>send_upward_message(_msg: UpwardMessage) -&gt; <span class="prelude-ty">Result</span>&lt;u32, MessageSendError&gt; {
+	<span class="kw">fn </span>send_upward_message(_msg: UpwardMessage) -&gt; <span class="prelude-ty">Result</span>&lt;(u32, XcmHash), MessageSendError&gt; {
 		<span class="prelude-val">Err</span>(MessageSendError::NoChannel)
 	}
 }

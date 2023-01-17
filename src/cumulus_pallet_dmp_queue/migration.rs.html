@@ -102,6 +102,22 @@
 <span id="102">102</span>
 <span id="103">103</span>
 <span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Polkadot.
 
@@ -126,7 +142,6 @@
 	traits::StorageVersion,
 	weights::{constants::WEIGHT_REF_TIME_PER_MILLIS, Weight},
 };
-<span class="kw">use </span>xcm::latest::Weight <span class="kw">as </span>XcmWeight;
 
 <span class="doccomment">/// The current storage version.
 </span><span class="kw">pub const </span>STORAGE_VERSION: StorageVersion = StorageVersion::new(<span class="number">1</span>);
@@ -137,8 +152,15 @@
 	<span class="kw">let </span><span class="kw-2">mut </span>weight = T::DbWeight::get().reads(<span class="number">1</span>);
 
 	<span class="kw">if </span>StorageVersion::get::&lt;Pallet&lt;T&gt;&gt;() == <span class="number">0 </span>{
-		weight += migrate_to_v1::&lt;T&gt;();
+		weight.saturating_accrue(migrate_to_v1::&lt;T&gt;());
 		StorageVersion::new(<span class="number">1</span>).put::&lt;Pallet&lt;T&gt;&gt;();
+		weight.saturating_accrue(T::DbWeight::get().writes(<span class="number">1</span>));
+	}
+
+	<span class="kw">if </span>StorageVersion::get::&lt;Pallet&lt;T&gt;&gt;() == <span class="number">1 </span>{
+		weight.saturating_accrue(migrate_to_v2::&lt;T&gt;());
+		StorageVersion::new(<span class="number">2</span>).put::&lt;Pallet&lt;T&gt;&gt;();
+		weight.saturating_accrue(T::DbWeight::get().writes(<span class="number">1</span>));
 	}
 
 	weight
@@ -150,7 +172,7 @@
 
 	<span class="attribute">#[derive(Decode, Encode, Debug)]
 	</span><span class="kw">pub struct </span>ConfigData {
-		<span class="kw">pub </span>max_individual: XcmWeight,
+		<span class="kw">pub </span>max_individual: u64,
 	}
 
 	<span class="kw">impl </span>Default <span class="kw">for </span>ConfigData {
@@ -180,6 +202,16 @@
 	}
 
 	T::DbWeight::get().reads_writes(<span class="number">1</span>, <span class="number">1</span>)
+}
+
+<span class="doccomment">/// Migrates `Overweight` so that it initializes the storage map&#39;s counter.
+///
+/// NOTE: Only use this function if you know what you&#39;re doing. Default to using
+/// `migrate_to_latest`.
+</span><span class="kw">pub fn </span>migrate_to_v2&lt;T: Config&gt;() -&gt; Weight {
+	<span class="kw">let </span>overweight_messages = &lt;Pallet&lt;T&gt; <span class="kw">as </span>Store&gt;::Overweight::initialize_counter() <span class="kw">as </span>u64;
+
+	T::DbWeight::get().reads_writes(overweight_messages, <span class="number">1</span>)
 }
 
 <span class="attribute">#[cfg(test)]

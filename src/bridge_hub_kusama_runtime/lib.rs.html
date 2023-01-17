@@ -728,6 +728,18 @@
 <span id="728">728</span>
 <span id="729">729</span>
 <span id="730">730</span>
+<span id="731">731</span>
+<span id="732">732</span>
+<span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1035,6 +1047,7 @@
 	<span class="kw">type </span>ControllerOrigin = RootOrExecutiveSimpleMajority;
 	<span class="kw">type </span>ControllerOriginConverter = XcmOriginToTransactDispatchOrigin;
 	<span class="kw">type </span>WeightInfo = weights::cumulus_pallet_xcmp_queue::WeightInfo&lt;Runtime&gt;;
+	<span class="kw">type </span>PriceForSiblingDelivery = ();
 }
 
 <span class="kw">impl </span>cumulus_pallet_dmp_queue::Config <span class="kw">for </span>Runtime {
@@ -1170,7 +1183,8 @@
 		[pallet_collator_selection, CollatorSelection]
 		[cumulus_pallet_xcmp_queue, XcmpQueue]
 		<span class="comment">// XCM
-		// NOTE: Make sure you point to the individual modules below.
+		</span>[pallet_xcm, PolkadotXcm]
+		<span class="comment">// NOTE: Make sure you point to the individual modules below.
 		</span>[pallet_xcm_benchmarks::fungible, XcmBalances]
 		[pallet_xcm_benchmarks::generic, XcmGeneric]
 	);
@@ -1346,7 +1360,7 @@
 				<span class="kw">fn </span>valid_destination() -&gt; <span class="prelude-ty">Result</span>&lt;MultiLocation, BenchmarkError&gt; {
 					<span class="prelude-val">Ok</span>(KsmRelayLocation::get())
 				}
-				<span class="kw">fn </span>worst_case_holding() -&gt; MultiAssets {
+				<span class="kw">fn </span>worst_case_holding(_depositable_count: u32) -&gt; MultiAssets {
 					<span class="comment">// just concrete assets according to relay chain.
 					</span><span class="kw">let </span>assets: Vec&lt;MultiAsset&gt; = <span class="macro">vec!</span>[
 						MultiAsset {
@@ -1363,8 +1377,7 @@
 					KsmRelayLocation::get(),
 					MultiAsset { fun: Fungible(<span class="number">1 </span>* UNITS), id: Concrete(KsmRelayLocation::get()) },
 				));
-				<span class="kw">pub const </span>TrustedReserve: <span class="prelude-ty">Option</span>&lt;(MultiLocation, MultiAsset)&gt; = <span class="prelude-val">None</span>;
-				<span class="kw">pub const </span>CheckedAccount: <span class="prelude-ty">Option</span>&lt;AccountId&gt; = <span class="prelude-val">None</span>;
+				<span class="kw">pub const </span>CheckedAccount: <span class="prelude-ty">Option</span>&lt;(AccountId, xcm_builder::MintLocation)&gt; = <span class="prelude-val">None</span>;
 			}
 
 			<span class="kw">impl </span>pallet_xcm_benchmarks::fungible::Config <span class="kw">for </span>Runtime {
@@ -1372,7 +1385,6 @@
 
 				<span class="kw">type </span>CheckedAccount = CheckedAccount;
 				<span class="kw">type </span>TrustedTeleporter = TrustedTeleporter;
-				<span class="kw">type </span>TrustedReserve = TrustedReserve;
 
 				<span class="kw">fn </span>get_multi_asset() -&gt; MultiAsset {
 					MultiAsset {
@@ -1389,8 +1401,16 @@
 					(<span class="number">0u64</span>, Response::Version(Default::default()))
 				}
 
-				<span class="kw">fn </span>transact_origin() -&gt; <span class="prelude-ty">Result</span>&lt;MultiLocation, BenchmarkError&gt; {
-					<span class="prelude-val">Ok</span>(KsmRelayLocation::get())
+				<span class="kw">fn </span>worst_case_asset_exchange() -&gt; <span class="prelude-ty">Result</span>&lt;(MultiAssets, MultiAssets), BenchmarkError&gt; {
+					<span class="prelude-val">Err</span>(BenchmarkError::Skip)
+				}
+
+				<span class="kw">fn </span>universal_alias() -&gt; <span class="prelude-ty">Result</span>&lt;Junction, BenchmarkError&gt; {
+					<span class="prelude-val">Err</span>(BenchmarkError::Skip)
+				}
+
+				<span class="kw">fn </span>transact_origin_and_runtime_call() -&gt; <span class="prelude-ty">Result</span>&lt;(MultiLocation, RuntimeCall), BenchmarkError&gt; {
+					<span class="prelude-val">Ok</span>((KsmRelayLocation::get(), frame_system::Call::remark_with_event { remark: <span class="macro">vec!</span>[] }.into()))
 				}
 
 				<span class="kw">fn </span>subscribe_origin() -&gt; <span class="prelude-ty">Result</span>&lt;MultiLocation, BenchmarkError&gt; {
@@ -1402,6 +1422,10 @@
 					<span class="kw">let </span>assets: MultiAssets = (Concrete(KsmRelayLocation::get()), <span class="number">1_000 </span>* UNITS).into();
 					<span class="kw">let </span>ticket = MultiLocation { parents: <span class="number">0</span>, interior: Here };
 					<span class="prelude-val">Ok</span>((origin, ticket, assets))
+				}
+
+				<span class="kw">fn </span>unlockable_asset() -&gt; <span class="prelude-ty">Result</span>&lt;(MultiLocation, MultiLocation, MultiAsset), BenchmarkError&gt; {
+					<span class="prelude-val">Err</span>(BenchmarkError::Skip)
 				}
 			}
 

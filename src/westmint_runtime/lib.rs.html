@@ -1019,6 +1019,18 @@
 <span id="1019">1019</span>
 <span id="1020">1020</span>
 <span id="1021">1021</span>
+<span id="1022">1022</span>
+<span id="1023">1023</span>
+<span id="1024">1024</span>
+<span id="1025">1025</span>
+<span id="1026">1026</span>
+<span id="1027">1027</span>
+<span id="1028">1028</span>
+<span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2021-2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -1481,6 +1493,7 @@
 	<span class="kw">type </span>ControllerOrigin = EnsureRoot&lt;AccountId&gt;;
 	<span class="kw">type </span>ControllerOriginConverter = XcmOriginToTransactDispatchOrigin;
 	<span class="kw">type </span>WeightInfo = weights::cumulus_pallet_xcmp_queue::WeightInfo&lt;Runtime&gt;;
+	<span class="kw">type </span>PriceForSiblingDelivery = ();
 }
 
 <span class="kw">impl </span>cumulus_pallet_dmp_queue::Config <span class="kw">for </span>Runtime {
@@ -1715,7 +1728,8 @@
 		[pallet_collator_selection, CollatorSelection]
 		[cumulus_pallet_xcmp_queue, XcmpQueue]
 		<span class="comment">// XCM
-		// NOTE: Make sure you point to the individual modules below.
+		</span>[pallet_xcm, PolkadotXcm]
+		<span class="comment">// NOTE: Make sure you point to the individual modules below.
 		</span>[pallet_xcm_benchmarks::fungible, XcmBalances]
 		[pallet_xcm_benchmarks::generic, XcmGeneric]
 	);
@@ -1900,7 +1914,7 @@
 			<span class="kw">impl </span>cumulus_pallet_session_benchmarking::Config <span class="kw">for </span>Runtime {}
 
 			<span class="kw">use </span>xcm::latest::prelude::<span class="kw-2">*</span>;
-			<span class="kw">use </span>xcm_config::WestendLocation;
+			<span class="kw">use </span>xcm_config::{MaxAssetsIntoHolding, WestendLocation};
 			<span class="kw">use </span>pallet_xcm_benchmarks::asset_instance_from;
 
 			<span class="kw">impl </span>pallet_xcm_benchmarks::Config <span class="kw">for </span>Runtime {
@@ -1909,12 +1923,12 @@
 				<span class="kw">fn </span>valid_destination() -&gt; <span class="prelude-ty">Result</span>&lt;MultiLocation, BenchmarkError&gt; {
 					<span class="prelude-val">Ok</span>(WestendLocation::get())
 				}
-				<span class="kw">fn </span>worst_case_holding() -&gt; MultiAssets {
+				<span class="kw">fn </span>worst_case_holding(depositable_count: u32) -&gt; MultiAssets {
 					<span class="comment">// A mix of fungible, non-fungible, and concrete assets.
-					</span><span class="kw">const </span>HOLDING_FUNGIBLES: u32 = <span class="number">100</span>;
-					<span class="kw">const </span>HOLDING_NON_FUNGIBLES: u32 = <span class="number">100</span>;
+					</span><span class="kw">let </span>holding_non_fungibles = MaxAssetsIntoHolding::get() / <span class="number">2 </span>- depositable_count;
+					<span class="kw">let </span>holding_fungibles = holding_non_fungibles - <span class="number">1</span>;
 					<span class="kw">let </span>fungibles_amount: u128 = <span class="number">100</span>;
-					<span class="kw">let </span><span class="kw-2">mut </span>assets = (<span class="number">0</span>..HOLDING_FUNGIBLES)
+					<span class="kw">let </span><span class="kw-2">mut </span>assets = (<span class="number">0</span>..holding_fungibles)
 						.map(|i| {
 							MultiAsset {
 								id: Concrete(GeneralIndex(i <span class="kw">as </span>u128).into()),
@@ -1923,17 +1937,17 @@
 							.into()
 						})
 						.chain(core::iter::once(MultiAsset { id: Concrete(Here.into()), fun: Fungible(u128::MAX) }))
-						.chain((<span class="number">0</span>..HOLDING_NON_FUNGIBLES).map(|i| MultiAsset {
+						.chain((<span class="number">0</span>..holding_non_fungibles).map(|i| MultiAsset {
 							id: Concrete(GeneralIndex(i <span class="kw">as </span>u128).into()),
 							fun: NonFungible(asset_instance_from(i)),
 						}))
 						.collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-						assets.push(MultiAsset{
-							id: Concrete(WestendLocation::get()),
-							fun: Fungible(<span class="number">1_000_000 </span>* UNITS),
-						});
-						assets.into()
+					assets.push(MultiAsset {
+						id: Concrete(WestendLocation::get()),
+						fun: Fungible(<span class="number">1_000_000 </span>* UNITS),
+					});
+					assets.into()
 				}
 			}
 
@@ -1942,8 +1956,7 @@
 					WestendLocation::get(),
 					MultiAsset { fun: Fungible(<span class="number">1 </span>* UNITS), id: Concrete(WestendLocation::get()) },
 				));
-				<span class="kw">pub const </span>TrustedReserve: <span class="prelude-ty">Option</span>&lt;(MultiLocation, MultiAsset)&gt; = <span class="prelude-val">None</span>;
-				<span class="kw">pub const </span>CheckedAccount: <span class="prelude-ty">Option</span>&lt;AccountId&gt; = <span class="prelude-val">None</span>;
+				<span class="kw">pub const </span>CheckedAccount: <span class="prelude-ty">Option</span>&lt;(AccountId, xcm_builder::MintLocation)&gt; = <span class="prelude-val">None</span>;
 
 			}
 
@@ -1952,7 +1965,6 @@
 
 				<span class="kw">type </span>CheckedAccount = CheckedAccount;
 				<span class="kw">type </span>TrustedTeleporter = TrustedTeleporter;
-				<span class="kw">type </span>TrustedReserve = TrustedReserve;
 
 				<span class="kw">fn </span>get_multi_asset() -&gt; MultiAsset {
 					MultiAsset {
@@ -1969,8 +1981,16 @@
 					(<span class="number">0u64</span>, Response::Version(Default::default()))
 				}
 
-				<span class="kw">fn </span>transact_origin() -&gt; <span class="prelude-ty">Result</span>&lt;MultiLocation, BenchmarkError&gt; {
-					<span class="prelude-val">Ok</span>(WestendLocation::get())
+				<span class="kw">fn </span>worst_case_asset_exchange() -&gt; <span class="prelude-ty">Result</span>&lt;(MultiAssets, MultiAssets), BenchmarkError&gt; {
+					<span class="prelude-val">Err</span>(BenchmarkError::Skip)
+				}
+
+				<span class="kw">fn </span>universal_alias() -&gt; <span class="prelude-ty">Result</span>&lt;Junction, BenchmarkError&gt; {
+					<span class="prelude-val">Err</span>(BenchmarkError::Skip)
+				}
+
+				<span class="kw">fn </span>transact_origin_and_runtime_call() -&gt; <span class="prelude-ty">Result</span>&lt;(MultiLocation, RuntimeCall), BenchmarkError&gt; {
+					<span class="prelude-val">Ok</span>((WestendLocation::get(), frame_system::Call::remark_with_event { remark: <span class="macro">vec!</span>[] }.into()))
 				}
 
 				<span class="kw">fn </span>subscribe_origin() -&gt; <span class="prelude-ty">Result</span>&lt;MultiLocation, BenchmarkError&gt; {
@@ -1982,6 +2002,10 @@
 					<span class="kw">let </span>assets: MultiAssets = (Concrete(WestendLocation::get()), <span class="number">1_000 </span>* UNITS).into();
 					<span class="kw">let </span>ticket = MultiLocation { parents: <span class="number">0</span>, interior: Here };
 					<span class="prelude-val">Ok</span>((origin, ticket, assets))
+				}
+
+				<span class="kw">fn </span>unlockable_asset() -&gt; <span class="prelude-ty">Result</span>&lt;(MultiLocation, MultiLocation, MultiAsset), BenchmarkError&gt; {
+					<span class="prelude-val">Err</span>(BenchmarkError::Skip)
 				}
 			}
 

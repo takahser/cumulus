@@ -1099,6 +1099,14 @@
 <span id="1099">1099</span>
 <span id="1100">1100</span>
 <span id="1101">1101</span>
+<span id="1102">1102</span>
+<span id="1103">1103</span>
+<span id="1104">1104</span>
+<span id="1105">1105</span>
+<span id="1106">1106</span>
+<span id="1107">1107</span>
+<span id="1108">1108</span>
+<span id="1109">1109</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2020 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1154,6 +1162,7 @@
 	},
 };
 <span class="kw">use </span>sp_std::{cmp, collections::btree_map::BTreeMap, prelude::<span class="kw-2">*</span>};
+<span class="kw">use </span>xcm::latest::XcmHash;
 
 <span class="kw">mod </span>migration;
 <span class="kw">mod </span>relay_state_snapshot;
@@ -1581,6 +1590,8 @@
 		</span>DownwardMessagesReceived { count: u32 },
 		<span class="doccomment">/// Downward messages were processed using the given weight.
 		</span>DownwardMessagesProcessed { weight_used: Weight, dmq_head: relay_chain::Hash },
+		<span class="doccomment">/// An upward message was sent to the relay chain.
+		</span>UpwardMessageSent { message_hash: <span class="prelude-ty">Option</span>&lt;XcmHash&gt; },
 	}
 
 	<span class="attribute">#[pallet::error]
@@ -1844,7 +1855,7 @@
 		// None then it must be that this is an edge-case where a message is attempted to be
 		// sent at the first block. It should be safe to assume that there are no channels
 		// opened at all so early. At least, relying on this assumption seems to be a better
-		// tradeoff, compared to introducing an error variant that the clients should be
+		// trade-off, compared to introducing an error variant that the clients should be
 		// prepared to handle.
 		</span><span class="kw">let </span>index = <span class="kw">match </span>channels.binary_search_by_key(<span class="kw-2">&amp;</span>id, |item| item.<span class="number">0</span>) {
 			<span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span>ChannelStatus::Closed,
@@ -2105,7 +2116,7 @@
 }
 
 <span class="kw">impl</span>&lt;T: Config&gt; Pallet&lt;T&gt; {
-	<span class="kw">pub fn </span>send_upward_message(message: UpwardMessage) -&gt; <span class="prelude-ty">Result</span>&lt;u32, MessageSendError&gt; {
+	<span class="kw">pub fn </span>send_upward_message(message: UpwardMessage) -&gt; <span class="prelude-ty">Result</span>&lt;(u32, XcmHash), MessageSendError&gt; {
 		<span class="comment">// Check if the message fits into the relay-chain constraints.
 		//
 		// Note, that we are using `host_configuration` here which may be from the previous
@@ -2135,13 +2146,18 @@
 				// Thus fall through here.
 			</span>},
 		};
-		&lt;PendingUpwardMessages&lt;T&gt;&gt;::append(message);
-		<span class="prelude-val">Ok</span>(<span class="number">0</span>)
+		&lt;PendingUpwardMessages&lt;T&gt;&gt;::append(message.clone());
+
+		<span class="comment">// The relay ump does not use using_encoded
+		// We apply the same this to use the same hash
+		</span><span class="kw">let </span>hash = sp_io::hashing::blake2_256(<span class="kw-2">&amp;</span>message);
+		<span class="self">Self</span>::deposit_event(Event::UpwardMessageSent { message_hash: <span class="prelude-val">Some</span>(hash) });
+		<span class="prelude-val">Ok</span>((<span class="number">0</span>, hash))
 	}
 }
 
 <span class="kw">impl</span>&lt;T: Config&gt; UpwardMessageSender <span class="kw">for </span>Pallet&lt;T&gt; {
-	<span class="kw">fn </span>send_upward_message(message: UpwardMessage) -&gt; <span class="prelude-ty">Result</span>&lt;u32, MessageSendError&gt; {
+	<span class="kw">fn </span>send_upward_message(message: UpwardMessage) -&gt; <span class="prelude-ty">Result</span>&lt;(u32, XcmHash), MessageSendError&gt; {
 		<span class="self">Self</span>::send_upward_message(message)
 	}
 }

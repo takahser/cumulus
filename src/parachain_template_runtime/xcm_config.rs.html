@@ -219,33 +219,63 @@
 <span id="219">219</span>
 <span id="220">220</span>
 <span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
 </pre><pre class="rust"><code><span class="kw">use super</span>::{
-	AccountId, Balances, ParachainInfo, ParachainSystem, PolkadotXcm, Runtime, RuntimeCall,
-	RuntimeEvent, RuntimeOrigin, WeightToFee, XcmpQueue,
+	AccountId, AllPalletsWithSystem, Balances, ParachainInfo, ParachainSystem, PolkadotXcm,
+	Runtime, RuntimeCall, RuntimeEvent, RuntimeOrigin, WeightToFee, XcmpQueue,
 };
 <span class="kw">use </span>core::marker::PhantomData;
 <span class="kw">use </span>frame_support::{
 	log, match_types, parameter_types,
-	traits::{Everything, Nothing},
+	traits::{ConstU32, Everything, Nothing},
+	weights::Weight,
 };
 <span class="kw">use </span>pallet_xcm::XcmPassthrough;
 <span class="kw">use </span>polkadot_parachain::primitives::Sibling;
 <span class="kw">use </span>polkadot_runtime_common::impls::ToAuthor;
-<span class="kw">use </span>xcm::latest::{prelude::<span class="kw-2">*</span>, Weight <span class="kw">as </span>XCMWeight};
+<span class="kw">use </span>xcm::latest::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>xcm_builder::{
-	AccountId32Aliases, AllowTopLevelPaidExecutionFrom, AllowUnpaidExecutionFrom, CurrencyAdapter,
-	EnsureXcmOrigin, FixedWeightBounds, IsConcrete, LocationInverter, NativeAsset, ParentIsPreset,
+	AccountId32Aliases, AllowExplicitUnpaidExecutionFrom, AllowTopLevelPaidExecutionFrom,
+	CurrencyAdapter, EnsureXcmOrigin, FixedWeightBounds, IsConcrete, NativeAsset, ParentIsPreset,
 	RelayChainAsNative, SiblingParachainAsNative, SiblingParachainConvertsVia,
 	SignedAccountId32AsNative, SignedToAccountId32, SovereignSignedViaLocation, TakeWeightCredit,
-	UsingComponents,
+	UsingComponents, WithComputedOrigin,
 };
 <span class="kw">use </span>xcm_executor::{traits::ShouldExecute, XcmExecutor};
 
 <span class="macro">parameter_types! </span>{
 	<span class="kw">pub const </span>RelayLocation: MultiLocation = MultiLocation::parent();
-	<span class="kw">pub const </span>RelayNetwork: NetworkId = NetworkId::Any;
+	<span class="kw">pub const </span>RelayNetwork: <span class="prelude-ty">Option</span>&lt;NetworkId&gt; = <span class="prelude-val">None</span>;
 	<span class="kw">pub </span>RelayChainOrigin: RuntimeOrigin = cumulus_pallet_xcm::Origin::Relay.into();
-	<span class="kw">pub </span>Ancestry: MultiLocation = Parachain(ParachainInfo::parachain_id().into()).into();
+	<span class="kw">pub </span>UniversalLocation: InteriorMultiLocation = Parachain(ParachainInfo::parachain_id().into()).into();
 }
 
 <span class="doccomment">/// Type for specifying how a `MultiLocation` can be converted into an `AccountId`. This is used
@@ -297,8 +327,9 @@
 
 <span class="macro">parameter_types! </span>{
 	<span class="comment">// One XCM operation is 1_000_000_000 weight - almost certainly a conservative estimate.
-	</span><span class="kw">pub </span>UnitWeightCost: u64 = <span class="number">1_000_000_000</span>;
+	</span><span class="kw">pub </span>UnitWeightCost: Weight = Weight::from_parts(<span class="number">1_000_000_000</span>, <span class="number">64 </span>* <span class="number">1024</span>);
 	<span class="kw">pub const </span>MaxInstructions: u32 = <span class="number">100</span>;
+	<span class="kw">pub const </span>MaxAssetsIntoHolding: u32 = <span class="number">64</span>;
 }
 
 <span class="macro">match_types! </span>{
@@ -323,9 +354,9 @@
 {
 	<span class="kw">fn </span>should_execute&lt;RuntimeCall&gt;(
 		origin: <span class="kw-2">&amp;</span>MultiLocation,
-		message: <span class="kw-2">&amp;mut </span>Xcm&lt;RuntimeCall&gt;,
-		max_weight: XCMWeight,
-		weight_credit: <span class="kw-2">&amp;mut </span>XCMWeight,
+		message: <span class="kw-2">&amp;mut </span>[Instruction&lt;RuntimeCall&gt;],
+		max_weight: Weight,
+		weight_credit: <span class="kw-2">&amp;mut </span>Weight,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
 		Deny::should_execute(origin, message, max_weight, weight_credit)<span class="question-mark">?</span>;
 		Allow::should_execute(origin, message, max_weight, weight_credit)
@@ -337,12 +368,11 @@
 <span class="kw">impl </span>ShouldExecute <span class="kw">for </span>DenyReserveTransferToRelayChain {
 	<span class="kw">fn </span>should_execute&lt;RuntimeCall&gt;(
 		origin: <span class="kw-2">&amp;</span>MultiLocation,
-
-		message: <span class="kw-2">&amp;mut </span>Xcm&lt;RuntimeCall&gt;,
-		_max_weight: XCMWeight,
-		_weight_credit: <span class="kw-2">&amp;mut </span>XCMWeight,
+		message: <span class="kw-2">&amp;mut </span>[Instruction&lt;RuntimeCall&gt;],
+		_max_weight: Weight,
+		_weight_credit: <span class="kw-2">&amp;mut </span>Weight,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
-		<span class="kw">if </span>message.<span class="number">0</span>.iter().any(|inst| {
+		<span class="kw">if </span>message.iter().any(|inst| {
 			<span class="macro">matches!</span>(
 				inst,
 				InitiateReserveWithdraw {
@@ -361,7 +391,7 @@
 		<span class="comment">// An unexpected reserve transfer has arrived from the Relay Chain. Generally, `IsReserve`
 		// should not allow this, but we just log it here.
 		</span><span class="kw">if </span><span class="macro">matches!</span>(origin, MultiLocation { parents: <span class="number">1</span>, interior: Here }) &amp;&amp;
-			message.<span class="number">0</span>.iter().any(|inst| <span class="macro">matches!</span>(inst, ReserveAssetDeposited { .. }))
+			message.iter().any(|inst| <span class="macro">matches!</span>(inst, ReserveAssetDeposited { .. }))
 		{
 			<span class="macro">log::warn!</span>(
 				target: <span class="string">&quot;xcm::barriers&quot;</span>,
@@ -377,10 +407,16 @@
 	DenyReserveTransferToRelayChain,
 	(
 		TakeWeightCredit,
-		AllowTopLevelPaidExecutionFrom&lt;Everything&gt;,
-		AllowUnpaidExecutionFrom&lt;ParentOrParentsExecutivePlurality&gt;,
-		<span class="comment">// ^^^ Parent and its exec plurality get free execution
-	</span>),
+		WithComputedOrigin&lt;
+			(
+				AllowTopLevelPaidExecutionFrom&lt;Everything&gt;,
+				AllowExplicitUnpaidExecutionFrom&lt;ParentOrParentsExecutivePlurality&gt;,
+				<span class="comment">// ^^^ Parent and its exec plurality get free execution
+			</span>),
+			UniversalLocation,
+			ConstU32&lt;<span class="number">8</span>&gt;,
+		&gt;,
+	),
 &gt;;
 
 <span class="kw">pub struct </span>XcmConfig;
@@ -392,7 +428,7 @@
 	<span class="kw">type </span>OriginConverter = XcmOriginToTransactDispatchOrigin;
 	<span class="kw">type </span>IsReserve = NativeAsset;
 	<span class="kw">type </span>IsTeleporter = (); <span class="comment">// Teleporting is disabled.
-	</span><span class="kw">type </span>LocationInverter = LocationInverter&lt;Ancestry&gt;;
+	</span><span class="kw">type </span>UniversalLocation = UniversalLocation;
 	<span class="kw">type </span>Barrier = Barrier;
 	<span class="kw">type </span>Weigher = FixedWeightBounds&lt;UnitWeightCost, RuntimeCall, MaxInstructions&gt;;
 	<span class="kw">type </span>Trader =
@@ -401,6 +437,15 @@
 	<span class="kw">type </span>AssetTrap = PolkadotXcm;
 	<span class="kw">type </span>AssetClaims = PolkadotXcm;
 	<span class="kw">type </span>SubscriptionService = PolkadotXcm;
+	<span class="kw">type </span>PalletInstancesInfo = AllPalletsWithSystem;
+	<span class="kw">type </span>MaxAssetsIntoHolding = MaxAssetsIntoHolding;
+	<span class="kw">type </span>AssetLocker = ();
+	<span class="kw">type </span>AssetExchanger = ();
+	<span class="kw">type </span>FeeManager = ();
+	<span class="kw">type </span>MessageExporter = ();
+	<span class="kw">type </span>UniversalAliases = Nothing;
+	<span class="kw">type </span>CallDispatcher = RuntimeCall;
+	<span class="kw">type </span>SafeCallFilter = Everything;
 }
 
 <span class="doccomment">/// No local origins on this chain are allowed to dispatch XCM sends/executions.
@@ -410,10 +455,15 @@
 /// queues.
 </span><span class="kw">pub type </span>XcmRouter = (
 	<span class="comment">// Two routers - use UMP to communicate with the relay chain:
-	</span>cumulus_primitives_utility::ParentAsUmp&lt;ParachainSystem, ()&gt;,
+	</span>cumulus_primitives_utility::ParentAsUmp&lt;ParachainSystem, (), ()&gt;,
 	<span class="comment">// ..and XCMP to communicate with the sibling chains.
 	</span>XcmpQueue,
 );
+
+<span class="attribute">#[cfg(feature = <span class="string">&quot;runtime-benchmarks&quot;</span>)]
+</span><span class="macro">parameter_types! </span>{
+	<span class="kw">pub </span>ReachableDest: <span class="prelude-ty">Option</span>&lt;MultiLocation&gt; = <span class="prelude-val">Some</span>(Parent.into());
+}
 
 <span class="kw">impl </span>pallet_xcm::Config <span class="kw">for </span>Runtime {
 	<span class="kw">type </span>RuntimeEvent = RuntimeEvent;
@@ -427,13 +477,21 @@
 	<span class="kw">type </span>XcmTeleportFilter = Everything;
 	<span class="kw">type </span>XcmReserveTransferFilter = Nothing;
 	<span class="kw">type </span>Weigher = FixedWeightBounds&lt;UnitWeightCost, RuntimeCall, MaxInstructions&gt;;
-	<span class="kw">type </span>LocationInverter = LocationInverter&lt;Ancestry&gt;;
+	<span class="kw">type </span>UniversalLocation = UniversalLocation;
 	<span class="kw">type </span>RuntimeOrigin = RuntimeOrigin;
 	<span class="kw">type </span>RuntimeCall = RuntimeCall;
 
 	<span class="kw">const </span>VERSION_DISCOVERY_QUEUE_SIZE: u32 = <span class="number">100</span>;
 	<span class="comment">// ^ Override for AdvertisedXcmVersion default
 	</span><span class="kw">type </span>AdvertisedXcmVersion = pallet_xcm::CurrentXcmVersion;
+	<span class="kw">type </span>Currency = Balances;
+	<span class="kw">type </span>CurrencyMatcher = ();
+	<span class="kw">type </span>TrustedLockers = ();
+	<span class="kw">type </span>SovereignAccountOf = LocationToAccountId;
+	<span class="kw">type </span>MaxLockers = ConstU32&lt;<span class="number">8</span>&gt;;
+	<span class="kw">type </span>WeightInfo = pallet_xcm::TestWeightInfo;
+	<span class="attribute">#[cfg(feature = <span class="string">&quot;runtime-benchmarks&quot;</span>)]
+	</span><span class="kw">type </span>ReachableDest = ReachableDest;
 }
 
 <span class="kw">impl </span>cumulus_pallet_xcm::Config <span class="kw">for </span>Runtime {
