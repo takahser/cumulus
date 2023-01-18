@@ -1031,6 +1031,16 @@
 <span id="1031">1031</span>
 <span id="1032">1032</span>
 <span id="1033">1033</span>
+<span id="1034">1034</span>
+<span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2021-2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -1094,9 +1104,9 @@
 <span class="kw">pub use </span>parachains_common <span class="kw">as </span>common;
 <span class="kw">use </span>parachains_common::{
 	impls::{AssetsToBlockAuthor, DealWithFees},
-	opaque, AccountId, AssetId, AuraId, Balance, BlockNumber, Hash, Header, Index, Signature,
-	AVERAGE_ON_INITIALIZE_RATIO, DAYS, HOURS, MAXIMUM_BLOCK_WEIGHT, NORMAL_DISPATCH_RATIO,
-	SLOT_DURATION,
+	opaque, AccountId, AssetIdForTrustBackedAssets, AuraId, Balance, BlockNumber, Hash, Header,
+	Index, Signature, AVERAGE_ON_INITIALIZE_RATIO, DAYS, HOURS, MAXIMUM_BLOCK_WEIGHT,
+	NORMAL_DISPATCH_RATIO, SLOT_DURATION,
 };
 <span class="kw">use </span>xcm_config::{XcmConfig, XcmOriginToTransactDispatchOrigin};
 
@@ -1247,11 +1257,16 @@
 
 <span class="kw">pub type </span>AssetsForceOrigin = EnsureRoot&lt;AccountId&gt;;
 
-<span class="kw">impl </span>pallet_assets::Config <span class="kw">for </span>Runtime {
+<span class="comment">// Called &quot;Trust Backed&quot; assets because these are generally registered by some account, and users of
+// the asset assume it has some claimed backing. The pallet is called `Assets` in
+// `construct_runtime` to avoid breaking changes on storage reads.
+</span><span class="kw">pub type </span>TrustBackedAssetsInstance = pallet_assets::Instance1;
+<span class="kw">type </span>TrustBackedAssetsCall = pallet_assets::Call&lt;Runtime, TrustBackedAssetsInstance&gt;;
+<span class="kw">impl </span>pallet_assets::Config&lt;TrustBackedAssetsInstance&gt; <span class="kw">for </span>Runtime {
 	<span class="kw">type </span>RuntimeEvent = RuntimeEvent;
 	<span class="kw">type </span>Balance = Balance;
-	<span class="kw">type </span>AssetId = AssetId;
-	<span class="kw">type </span>AssetIdParameter = codec::Compact&lt;AssetId&gt;;
+	<span class="kw">type </span>AssetId = AssetIdForTrustBackedAssets;
+	<span class="kw">type </span>AssetIdParameter = codec::Compact&lt;AssetIdForTrustBackedAssets&gt;;
 	<span class="kw">type </span>Currency = Balances;
 	<span class="kw">type </span>CreateOrigin = AsEnsureOriginWithArg&lt;EnsureSigned&lt;AccountId&gt;&gt;;
 	<span class="kw">type </span>ForceOrigin = AssetsForceOrigin;
@@ -1370,15 +1385,15 @@
 			},
 			ProxyType::AssetOwner =&gt; <span class="macro">matches!</span>(
 				c,
-				RuntimeCall::Assets(pallet_assets::Call::create { .. }) |
-					RuntimeCall::Assets(pallet_assets::Call::start_destroy { .. }) |
-					RuntimeCall::Assets(pallet_assets::Call::destroy_accounts { .. }) |
-					RuntimeCall::Assets(pallet_assets::Call::destroy_approvals { .. }) |
-					RuntimeCall::Assets(pallet_assets::Call::finish_destroy { .. }) |
-					RuntimeCall::Assets(pallet_assets::Call::transfer_ownership { .. }) |
-					RuntimeCall::Assets(pallet_assets::Call::set_team { .. }) |
-					RuntimeCall::Assets(pallet_assets::Call::set_metadata { .. }) |
-					RuntimeCall::Assets(pallet_assets::Call::clear_metadata { .. }) |
+				RuntimeCall::Assets(TrustBackedAssetsCall::create { .. }) |
+					RuntimeCall::Assets(TrustBackedAssetsCall::start_destroy { .. }) |
+					RuntimeCall::Assets(TrustBackedAssetsCall::destroy_accounts { .. }) |
+					RuntimeCall::Assets(TrustBackedAssetsCall::destroy_approvals { .. }) |
+					RuntimeCall::Assets(TrustBackedAssetsCall::finish_destroy { .. }) |
+					RuntimeCall::Assets(TrustBackedAssetsCall::transfer_ownership { .. }) |
+					RuntimeCall::Assets(TrustBackedAssetsCall::set_team { .. }) |
+					RuntimeCall::Assets(TrustBackedAssetsCall::set_metadata { .. }) |
+					RuntimeCall::Assets(TrustBackedAssetsCall::clear_metadata { .. }) |
 					RuntimeCall::Nfts(pallet_nfts::Call::create { .. }) |
 					RuntimeCall::Nfts(pallet_nfts::Call::destroy { .. }) |
 					RuntimeCall::Nfts(pallet_nfts::Call::transfer_ownership { .. }) |
@@ -1406,12 +1421,12 @@
 			),
 			ProxyType::AssetManager =&gt; <span class="macro">matches!</span>(
 				c,
-				RuntimeCall::Assets(pallet_assets::Call::mint { .. }) |
-					RuntimeCall::Assets(pallet_assets::Call::burn { .. }) |
-					RuntimeCall::Assets(pallet_assets::Call::freeze { .. }) |
-					RuntimeCall::Assets(pallet_assets::Call::thaw { .. }) |
-					RuntimeCall::Assets(pallet_assets::Call::freeze_asset { .. }) |
-					RuntimeCall::Assets(pallet_assets::Call::thaw_asset { .. }) |
+				RuntimeCall::Assets(TrustBackedAssetsCall::mint { .. }) |
+					RuntimeCall::Assets(TrustBackedAssetsCall::burn { .. }) |
+					RuntimeCall::Assets(TrustBackedAssetsCall::freeze { .. }) |
+					RuntimeCall::Assets(TrustBackedAssetsCall::thaw { .. }) |
+					RuntimeCall::Assets(TrustBackedAssetsCall::freeze_asset { .. }) |
+					RuntimeCall::Assets(TrustBackedAssetsCall::thaw_asset { .. }) |
 					RuntimeCall::Nfts(pallet_nfts::Call::force_mint { .. }) |
 					RuntimeCall::Nfts(pallet_nfts::Call::burn { .. }) |
 					RuntimeCall::Nfts(pallet_nfts::Call::lock_item_transfer { .. }) |
@@ -1557,8 +1572,13 @@
 	<span class="kw">type </span>RuntimeEvent = RuntimeEvent;
 	<span class="kw">type </span>Fungibles = Assets;
 	<span class="kw">type </span>OnChargeAssetTransaction = pallet_asset_tx_payment::FungiblesAdapter&lt;
-		pallet_assets::BalanceToAssetBalance&lt;Balances, Runtime, ConvertInto&gt;,
-		AssetsToBlockAuthor&lt;Runtime&gt;,
+		pallet_assets::BalanceToAssetBalance&lt;
+			Balances,
+			Runtime,
+			ConvertInto,
+			TrustBackedAssetsInstance,
+		&gt;,
+		AssetsToBlockAuthor&lt;Runtime, TrustBackedAssetsInstance&gt;,
 	&gt;;
 }
 
@@ -1665,7 +1685,7 @@
 		Proxy: pallet_proxy::{Pallet, Call, Storage, Event&lt;T&gt;} = <span class="number">42</span>,
 
 		<span class="comment">// The main stage.
-		</span>Assets: pallet_assets::{Pallet, Call, Storage, Event&lt;T&gt;} = <span class="number">50</span>,
+		</span>Assets: pallet_assets::&lt;Instance1&gt;::{Pallet, Call, Storage, Event&lt;T&gt;} = <span class="number">50</span>,
 		Uniques: pallet_uniques::{Pallet, Call, Storage, Event&lt;T&gt;} = <span class="number">51</span>,
 		Nfts: pallet_nfts::{Pallet, Call, Storage, Event&lt;T&gt;} = <span class="number">52</span>,
 	}
@@ -1695,8 +1715,8 @@
 	generic::UncheckedExtrinsic&lt;Address, RuntimeCall, Signature, SignedExtra&gt;;
 <span class="doccomment">/// Extrinsic type that has already been checked.
 </span><span class="kw">pub type </span>CheckedExtrinsic = generic::CheckedExtrinsic&lt;AccountId, RuntimeCall, SignedExtra&gt;;
-
-<span class="kw">pub type </span>Migrations = ();
+<span class="doccomment">/// Migrations to apply on runtime upgrade.
+</span><span class="kw">pub type </span>Migrations = ();
 
 <span class="doccomment">/// Executive: handles dispatch to the various modules.
 </span><span class="kw">pub type </span>Executive = frame_executive::Executive&lt;

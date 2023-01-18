@@ -371,6 +371,16 @@
 <span id="371">371</span>
 <span id="372">372</span>
 <span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -387,9 +397,9 @@
 // limitations under the License.
 
 </span><span class="kw">use super</span>::{
-	AccountId, AllPalletsWithSystem, AssetId, Assets, Authorship, Balance, Balances, ParachainInfo,
-	ParachainSystem, PolkadotXcm, Runtime, RuntimeCall, RuntimeEvent, RuntimeOrigin, WeightToFee,
-	XcmpQueue,
+	AccountId, AllPalletsWithSystem, AssetIdForTrustBackedAssets, Assets, Authorship, Balance,
+	Balances, ParachainInfo, ParachainSystem, PolkadotXcm, Runtime, RuntimeCall, RuntimeEvent,
+	RuntimeOrigin, TrustBackedAssetsInstance, WeightToFee, XcmpQueue,
 };
 <span class="kw">use </span>frame_support::{
 	match_types, parameter_types,
@@ -423,10 +433,11 @@
 	<span class="kw">pub const </span>WestendLocation: MultiLocation = MultiLocation::parent();
 	<span class="kw">pub </span>RelayNetwork: <span class="prelude-ty">Option</span>&lt;NetworkId&gt; = <span class="prelude-val">Some</span>(NetworkId::Westend);
 	<span class="kw">pub </span>RelayChainOrigin: RuntimeOrigin = cumulus_pallet_xcm::Origin::Relay.into();
+	<span class="kw">pub </span>Ancestry: MultiLocation = Parachain(ParachainInfo::parachain_id().into()).into();
 	<span class="kw">pub </span>UniversalLocation: InteriorMultiLocation =
 		X2(GlobalConsensus(RelayNetwork::get().unwrap()), Parachain(ParachainInfo::parachain_id().into()));
 	<span class="kw">pub const </span>Local: MultiLocation = Here.into_location();
-	<span class="kw">pub </span>AssetsPalletLocation: MultiLocation =
+	<span class="kw">pub </span>TrustBackedAssetsPalletLocation: MultiLocation =
 		PalletInstance(&lt;Assets <span class="kw">as </span>PalletInfoAccess&gt;::index() <span class="kw">as </span>u8).into();
 	<span class="kw">pub </span>CheckingAccount: AccountId = PolkadotXcm::check_account();
 }
@@ -463,9 +474,13 @@
 	</span>Assets,
 	<span class="comment">// Use this currency when it is a fungible asset matching the given location or name:
 	</span>ConvertedConcreteId&lt;
-		AssetId,
+		AssetIdForTrustBackedAssets,
 		Balance,
-		AsPrefixedGeneralIndex&lt;AssetsPalletLocation, AssetId, JustTry&gt;,
+		AsPrefixedGeneralIndex&lt;
+			TrustBackedAssetsPalletLocation,
+			AssetIdForTrustBackedAssets,
+			JustTry,
+		&gt;,
 		JustTry,
 	&gt;,
 	<span class="comment">// Convert an XCM MultiLocation into a local account id:
@@ -639,7 +654,8 @@
 <span class="kw">pub type </span>AssetFeeAsExistentialDepositMultiplierFeeCharger = AssetFeeAsExistentialDepositMultiplier&lt;
 	Runtime,
 	WeightToFee,
-	pallet_assets::BalanceToAssetBalance&lt;Balances, Runtime, ConvertInto&gt;,
+	pallet_assets::BalanceToAssetBalance&lt;Balances, Runtime, ConvertInto, TrustBackedAssetsInstance&gt;,
+	TrustBackedAssetsInstance,
 &gt;;
 
 <span class="kw">pub struct </span>XcmConfig;
@@ -666,9 +682,13 @@
 			AccountId,
 			AssetFeeAsExistentialDepositMultiplierFeeCharger,
 			ConvertedConcreteId&lt;
-				AssetId,
+				AssetIdForTrustBackedAssets,
 				Balance,
-				AsPrefixedGeneralIndex&lt;AssetsPalletLocation, AssetId, JustTry&gt;,
+				AsPrefixedGeneralIndex&lt;
+					TrustBackedAssetsPalletLocation,
+					AssetIdForTrustBackedAssets,
+					JustTry,
+				&gt;,
 				JustTry,
 			&gt;,
 			Assets,

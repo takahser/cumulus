@@ -121,6 +121,13 @@
 <span id="121">121</span>
 <span id="122">122</span>
 <span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::impls::AccountIdOf;
 <span class="kw">use </span>core::marker::PhantomData;
 <span class="kw">use </span>frame_support::{
@@ -199,30 +206,37 @@
 <span class="doccomment">/// A `ChargeFeeInFungibles` implementation that converts the output of
 /// a given WeightToFee implementation an amount charged in
 /// a particular assetId from pallet-assets
-</span><span class="kw">pub struct </span>AssetFeeAsExistentialDepositMultiplier&lt;Runtime, WeightToFee, BalanceConverter&gt;(
-	PhantomData&lt;(Runtime, WeightToFee, BalanceConverter)&gt;,
-);
-<span class="kw">impl</span>&lt;CurrencyBalance, Runtime, WeightToFee, BalanceConverter&gt;
+</span><span class="kw">pub struct </span>AssetFeeAsExistentialDepositMultiplier&lt;
+	Runtime,
+	WeightToFee,
+	BalanceConverter,
+	AssetInstance: <span class="lifetime">&#39;static</span>,
+&gt;(PhantomData&lt;(Runtime, WeightToFee, BalanceConverter, AssetInstance)&gt;);
+<span class="kw">impl</span>&lt;CurrencyBalance, Runtime, WeightToFee, BalanceConverter, AssetInstance&gt;
 	cumulus_primitives_utility::ChargeWeightInFungibles&lt;
 		AccountIdOf&lt;Runtime&gt;,
-		pallet_assets::Pallet&lt;Runtime&gt;,
-	&gt; <span class="kw">for </span>AssetFeeAsExistentialDepositMultiplier&lt;Runtime, WeightToFee, BalanceConverter&gt;
+		pallet_assets::Pallet&lt;Runtime, AssetInstance&gt;,
+	&gt; <span class="kw">for </span>AssetFeeAsExistentialDepositMultiplier&lt;Runtime, WeightToFee, BalanceConverter, AssetInstance&gt;
 <span class="kw">where
-	</span>Runtime: pallet_assets::Config,
+	</span>Runtime: pallet_assets::Config&lt;AssetInstance&gt;,
 	WeightToFee: WeightToFeePolynomial&lt;Balance = CurrencyBalance&gt;,
 	BalanceConverter: BalanceConversion&lt;
 		CurrencyBalance,
-		&lt;Runtime <span class="kw">as </span>pallet_assets::Config&gt;::AssetId,
-		&lt;Runtime <span class="kw">as </span>pallet_assets::Config&gt;::Balance,
+		&lt;Runtime <span class="kw">as </span>pallet_assets::Config&lt;AssetInstance&gt;&gt;::AssetId,
+		&lt;Runtime <span class="kw">as </span>pallet_assets::Config&lt;AssetInstance&gt;&gt;::Balance,
 	&gt;,
 	AccountIdOf&lt;Runtime&gt;:
 		From&lt;polkadot_primitives::AccountId&gt; + Into&lt;polkadot_primitives::AccountId&gt;,
 {
 	<span class="kw">fn </span>charge_weight_in_fungibles(
-		asset_id: &lt;pallet_assets::Pallet&lt;Runtime&gt; <span class="kw">as </span>Inspect&lt;AccountIdOf&lt;Runtime&gt;&gt;&gt;::AssetId,
+		asset_id: &lt;pallet_assets::Pallet&lt;Runtime, AssetInstance&gt; <span class="kw">as </span>Inspect&lt;
+			AccountIdOf&lt;Runtime&gt;,
+		&gt;&gt;::AssetId,
 		weight: Weight,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;pallet_assets::Pallet&lt;Runtime&gt; <span class="kw">as </span>Inspect&lt;AccountIdOf&lt;Runtime&gt;&gt;&gt;::Balance, XcmError&gt;
-	{
+	) -&gt; <span class="prelude-ty">Result</span>&lt;
+		&lt;pallet_assets::Pallet&lt;Runtime, AssetInstance&gt; <span class="kw">as </span>Inspect&lt;AccountIdOf&lt;Runtime&gt;&gt;&gt;::Balance,
+		XcmError,
+	&gt; {
 		<span class="kw">let </span>amount = WeightToFee::weight_to_fee(<span class="kw-2">&amp;</span>weight);
 		<span class="comment">// If the amount gotten is not at least the ED, then make it be the ED of the asset
 		// This is to avoid burning assets and decreasing the supply

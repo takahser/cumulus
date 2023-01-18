@@ -273,6 +273,7 @@
 <span id="273">273</span>
 <span id="274">274</span>
 <span id="275">275</span>
+<span id="276">276</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2021 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -343,16 +344,17 @@
 
 <span class="doccomment">/// A `HandleCredit` implementation that naively transfers the fees to the block author.
 /// Will drop and burn the assets in case the transfer fails.
-</span><span class="kw">pub struct </span>AssetsToBlockAuthor&lt;R&gt;(PhantomData&lt;R&gt;);
-<span class="kw">impl</span>&lt;R&gt; HandleCredit&lt;AccountIdOf&lt;R&gt;, pallet_assets::Pallet&lt;R&gt;&gt; <span class="kw">for </span>AssetsToBlockAuthor&lt;R&gt;
+</span><span class="kw">pub struct </span>AssetsToBlockAuthor&lt;R, I&gt;(PhantomData&lt;(R, I)&gt;);
+<span class="kw">impl</span>&lt;R, I&gt; HandleCredit&lt;AccountIdOf&lt;R&gt;, pallet_assets::Pallet&lt;R, I&gt;&gt; <span class="kw">for </span>AssetsToBlockAuthor&lt;R, I&gt;
 <span class="kw">where
-	</span>R: pallet_authorship::Config + pallet_assets::Config,
+	</span>I: <span class="lifetime">&#39;static</span>,
+	R: pallet_authorship::Config + pallet_assets::Config&lt;I&gt;,
 	AccountIdOf&lt;R&gt;: From&lt;polkadot_primitives::AccountId&gt; + Into&lt;polkadot_primitives::AccountId&gt;,
 {
-	<span class="kw">fn </span>handle_credit(credit: CreditOf&lt;AccountIdOf&lt;R&gt;, pallet_assets::Pallet&lt;R&gt;&gt;) {
+	<span class="kw">fn </span>handle_credit(credit: CreditOf&lt;AccountIdOf&lt;R&gt;, pallet_assets::Pallet&lt;R, I&gt;&gt;) {
 		<span class="kw">if let </span><span class="prelude-val">Some</span>(author) = pallet_authorship::Pallet::&lt;R&gt;::author() {
 			<span class="comment">// In case of error: Will drop the result triggering the `OnDrop` of the imbalance.
-			</span><span class="kw">let _ </span>= pallet_assets::Pallet::&lt;R&gt;::resolve(<span class="kw-2">&amp;</span>author, credit);
+			</span><span class="kw">let _ </span>= pallet_assets::Pallet::&lt;R, I&gt;::resolve(<span class="kw-2">&amp;</span>author, credit);
 		}
 	}
 }

@@ -847,7 +847,7 @@
 
 <span class="kw">use </span>parachains_common::{
 	impls::{AssetsFrom, NonZeroIssuance},
-	AccountId, AssetId, Signature,
+	AccountId, AssetIdForTrustBackedAssets, Signature,
 };
 <span class="kw">use </span>xcm_builder::{
 	AllowKnownQueryResponses, AllowSubscriptionsFrom, AsPrefixedGeneralIndex, ConvertedConcreteId,
@@ -1095,9 +1095,9 @@
 	</span>Assets,
 	<span class="comment">// Use this currency when it is a fungible asset matching the given location or name:
 	</span>ConvertedConcreteId&lt;
-		AssetId,
+		AssetIdForTrustBackedAssets,
 		u64,
-		AsPrefixedGeneralIndex&lt;StatemintAssetsPalletLocation, AssetId, JustTry&gt;,
+		AsPrefixedGeneralIndex&lt;StatemintAssetsPalletLocation, AssetIdForTrustBackedAssets, JustTry&gt;,
 		JustTry,
 	&gt;,
 	<span class="comment">// Convert an XCM MultiLocation into a local account id:
@@ -1295,8 +1295,8 @@
 <span class="kw">impl </span>pallet_assets::Config <span class="kw">for </span>Runtime {
 	<span class="kw">type </span>RuntimeEvent = RuntimeEvent;
 	<span class="kw">type </span>Balance = u64;
-	<span class="kw">type </span>AssetId = AssetId;
-	<span class="kw">type </span>AssetIdParameter = codec::Compact&lt;AssetId&gt;;
+	<span class="kw">type </span>AssetId = AssetIdForTrustBackedAssets;
+	<span class="kw">type </span>AssetIdParameter = codec::Compact&lt;AssetIdForTrustBackedAssets&gt;;
 	<span class="kw">type </span>Currency = Balances;
 	<span class="kw">type </span>CreateOrigin = AsEnsureOriginWithArg&lt;EnsureSigned&lt;AccountId&gt;&gt;;
 	<span class="kw">type </span>ForceOrigin = AdminOrigin;
