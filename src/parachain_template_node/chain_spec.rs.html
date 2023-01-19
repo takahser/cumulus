@@ -219,6 +219,7 @@
 <span id="219">219</span>
 <span id="220">220</span>
 <span id="221">221</span>
+<span id="222">222</span>
 </pre><pre class="rust"><code><span class="kw">use </span>cumulus_primitives_core::ParaId;
 <span class="kw">use </span>parachain_template_runtime::{AccountId, AuraId, Signature, EXISTENTIAL_DEPOSIT};
 <span class="kw">use </span>sc_chain_spec::{ChainSpecExtension, ChainSpecGroup};
@@ -438,6 +439,7 @@
 		polkadot_xcm: parachain_template_runtime::PolkadotXcmConfig {
 			safe_xcm_version: <span class="prelude-val">Some</span>(SAFE_XCM_VERSION),
 		},
+		transaction_payment: Default::default(),
 	}
 }
 </code></pre></div>
