@@ -189,6 +189,9 @@
 <span id="189">189</span>
 <span id="190">190</span>
 <span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -337,6 +340,9 @@
 		Weight::from_ref_time(<span class="number">6_071_000 </span><span class="kw">as </span>u64)
 	}
 	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>expect_error() -&gt; Weight {
+		Weight::from_ref_time(<span class="number">6_044_000 </span><span class="kw">as </span>u64)
+	}
+	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>expect_transact_status() -&gt; Weight {
 		Weight::from_ref_time(<span class="number">6_044_000 </span><span class="kw">as </span>u64)
 	}
 	<span class="comment">// Storage: ParachainInfo ParachainId (r:1 w:0)

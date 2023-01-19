@@ -238,6 +238,9 @@
 <span id="238">238</span>
 <span id="239">239</span>
 <span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -424,6 +427,9 @@
 	}
 	<span class="kw">fn </span>expect_error(_error: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;(u32, XcmError)&gt;) -&gt; Weight {
 		XcmGeneric::&lt;Runtime&gt;::expect_error()
+	}
+	<span class="kw">fn </span>expect_transact_status(_transact_status: <span class="kw-2">&amp;</span>MaybeErrorCode) -&gt; Weight {
+		XcmGeneric::&lt;Runtime&gt;::expect_transact_status()
 	}
 	<span class="kw">fn </span>query_pallet(_module_name: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;, _response_info: <span class="kw-2">&amp;</span>QueryResponseInfo) -&gt; Weight {
 		XcmGeneric::&lt;Runtime&gt;::query_pallet()
