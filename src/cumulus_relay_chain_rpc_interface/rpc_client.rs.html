@@ -477,9 +477,6 @@
 <span id="477">477</span>
 <span id="478">478</span>
 <span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -623,12 +620,9 @@
 		at: RelayHash,
 		index: SessionIndex,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;OldV1SessionInfo&gt;, RelayChainError&gt; {
-		<span class="self">self</span>.call_remote_runtime_function(
-			<span class="string">&quot;ParachainHost_session_info_before_version_2&quot;</span>,
-			at,
-			<span class="prelude-val">Some</span>(index),
-		)
-		.<span class="kw">await
+		<span class="comment">// The function in wasm never changes/gets augmented with a version
+		</span><span class="self">self</span>.call_remote_runtime_function(<span class="string">&quot;ParachainHost_session_info&quot;</span>, at, <span class="prelude-val">Some</span>(index))
+			.<span class="kw">await
 	</span>}
 
 	<span class="doccomment">/// Scrape dispute relevant from on-chain, backing votes and resolved disputes.
@@ -963,4 +957,4 @@
 	}
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cumulus_relay_chain_rpc_interface" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cumulus_relay_chain_rpc_interface" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>
