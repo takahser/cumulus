@@ -1580,6 +1580,27 @@
 <span id="1580">1580</span>
 <span id="1581">1581</span>
 <span id="1582">1582</span>
+<span id="1583">1583</span>
+<span id="1584">1584</span>
+<span id="1585">1585</span>
+<span id="1586">1586</span>
+<span id="1587">1587</span>
+<span id="1588">1588</span>
+<span id="1589">1589</span>
+<span id="1590">1590</span>
+<span id="1591">1591</span>
+<span id="1592">1592</span>
+<span id="1593">1593</span>
+<span id="1594">1594</span>
+<span id="1595">1595</span>
+<span id="1596">1596</span>
+<span id="1597">1597</span>
+<span id="1598">1598</span>
+<span id="1599">1599</span>
+<span id="1600">1600</span>
+<span id="1601">1601</span>
+<span id="1602">1602</span>
+<span id="1603">1603</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1998,6 +2019,9 @@
 
 	<span class="kw">if let </span><span class="prelude-val">Some</span>(hwbench) = hwbench {
 		sc_sysinfo::print_hwbench(<span class="kw-2">&amp;</span>hwbench);
+		<span class="kw">if </span>validator {
+			warn_if_slow_hardware(<span class="kw-2">&amp;</span>hwbench);
+		}
 
 		<span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>telemetry) = telemetry {
 			<span class="kw">let </span>telemetry_handle = telemetry.handle();
@@ -2195,6 +2219,9 @@
 
 	<span class="kw">if let </span><span class="prelude-val">Some</span>(hwbench) = hwbench {
 		sc_sysinfo::print_hwbench(<span class="kw-2">&amp;</span>hwbench);
+		<span class="kw">if </span>validator {
+			warn_if_slow_hardware(<span class="kw-2">&amp;</span>hwbench);
+		}
 
 		<span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>telemetry) = telemetry {
 			<span class="kw">let </span>telemetry_handle = telemetry.handle();
@@ -2965,6 +2992,9 @@
 
 	<span class="kw">if let </span><span class="prelude-val">Some</span>(hwbench) = hwbench {
 		sc_sysinfo::print_hwbench(<span class="kw-2">&amp;</span>hwbench);
+		<span class="kw">if </span>validator {
+			warn_if_slow_hardware(<span class="kw-2">&amp;</span>hwbench);
+		}
 
 		<span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>telemetry) = telemetry {
 			<span class="kw">let </span>telemetry_handle = telemetry.handle();
@@ -3162,5 +3192,17 @@
 	)
 	.<span class="kw">await
 </span>}
+
+<span class="doccomment">/// Checks that the hardware meets the requirements and print a warning otherwise.
+</span><span class="kw">fn </span>warn_if_slow_hardware(hwbench: <span class="kw-2">&amp;</span>sc_sysinfo::HwBench) {
+	<span class="comment">// Polkadot para-chains should generally use these requirements to ensure that the relay-chain
+	// will not take longer than expected to import its blocks.
+	</span><span class="kw">if </span>!frame_benchmarking_cli::SUBSTRATE_REFERENCE_HARDWARE.check_hardware(hwbench) {
+		<span class="macro">log::warn!</span>(
+			<span class="string">&quot;⚠️  The hardware does not meet the minimal requirements for role &#39;Authority&#39; find out more at:\n\
+			https://wiki.polkadot.network/docs/maintain-guides-how-to-validate-polkadot#reference-hardware&quot;
+		</span>);
+	}
+}
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="polkadot_parachain" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

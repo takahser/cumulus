@@ -414,6 +414,15 @@
 <span id="414">414</span>
 <span id="415">415</span>
 <span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Service and ServiceFactory implementation. Specialized wrapper over substrate service.
 
 </span><span class="comment">// std
@@ -437,7 +446,8 @@
 <span class="kw">use </span>cumulus_relay_chain_interface::{RelayChainError, RelayChainInterface};
 
 <span class="comment">// Substrate Imports
-</span><span class="kw">use </span>sc_consensus::ImportQueue;
+</span><span class="kw">use </span>frame_benchmarking_cli::SUBSTRATE_REFERENCE_HARDWARE;
+<span class="kw">use </span>sc_consensus::ImportQueue;
 <span class="kw">use </span>sc_executor::NativeElseWasmExecutor;
 <span class="kw">use </span>sc_network::NetworkService;
 <span class="kw">use </span>sc_network_common::service::NetworkBlock;
@@ -645,6 +655,14 @@
 
 	<span class="kw">if let </span><span class="prelude-val">Some</span>(hwbench) = hwbench {
 		sc_sysinfo::print_hwbench(<span class="kw-2">&amp;</span>hwbench);
+		<span class="comment">// Here you can check whether the hardware meets your chains&#39; requirements. Putting a link
+		// in there and swapping out the requirements for your own are probably a good idea. The
+		// requirements for a para-chain are dictated by its relay-chain.
+		</span><span class="kw">if </span>!SUBSTRATE_REFERENCE_HARDWARE.check_hardware(<span class="kw-2">&amp;</span>hwbench) &amp;&amp; validator {
+			<span class="macro">log::warn!</span>(
+				<span class="string">&quot;⚠️  The hardware does not meet the minimal requirements for role &#39;Authority&#39;.&quot;
+			</span>);
+		}
 
 		<span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>telemetry) = telemetry {
 			<span class="kw">let </span>telemetry_handle = telemetry.handle();

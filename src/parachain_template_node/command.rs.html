@@ -446,9 +446,6 @@
 <span id="446">446</span>
 <span id="447">447</span>
 <span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::net::SocketAddr;
 
 <span class="kw">use </span>codec::Encode;
@@ -707,14 +704,11 @@
 			<span class="kw">let </span>collator_options = cli.run.collator_options();
 
 			runner.run_node_until_exit(|config| <span class="kw">async move </span>{
-				<span class="kw">let </span>hwbench = <span class="kw">if </span>!cli.no_hardware_benchmarks {
+				<span class="kw">let </span>hwbench = (!cli.no_hardware_benchmarks).then_some(
 					config.database.path().map(|database_path| {
 						<span class="kw">let _ </span>= std::fs::create_dir_all(<span class="kw-2">&amp;</span>database_path);
 						sc_sysinfo::gather_hwbench(<span class="prelude-val">Some</span>(database_path))
-					})
-				} <span class="kw">else </span>{
-					<span class="prelude-val">None
-				</span>};
+					})).flatten();
 
 				<span class="kw">let </span>para_id = chain_spec::Extensions::try_get(<span class="kw-2">&amp;*</span>config.chain_spec)
 					.map(|e| e.para_id)
