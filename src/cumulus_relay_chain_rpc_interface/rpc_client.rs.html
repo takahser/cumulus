@@ -472,11 +472,6 @@
 <span id="472">472</span>
 <span id="473">473</span>
 <span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -656,11 +651,6 @@
 			<span class="prelude-val">Some</span>((stmt, signature)),
 		)
 		.<span class="kw">await
-	</span>}
-
-	<span class="doccomment">/// Get local listen address of the node
-	</span><span class="kw">pub async fn </span>system_local_listen_addresses(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;String&gt;, RelayChainError&gt; {
-		<span class="self">self</span>.request(<span class="string">&quot;system_localListenAddresses&quot;</span>, <span class="macro">rpc_params!</span>[]).<span class="kw">await
 	</span>}
 
 	<span class="doccomment">/// Get system health information

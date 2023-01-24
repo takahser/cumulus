@@ -413,30 +413,6 @@
 <span id="413">413</span>
 <span id="414">414</span>
 <span id="415">415</span>
-<span id="416">416</span>
-<span id="417">417</span>
-<span id="418">418</span>
-<span id="419">419</span>
-<span id="420">420</span>
-<span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
-<span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
-<span id="433">433</span>
-<span id="434">434</span>
-<span id="435">435</span>
-<span id="436">436</span>
-<span id="437">437</span>
-<span id="438">438</span>
-<span id="439">439</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -453,7 +429,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Cumulus.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span>std::{pin::Pin, str::FromStr};
+</span><span class="kw">use </span>std::pin::Pin;
 
 <span class="kw">use </span>cumulus_relay_chain_interface::{RelayChainError, RelayChainResult};
 <span class="kw">use </span>cumulus_relay_chain_rpc_interface::RelayChainRpcClient;
@@ -463,11 +439,8 @@
 <span class="kw">use </span>polkadot_service::{AuxStore, HeaderBackend};
 <span class="kw">use </span>sc_authority_discovery::AuthorityDiscovery;
 
-<span class="kw">use </span>sc_network_common::config::MultiaddrWithPeerId;
 <span class="kw">use </span>sp_api::{ApiError, RuntimeApiInfo};
 <span class="kw">use </span>sp_blockchain::Info;
-
-<span class="kw">const </span>LOG_TARGET: <span class="kw-2">&amp;</span>str = <span class="string">&quot;blockchain-rpc-client&quot;</span>;
 
 <span class="attribute">#[derive(Clone)]
 </span><span class="kw">pub struct </span>BlockChainRpcClient {
@@ -777,27 +750,6 @@
 }
 
 <span class="kw">impl </span>BlockChainRpcClient {
-	<span class="kw">pub async fn </span>local_listen_addresses(
-		<span class="kw-2">&amp;</span><span class="self">self</span>,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;MultiaddrWithPeerId&gt;, RelayChainError&gt; {
-		<span class="kw">let </span>addresses = <span class="self">self</span>.rpc_client.system_local_listen_addresses().<span class="kw">await</span><span class="question-mark">?</span>;
-		<span class="macro">tracing::debug!</span>(target: LOG_TARGET, <span class="question-mark">?</span>addresses, <span class="string">&quot;Fetched listen address from RPC node.&quot;</span>);
-
-		<span class="kw">let </span><span class="kw-2">mut </span>result_vec = Vec::new();
-		<span class="kw">for </span>address <span class="kw">in </span>addresses {
-			<span class="kw">match </span>MultiaddrWithPeerId::from_str(<span class="kw-2">&amp;</span>address) {
-				<span class="prelude-val">Ok</span>(addr) =&gt; result_vec.push(addr),
-				<span class="prelude-val">Err</span>(err) =&gt;
-					<span class="kw">return </span><span class="prelude-val">Err</span>(RelayChainError::GenericError(<span class="macro">format!</span>(
-						<span class="string">&quot;Failed to parse a local listen addresses from the RPC node: {}&quot;</span>,
-						err
-					))),
-			}
-		}
-
-		<span class="prelude-val">Ok</span>(result_vec)
-	}
-
 	<span class="kw">pub async fn </span>import_notification_stream(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 	) -&gt; RelayChainResult&lt;Pin&lt;Box&lt;<span class="kw">dyn </span>Stream&lt;Item = Header&gt; + Send&gt;&gt;&gt; {

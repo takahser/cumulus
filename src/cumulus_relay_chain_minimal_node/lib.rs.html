@@ -209,10 +209,6 @@
 <span id="209">209</span>
 <span id="210">210</span>
 <span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2017-2022 Parity Technologies (UK) Ltd.
 // This file is part of Polkadot.
 
@@ -341,10 +337,6 @@
 	relay_chain_rpc_client: Arc&lt;BlockChainRpcClient&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;NewMinimalNode, RelayChainError&gt; {
 	<span class="kw">let </span>role = config.role.clone();
-
-	<span class="comment">// Use the given RPC node as bootnode, since we do not have a chain spec with valid boot nodes
-	</span><span class="kw">let </span><span class="kw-2">mut </span>boot_node_address = relay_chain_rpc_client.local_listen_addresses().<span class="kw">await</span><span class="question-mark">?</span>;
-	config.network.boot_nodes.append(<span class="kw-2">&amp;mut </span>boot_node_address);
 
 	<span class="kw">let </span>task_manager = {
 		<span class="kw">let </span>registry = config.prometheus_config.as_ref().map(|cfg| <span class="kw-2">&amp;</span>cfg.registry);
