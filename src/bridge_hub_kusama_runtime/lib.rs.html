@@ -740,6 +740,12 @@
 <span id="740">740</span>
 <span id="741">741</span>
 <span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1288,6 +1294,12 @@
 			len: u32,
 		) -&gt; pallet_transaction_payment::FeeDetails&lt;Balance&gt; {
 			TransactionPayment::query_fee_details(uxt, len)
+		}
+		<span class="kw">fn </span>query_weight_to_fee(weight: Weight) -&gt; Balance {
+			TransactionPayment::weight_to_fee(weight)
+		}
+		<span class="kw">fn </span>query_length_to_fee(length: u32) -&gt; Balance {
+			TransactionPayment::length_to_fee(length)
 		}
 	}
 

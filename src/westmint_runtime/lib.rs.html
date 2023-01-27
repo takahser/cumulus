@@ -1041,6 +1041,18 @@
 <span id="1041">1041</span>
 <span id="1042">1042</span>
 <span id="1043">1043</span>
+<span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2021-2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -1854,6 +1866,12 @@
 		) -&gt; pallet_transaction_payment::FeeDetails&lt;Balance&gt; {
 			TransactionPayment::query_fee_details(uxt, len)
 		}
+		<span class="kw">fn </span>query_weight_to_fee(weight: Weight) -&gt; Balance {
+			TransactionPayment::weight_to_fee(weight)
+		}
+		<span class="kw">fn </span>query_length_to_fee(length: u32) -&gt; Balance {
+			TransactionPayment::length_to_fee(length)
+		}
 	}
 
 	<span class="kw">impl </span>pallet_transaction_payment_rpc_runtime_api::TransactionPaymentCallApi&lt;Block, Balance, RuntimeCall&gt;
@@ -1870,6 +1888,12 @@
 			len: u32,
 		) -&gt; pallet_transaction_payment::FeeDetails&lt;Balance&gt; {
 			TransactionPayment::query_call_fee_details(call, len)
+		}
+		<span class="kw">fn </span>query_weight_to_fee(weight: Weight) -&gt; Balance {
+			TransactionPayment::weight_to_fee(weight)
+		}
+		<span class="kw">fn </span>query_length_to_fee(length: u32) -&gt; Balance {
+			TransactionPayment::length_to_fee(length)
 		}
 	}
 
