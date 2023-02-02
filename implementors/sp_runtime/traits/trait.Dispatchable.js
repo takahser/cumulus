@@ -1,5 +1,6 @@
 (function() {var implementors = {
 "bridge_hub_kusama_runtime":[["impl Dispatchable for <a class=\"enum\" href=\"bridge_hub_kusama_runtime/enum.RuntimeCall.html\" title=\"enum bridge_hub_kusama_runtime::RuntimeCall\">RuntimeCall</a>"]],
+"bridge_hub_polkadot_runtime":[["impl Dispatchable for <a class=\"enum\" href=\"bridge_hub_polkadot_runtime/enum.RuntimeCall.html\" title=\"enum bridge_hub_polkadot_runtime::RuntimeCall\">RuntimeCall</a>"]],
 "bridge_hub_rococo_runtime":[["impl Dispatchable for <a class=\"enum\" href=\"bridge_hub_rococo_runtime/enum.RuntimeCall.html\" title=\"enum bridge_hub_rococo_runtime::RuntimeCall\">RuntimeCall</a>"]],
 "collectives_polkadot_runtime":[["impl Dispatchable for <a class=\"enum\" href=\"collectives_polkadot_runtime/enum.RuntimeCall.html\" title=\"enum collectives_polkadot_runtime::RuntimeCall\">RuntimeCall</a>"]],
 "contracts_rococo_runtime":[["impl Dispatchable for <a class=\"enum\" href=\"contracts_rococo_runtime/enum.RuntimeCall.html\" title=\"enum contracts_rococo_runtime::RuntimeCall\">RuntimeCall</a>"]],

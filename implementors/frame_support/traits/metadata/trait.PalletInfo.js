@@ -1,5 +1,6 @@
 (function() {var implementors = {
 "bridge_hub_kusama_runtime":[["impl PalletInfo for <a class=\"struct\" href=\"bridge_hub_kusama_runtime/struct.PalletInfo.html\" title=\"struct bridge_hub_kusama_runtime::PalletInfo\">PalletInfo</a>"]],
+"bridge_hub_polkadot_runtime":[["impl PalletInfo for <a class=\"struct\" href=\"bridge_hub_polkadot_runtime/struct.PalletInfo.html\" title=\"struct bridge_hub_polkadot_runtime::PalletInfo\">PalletInfo</a>"]],
 "bridge_hub_rococo_runtime":[["impl PalletInfo for <a class=\"struct\" href=\"bridge_hub_rococo_runtime/struct.PalletInfo.html\" title=\"struct bridge_hub_rococo_runtime::PalletInfo\">PalletInfo</a>"]],
 "collectives_polkadot_runtime":[["impl PalletInfo for <a class=\"struct\" href=\"collectives_polkadot_runtime/struct.PalletInfo.html\" title=\"struct collectives_polkadot_runtime::PalletInfo\">PalletInfo</a>"]],
 "contracts_rococo_runtime":[["impl PalletInfo for <a class=\"struct\" href=\"contracts_rococo_runtime/struct.PalletInfo.html\" title=\"struct contracts_rococo_runtime::PalletInfo\">PalletInfo</a>"]],

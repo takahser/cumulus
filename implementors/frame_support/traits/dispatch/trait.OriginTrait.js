@@ -1,5 +1,6 @@
 (function() {var implementors = {
 "bridge_hub_kusama_runtime":[["impl OriginTrait for <a class=\"struct\" href=\"bridge_hub_kusama_runtime/struct.RuntimeOrigin.html\" title=\"struct bridge_hub_kusama_runtime::RuntimeOrigin\">RuntimeOrigin</a>"]],
+"bridge_hub_polkadot_runtime":[["impl OriginTrait for <a class=\"struct\" href=\"bridge_hub_polkadot_runtime/struct.RuntimeOrigin.html\" title=\"struct bridge_hub_polkadot_runtime::RuntimeOrigin\">RuntimeOrigin</a>"]],
 "bridge_hub_rococo_runtime":[["impl OriginTrait for <a class=\"struct\" href=\"bridge_hub_rococo_runtime/struct.RuntimeOrigin.html\" title=\"struct bridge_hub_rococo_runtime::RuntimeOrigin\">RuntimeOrigin</a>"]],
 "collectives_polkadot_runtime":[["impl OriginTrait for <a class=\"struct\" href=\"collectives_polkadot_runtime/struct.RuntimeOrigin.html\" title=\"struct collectives_polkadot_runtime::RuntimeOrigin\">RuntimeOrigin</a>"]],
 "contracts_rococo_runtime":[["impl OriginTrait for <a class=\"struct\" href=\"contracts_rococo_runtime/struct.RuntimeOrigin.html\" title=\"struct contracts_rococo_runtime::RuntimeOrigin\">RuntimeOrigin</a>"]],
