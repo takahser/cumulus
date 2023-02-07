@@ -951,7 +951,7 @@
 	<span class="kw">type </span>CheckAssociatedRelayNumber = RelayNumberStrictlyIncreases;
 }
 
-<span class="kw">impl </span>pallet_randomness_collective_flip::Config <span class="kw">for </span>Runtime {}
+<span class="kw">impl </span>pallet_insecure_randomness_collective_flip::Config <span class="kw">for </span>Runtime {}
 
 <span class="kw">impl </span>parachain_info::Config <span class="kw">for </span>Runtime {}
 
@@ -1019,7 +1019,7 @@
 		ParachainSystem: cumulus_pallet_parachain_system::{
 			Pallet, Call, Config, Storage, Inherent, Event&lt;T&gt;, ValidateUnsigned,
 		} = <span class="number">1</span>,
-		RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage} = <span class="number">2</span>,
+		RandomnessCollectiveFlip: pallet_insecure_randomness_collective_flip::{Pallet, Storage} = <span class="number">2</span>,
 		Timestamp: pallet_timestamp::{Pallet, Call, Storage, Inherent} = <span class="number">3</span>,
 		ParachainInfo: parachain_info::{Pallet, Storage, Config} = <span class="number">4</span>,
 
