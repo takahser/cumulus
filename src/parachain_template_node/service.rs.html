@@ -423,6 +423,12 @@
 <a href="#423" id="423">423</a>
 <a href="#424" id="424">424</a>
 <a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Service and ServiceFactory implementation. Specialized wrapper over substrate service.
 
 </span><span class="comment">// std
@@ -681,6 +687,10 @@
 
 	<span class="kw">let </span>relay_chain_slot_duration = Duration::from_secs(<span class="number">6</span>);
 
+	<span class="kw">let </span>overseer_handle = relay_chain_interface
+		.overseer_handle()
+		.map_err(|e| sc_service::Error::Application(Box::new(e)))<span class="question-mark">?</span>;
+
 	<span class="kw">if </span>validator {
 		<span class="kw">let </span>parachain_consensus = build_consensus(
 			client.clone(),
@@ -709,6 +719,7 @@
 			import_queue: import_queue_service,
 			collator_key: collator_key.expect(<span class="string">&quot;Command line arguments do not allow this. qed&quot;</span>),
 			relay_chain_slot_duration,
+			recovery_handle: Box::new(overseer_handle),
 		};
 
 		start_collator(params).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -721,6 +732,7 @@
 			relay_chain_interface,
 			relay_chain_slot_duration,
 			import_queue: import_queue_service,
+			recovery_handle: Box::new(overseer_handle),
 		};
 
 		start_full_node(params)<span class="question-mark">?</span>;

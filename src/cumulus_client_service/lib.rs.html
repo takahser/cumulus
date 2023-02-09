@@ -264,6 +264,10 @@
 <a href="#264" id="264">264</a>
 <a href="#265" id="265">265</a>
 <a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2020-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -286,7 +290,7 @@
 
 </span><span class="kw">use </span>cumulus_client_cli::CollatorOptions;
 <span class="kw">use </span>cumulus_client_consensus_common::ParachainConsensus;
-<span class="kw">use </span>cumulus_client_pov_recovery::{PoVRecovery, RecoveryDelay};
+<span class="kw">use </span>cumulus_client_pov_recovery::{PoVRecovery, RecoveryDelayRange, RecoveryHandle};
 <span class="kw">use </span>cumulus_primitives_core::{CollectCollationInfo, ParaId};
 <span class="kw">use </span>cumulus_relay_chain_inprocess_interface::build_inprocess_relay_chain;
 <span class="kw">use </span>cumulus_relay_chain_interface::{RelayChainInterface, RelayChainResult};
@@ -325,6 +329,7 @@
 	<span class="kw">pub </span>import_queue: Box&lt;<span class="kw">dyn </span>ImportQueueService&lt;Block&gt;&gt;,
 	<span class="kw">pub </span>collator_key: CollatorPair,
 	<span class="kw">pub </span>relay_chain_slot_duration: Duration,
+	<span class="kw">pub </span>recovery_handle: Box&lt;<span class="kw">dyn </span>RecoveryHandle&gt;,
 }
 
 <span class="doccomment">/// Start a collator node for a parachain.
@@ -345,6 +350,7 @@
 		import_queue,
 		collator_key,
 		relay_chain_slot_duration,
+		recovery_handle,
 	}: StartCollatorParams&lt;<span class="lifetime">&#39;a</span>, Block, BS, Client, RCInterface, Spawner&gt;,
 ) -&gt; sc_service::error::Result&lt;()&gt;
 <span class="kw">where
@@ -379,15 +385,12 @@
 		.spawn_essential_handle()
 		.spawn(<span class="string">&quot;cumulus-consensus&quot;</span>, <span class="prelude-val">None</span>, consensus);
 
-	<span class="kw">let </span>overseer_handle = relay_chain_interface
-		.overseer_handle()
-		.map_err(|e| sc_service::Error::Application(Box::new(e)))<span class="question-mark">?</span>;
-
 	<span class="kw">let </span>pov_recovery = PoVRecovery::new(
-		overseer_handle.clone(),
+		recovery_handle,
 		<span class="comment">// We want that collators wait at maximum the relay chain slot duration before starting
-		// to recover blocks.
-		</span>RecoveryDelay { min: core::time::Duration::ZERO, max: relay_chain_slot_duration },
+		// to recover blocks. Additionally, we wait at least half the slot time to give the
+		// relay chain the chance to increase availability.
+		</span>RecoveryDelayRange { min: relay_chain_slot_duration / <span class="number">2</span>, max: relay_chain_slot_duration },
 		client.clone(),
 		import_queue,
 		relay_chain_interface.clone(),
@@ -398,6 +401,10 @@
 	task_manager
 		.spawn_essential_handle()
 		.spawn(<span class="string">&quot;cumulus-pov-recovery&quot;</span>, <span class="prelude-val">None</span>, pov_recovery.run());
+
+	<span class="kw">let </span>overseer_handle = relay_chain_interface
+		.overseer_handle()
+		.map_err(|e| sc_service::Error::Application(Box::new(e)))<span class="question-mark">?</span>;
 	cumulus_client_collator::start_collator(cumulus_client_collator::StartCollatorParams {
 		runtime_api: client,
 		block_status,
@@ -422,6 +429,7 @@
 	<span class="kw">pub </span>announce_block: Arc&lt;<span class="kw">dyn </span>Fn(Block::Hash, <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;) + Send + Sync&gt;,
 	<span class="kw">pub </span>relay_chain_slot_duration: Duration,
 	<span class="kw">pub </span>import_queue: Box&lt;<span class="kw">dyn </span>ImportQueueService&lt;Block&gt;&gt;,
+	<span class="kw">pub </span>recovery_handle: Box&lt;<span class="kw">dyn </span>RecoveryHandle&gt;,
 }
 
 <span class="doccomment">/// Start a full node for a parachain.
@@ -437,6 +445,7 @@
 		para_id,
 		relay_chain_slot_duration,
 		import_queue,
+		recovery_handle,
 	}: StartFullNodeParams&lt;Block, Client, RCInterface&gt;,
 ) -&gt; sc_service::error::Result&lt;()&gt;
 <span class="kw">where
@@ -466,18 +475,17 @@
 		.spawn_essential_handle()
 		.spawn(<span class="string">&quot;cumulus-consensus&quot;</span>, <span class="prelude-val">None</span>, consensus);
 
-	<span class="kw">let </span>overseer_handle = relay_chain_interface
-		.overseer_handle()
-		.map_err(|e| sc_service::Error::Application(Box::new(e)))<span class="question-mark">?</span>;
-
 	<span class="kw">let </span>pov_recovery = PoVRecovery::new(
-		overseer_handle,
+		recovery_handle,
 		<span class="comment">// Full nodes should at least wait 2.5 minutes (assuming 6 seconds slot duration) and
 		// in maximum 5 minutes before starting to recover blocks. Collators should already start
 		// the recovery way before full nodes try to recover a certain block and then share the
 		// block with the network using &quot;the normal way&quot;. Full nodes are just the &quot;last resort&quot;
 		// for block recovery.
-		</span>RecoveryDelay { min: relay_chain_slot_duration * <span class="number">25</span>, max: relay_chain_slot_duration * <span class="number">50 </span>},
+		</span>RecoveryDelayRange {
+			min: relay_chain_slot_duration * <span class="number">25</span>,
+			max: relay_chain_slot_duration * <span class="number">50</span>,
+		},
 		client,
 		import_queue,
 		relay_chain_interface,

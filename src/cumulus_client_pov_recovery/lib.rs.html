@@ -548,6 +548,93 @@
 <a href="#548" id="548">548</a>
 <a href="#549" id="549">549</a>
 <a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -579,14 +666,18 @@
 //!
 //! 1. For every included relay chain block we note the backed candidate of our parachain. If the
 //!    block belonging to the PoV is already known, we do nothing. Otherwise we start
-//!    a timer that waits a random time between 0..relay_chain_slot_length before starting to recover
+//!    a timer that waits for a randomized time inside a specified interval before starting to recover
 //!    the PoV.
 //!
 //! 2. If between starting and firing the timer the block is imported, we skip the recovery of the
 //!    PoV.
 //!
-//! 3. If the timer fired we recover the PoV using the relay chain PoV recovery protocol. After it
-//!    is recovered, we restore the block and import it.
+//! 3. If the timer fired we recover the PoV using the relay chain PoV recovery protocol.
+//!
+//! 4a. After it is recovered, we restore the block and import it.
+//!
+//! 4b. Since we are trying to recover pending candidates, availability is not guaranteed. If the block
+//! 	PoV is not yet available, we retry.
 //!
 //! If we need to recover multiple PoV blocks (which should hopefully not happen in real life), we
 //! make sure that the blocks are imported in the correct order.
@@ -597,6 +688,7 @@
 <span class="kw">use </span>sp_runtime::traits::{Block <span class="kw">as </span>BlockT, Header <span class="kw">as </span>HeaderT, NumberFor};
 
 <span class="kw">use </span>polkadot_node_primitives::{AvailableData, POV_BOMB_LIMIT};
+<span class="kw">use </span>polkadot_node_subsystem::messages::AvailabilityRecoveryMessage;
 <span class="kw">use </span>polkadot_overseer::Handle <span class="kw">as </span>OverseerHandle;
 <span class="kw">use </span>polkadot_primitives::{
 	CandidateReceipt, CommittedCandidateReceipt, Id <span class="kw">as </span>ParaId, SessionIndex,
@@ -610,10 +702,10 @@
 	channel::mpsc::Receiver, select, stream::FuturesUnordered, Future, FutureExt, Stream, StreamExt,
 };
 <span class="kw">use </span>futures_timer::Delay;
-<span class="kw">use </span>rand::{thread_rng, Rng};
+<span class="kw">use </span>rand::{distributions::Uniform, prelude::Distribution, thread_rng};
 
 <span class="kw">use </span>std::{
-	collections::{HashMap, VecDeque},
+	collections::{HashMap, HashSet, VecDeque},
 	pin::Pin,
 	sync::Arc,
 	time::Duration,
@@ -623,6 +715,28 @@
 <span class="kw">use </span>active_candidate_recovery::ActiveCandidateRecovery;
 
 <span class="kw">const </span>LOG_TARGET: <span class="kw-2">&amp;</span>str = <span class="string">&quot;cumulus-pov-recovery&quot;</span>;
+
+<span class="doccomment">/// Test-friendly wrapper trait for the overseer handle.
+/// Can be used to simulate failing recovery requests.
+</span><span class="attr">#[async_trait::async_trait]
+</span><span class="kw">pub trait </span>RecoveryHandle: Send {
+	<span class="kw">async fn </span>send_recovery_msg(
+		<span class="kw-2">&amp;mut </span><span class="self">self</span>,
+		message: AvailabilityRecoveryMessage,
+		origin: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+	);
+}
+
+<span class="attr">#[async_trait::async_trait]
+</span><span class="kw">impl </span>RecoveryHandle <span class="kw">for </span>OverseerHandle {
+	<span class="kw">async fn </span>send_recovery_msg(
+		<span class="kw-2">&amp;mut </span><span class="self">self</span>,
+		message: AvailabilityRecoveryMessage,
+		origin: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+	) {
+		<span class="self">self</span>.send_msg(message, origin).<span class="kw">await</span>;
+	}
+}
 
 <span class="doccomment">/// Type of recovery to trigger.
 </span><span class="attr">#[derive(Debug, PartialEq)]
@@ -637,22 +751,28 @@
 </span><span class="kw">pub struct </span>RecoveryRequest&lt;Block: BlockT&gt; {
 	<span class="doccomment">/// Hash of the last block to recover.
 	</span><span class="kw">pub </span>hash: Block::Hash,
-	<span class="doccomment">/// Recovery delay range. Randomizing the start of the recovery within this interval
-	/// can be used to prevent self-DOSing if the recovery request is part of a
-	/// distributed protocol and there is the possibility that multiple actors are
-	/// requiring to perform the recovery action at approximately the same time.
-	</span><span class="kw">pub </span>delay: RecoveryDelay,
 	<span class="doccomment">/// Recovery type.
 	</span><span class="kw">pub </span>kind: RecoveryKind,
 }
 
 <span class="doccomment">/// The delay between observing an unknown block and triggering the recovery of a block.
+/// Randomizing the start of the recovery within this interval
+/// can be used to prevent self-DOSing if the recovery request is part of a
+/// distributed protocol and there is the possibility that multiple actors are
+/// requiring to perform the recovery action at approximately the same time.
 </span><span class="attr">#[derive(Clone, Copy)]
-</span><span class="kw">pub struct </span>RecoveryDelay {
+</span><span class="kw">pub struct </span>RecoveryDelayRange {
 	<span class="doccomment">/// Start recovering after `min` delay.
 	</span><span class="kw">pub </span>min: Duration,
 	<span class="doccomment">/// Start recovering before `max` delay.
 	</span><span class="kw">pub </span>max: Duration,
+}
+
+<span class="kw">impl </span>RecoveryDelayRange {
+	<span class="doccomment">/// Produce a randomized duration between `min` and `max`.
+	</span><span class="kw">fn </span>duration(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Duration {
+		Uniform::from(<span class="self">self</span>.min..=<span class="self">self</span>.max).sample(<span class="kw-2">&amp;mut </span>thread_rng())
+	}
 }
 
 <span class="doccomment">/// Represents an outstanding block candidate.
@@ -662,7 +782,64 @@
 	block_number: NumberFor&lt;Block&gt;,
 	parent_hash: Block::Hash,
 	<span class="comment">// Lazy recovery has been submitted.
+	// Should be true iff a block is either queued to be recovered or
+	// recovery is currently in progress.
 	</span>waiting_recovery: bool,
+}
+
+<span class="doccomment">/// Queue that is used to decide when to start PoV-recovery operations.
+</span><span class="kw">struct </span>RecoveryQueue&lt;Block: BlockT&gt; {
+	recovery_delay_range: RecoveryDelayRange,
+	<span class="comment">// Queue that keeps the hashes of blocks to be recovered.
+	</span>recovery_queue: VecDeque&lt;Block::Hash&gt;,
+	<span class="comment">// Futures that resolve when a new recovery should be started.
+	</span>signaling_queue: FuturesUnordered&lt;Pin&lt;Box&lt;<span class="kw">dyn </span>Future&lt;Output = ()&gt; + Send&gt;&gt;&gt;,
+}
+
+<span class="kw">impl</span>&lt;Block: BlockT&gt; RecoveryQueue&lt;Block&gt; {
+	<span class="kw">pub fn </span>new(recovery_delay_range: RecoveryDelayRange) -&gt; <span class="self">Self </span>{
+		<span class="self">Self </span>{
+			recovery_delay_range,
+			recovery_queue: Default::default(),
+			signaling_queue: Default::default(),
+		}
+	}
+
+	<span class="doccomment">/// Add hash of a block that should go to the end of the recovery queue.
+	/// A new recovery will be signaled after `delay` has passed.
+	</span><span class="kw">pub fn </span>push_recovery(<span class="kw-2">&amp;mut </span><span class="self">self</span>, hash: Block::Hash) {
+		<span class="kw">let </span>delay = <span class="self">self</span>.recovery_delay_range.duration();
+		<span class="macro">tracing::debug!</span>(
+			target: LOG_TARGET,
+			block_hash = <span class="question-mark">?</span>hash,
+			<span class="string">&quot;Adding block to queue and adding new recovery slot in {:?} sec&quot;</span>,
+			delay.as_secs(),
+		);
+		<span class="self">self</span>.recovery_queue.push_back(hash);
+		<span class="self">self</span>.signaling_queue.push(
+			<span class="kw">async move </span>{
+				Delay::new(delay).<span class="kw">await</span>;
+			}
+			.boxed(),
+		);
+	}
+
+	<span class="doccomment">/// Get the next hash for block recovery.
+	</span><span class="kw">pub async fn </span>next_recovery(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Block::Hash {
+		<span class="kw">loop </span>{
+			<span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw">_</span>) = <span class="self">self</span>.signaling_queue.next().<span class="kw">await </span>{
+				<span class="kw">if let </span><span class="prelude-val">Some</span>(hash) = <span class="self">self</span>.recovery_queue.pop_front() {
+					<span class="kw">return </span>hash
+				} <span class="kw">else </span>{
+					<span class="macro">tracing::error!</span>(
+						target: LOG_TARGET,
+						<span class="string">&quot;Recovery was signaled, but no candidate hash available. This is a bug.&quot;
+					</span>);
+				};
+			}
+			<span class="macro">futures::pending!</span>()
+		}
+	}
 }
 
 <span class="doccomment">/// Encapsulates the logic of the pov recovery.
@@ -672,21 +849,22 @@
 	</span>candidates: HashMap&lt;Block::Hash, Candidate&lt;Block&gt;&gt;,
 	<span class="doccomment">/// A stream of futures that resolve to hashes of candidates that need to be recovered.
 	///
-	/// The candidates to the hashes are stored in `pending_candidates`. If a candidate is not
+	/// The candidates to the hashes are stored in `candidates`. If a candidate is not
 	/// available anymore in this map, it means that it was already imported.
-	</span>next_candidate_to_recover: FuturesUnordered&lt;Pin&lt;Box&lt;<span class="kw">dyn </span>Future&lt;Output = Block::Hash&gt; + Send&gt;&gt;&gt;,
+	</span>candidate_recovery_queue: RecoveryQueue&lt;Block&gt;,
 	active_candidate_recovery: ActiveCandidateRecovery&lt;Block&gt;,
 	<span class="doccomment">/// Blocks that wait that the parent is imported.
 	///
 	/// Uses parent -&gt; blocks mapping.
 	</span>waiting_for_parent: HashMap&lt;Block::Hash, Vec&lt;Block&gt;&gt;,
-	recovery_delay: RecoveryDelay,
 	parachain_client: Arc&lt;PC&gt;,
 	parachain_import_queue: Box&lt;<span class="kw">dyn </span>ImportQueueService&lt;Block&gt;&gt;,
 	relay_chain_interface: RC,
 	para_id: ParaId,
 	<span class="doccomment">/// Explicit block recovery requests channel.
 	</span>recovery_chan_rx: Receiver&lt;RecoveryRequest&lt;Block&gt;&gt;,
+	<span class="doccomment">/// Blocks that we are retrying currently
+	</span>candidates_in_retry: HashSet&lt;Block::Hash&gt;,
 }
 
 <span class="kw">impl</span>&lt;Block: BlockT, PC, RCInterface&gt; PoVRecovery&lt;Block, PC, RCInterface&gt;
@@ -696,8 +874,8 @@
 {
 	<span class="doccomment">/// Create a new instance.
 	</span><span class="kw">pub fn </span>new(
-		overseer_handle: OverseerHandle,
-		recovery_delay: RecoveryDelay,
+		recovery_handle: Box&lt;<span class="kw">dyn </span>RecoveryHandle&gt;,
+		recovery_delay_range: RecoveryDelayRange,
 		parachain_client: Arc&lt;PC&gt;,
 		parachain_import_queue: Box&lt;<span class="kw">dyn </span>ImportQueueService&lt;Block&gt;&gt;,
 		relay_chain_interface: RCInterface,
@@ -706,14 +884,14 @@
 	) -&gt; <span class="self">Self </span>{
 		<span class="self">Self </span>{
 			candidates: HashMap::new(),
-			next_candidate_to_recover: Default::default(),
-			active_candidate_recovery: ActiveCandidateRecovery::new(overseer_handle),
-			recovery_delay,
+			candidate_recovery_queue: RecoveryQueue::new(recovery_delay_range),
+			active_candidate_recovery: ActiveCandidateRecovery::new(recovery_handle),
 			waiting_for_parent: HashMap::new(),
 			parachain_client,
 			parachain_import_queue,
 			relay_chain_interface,
 			para_id,
+			candidates_in_retry: HashSet::new(),
 			recovery_chan_rx,
 		}
 	}
@@ -760,15 +938,11 @@
 
 		<span class="comment">// If required, triggers a lazy recovery request that will eventually be blocked
 		// if in the meantime the block is imported.
-		</span><span class="self">self</span>.recover(RecoveryRequest {
-			hash,
-			delay: <span class="self">self</span>.recovery_delay,
-			kind: RecoveryKind::Simple,
-		});
+		</span><span class="self">self</span>.recover(RecoveryRequest { hash, kind: RecoveryKind::Simple });
 	}
 
-	<span class="doccomment">/// Handle an imported block.
-	</span><span class="kw">fn </span>handle_block_imported(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block_hash: <span class="kw-2">&amp;</span>Block::Hash) {
+	<span class="doccomment">/// Block is no longer waiting for recovery
+	</span><span class="kw">fn </span>clear_waiting_recovery(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block_hash: <span class="kw-2">&amp;</span>Block::Hash) {
 		<span class="self">self</span>.candidates.get_mut(block_hash).map(|candidate| {
 			<span class="comment">// Prevents triggering an already enqueued recovery request
 			</span>candidate.waiting_recovery = <span class="bool-val">false</span>;
@@ -791,9 +965,9 @@
 		}
 	}
 
-	<span class="doccomment">/// Clear `waiting_for_parent` from the given `hash` and do this recursively for all child
-	/// blocks.
-	</span><span class="kw">fn </span>clear_waiting_for_parent(<span class="kw-2">&amp;mut </span><span class="self">self</span>, hash: Block::Hash) {
+	<span class="doccomment">/// Clear `waiting_for_parent` and `waiting_recovery` for the candidate with `hash`.
+	/// Also clears children blocks waiting for this parent.
+	</span><span class="kw">fn </span>reset_candidate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, hash: Block::Hash) {
 		<span class="kw">let </span><span class="kw-2">mut </span>blocks_to_delete = <span class="macro">vec!</span>[hash];
 
 		<span class="kw">while let </span><span class="prelude-val">Some</span>(delete) = blocks_to_delete.pop() {
@@ -801,6 +975,7 @@
 				blocks_to_delete.extend(childs.iter().map(BlockT::hash));
 			}
 		}
+		<span class="self">self</span>.clear_waiting_recovery(<span class="kw-2">&amp;</span>hash);
 	}
 
 	<span class="doccomment">/// Handle a recovered candidate.
@@ -810,11 +985,25 @@
 		available_data: <span class="prelude-ty">Option</span>&lt;AvailableData&gt;,
 	) {
 		<span class="kw">let </span>available_data = <span class="kw">match </span>available_data {
-			<span class="prelude-val">Some</span>(data) =&gt; data,
-			<span class="prelude-val">None </span>=&gt; {
-				<span class="self">self</span>.clear_waiting_for_parent(block_hash);
-				<span class="kw">return
-			</span>},
+			<span class="prelude-val">Some</span>(data) =&gt; {
+				<span class="self">self</span>.candidates_in_retry.remove(<span class="kw-2">&amp;</span>block_hash);
+				data
+			},
+			<span class="prelude-val">None </span>=&gt;
+				<span class="kw">if </span><span class="self">self</span>.candidates_in_retry.insert(block_hash) {
+					<span class="macro">tracing::debug!</span>(target: LOG_TARGET, <span class="question-mark">?</span>block_hash, <span class="string">&quot;Recovery failed, retrying.&quot;</span>);
+					<span class="self">self</span>.candidate_recovery_queue.push_recovery(block_hash);
+					<span class="kw">return
+				</span>} <span class="kw">else </span>{
+					<span class="macro">tracing::warn!</span>(
+						target: LOG_TARGET,
+						<span class="question-mark">?</span>block_hash,
+						<span class="string">&quot;Unable to recover block after retry.&quot;</span>,
+					);
+					<span class="self">self</span>.candidates_in_retry.remove(<span class="kw-2">&amp;</span>block_hash);
+					<span class="self">self</span>.reset_candidate(block_hash);
+					<span class="kw">return
+				</span>},
 		};
 
 		<span class="kw">let </span>raw_block_data = <span class="kw">match </span>sp_maybe_compressed_blob::decompress(
@@ -825,8 +1014,7 @@
 			<span class="prelude-val">Err</span>(error) =&gt; {
 				<span class="macro">tracing::debug!</span>(target: LOG_TARGET, <span class="question-mark">?</span>error, <span class="string">&quot;Failed to decompress PoV&quot;</span>);
 
-				<span class="self">self</span>.clear_waiting_for_parent(block_hash);
-
+				<span class="self">self</span>.reset_candidate(block_hash);
 				<span class="kw">return
 			</span>},
 		};
@@ -840,8 +1028,7 @@
 					<span class="string">&quot;Failed to decode parachain block data from recovered PoV&quot;</span>,
 				);
 
-				<span class="self">self</span>.clear_waiting_for_parent(block_hash);
-
+				<span class="self">self</span>.reset_candidate(block_hash);
 				<span class="kw">return
 			</span>},
 		};
@@ -852,12 +1039,17 @@
 
 		<span class="kw">match </span><span class="self">self</span>.parachain_client.block_status(parent) {
 			<span class="prelude-val">Ok</span>(BlockStatus::Unknown) =&gt; {
-				<span class="kw">if </span><span class="self">self</span>.active_candidate_recovery.is_being_recovered(<span class="kw-2">&amp;</span>parent) {
+				<span class="comment">// If the parent block is currently being recovered or is scheduled to be recovered,
+				// we want to wait for the parent.
+				</span><span class="kw">let </span>parent_scheduled_for_recovery =
+					<span class="self">self</span>.candidates.get(<span class="kw-2">&amp;</span>parent).map_or(<span class="bool-val">false</span>, |parent| parent.waiting_recovery);
+				<span class="kw">if </span>parent_scheduled_for_recovery {
 					<span class="macro">tracing::debug!</span>(
 						target: LOG_TARGET,
 						<span class="question-mark">?</span>block_hash,
 						parent_hash = <span class="question-mark">?</span>parent,
-						<span class="string">&quot;Parent is still being recovered, waiting.&quot;</span>,
+						parent_scheduled_for_recovery,
+						<span class="string">&quot;Waiting for recovery of parent.&quot;</span>,
 					);
 
 					<span class="self">self</span>.waiting_for_parent.entry(parent).or_default().push(block);
@@ -870,8 +1062,7 @@
 						<span class="string">&quot;Parent not found while trying to import recovered block.&quot;</span>,
 					);
 
-					<span class="self">self</span>.clear_waiting_for_parent(block_hash);
-
+					<span class="self">self</span>.reset_candidate(block_hash);
 					<span class="kw">return
 				</span>}
 			},
@@ -883,8 +1074,7 @@
 					<span class="string">&quot;Error while checking block status&quot;</span>,
 				);
 
-				<span class="self">self</span>.clear_waiting_for_parent(block_hash);
-
+				<span class="self">self</span>.reset_candidate(block_hash);
 				<span class="kw">return
 			</span>},
 			<span class="comment">// Any other status is fine to &quot;ignore/accept&quot;
@@ -933,10 +1123,10 @@
 
 	<span class="doccomment">/// Attempts an explicit recovery of one or more blocks.
 	</span><span class="kw">pub fn </span>recover(<span class="kw-2">&amp;mut </span><span class="self">self</span>, req: RecoveryRequest&lt;Block&gt;) {
-		<span class="kw">let </span>RecoveryRequest { <span class="kw-2">mut </span>hash, delay, kind } = req;
+		<span class="kw">let </span>RecoveryRequest { <span class="kw-2">mut </span>hash, kind } = req;
 		<span class="kw">let </span><span class="kw-2">mut </span>to_recover = Vec::new();
 
-		<span class="kw">let </span>do_recover = <span class="kw">loop </span>{
+		<span class="kw">loop </span>{
 			<span class="kw">let </span>candidate = <span class="kw">match </span><span class="self">self</span>.candidates.get_mut(<span class="kw-2">&amp;</span>hash) {
 				<span class="prelude-val">Some</span>(candidate) =&gt; candidate,
 				<span class="prelude-val">None </span>=&gt; {
@@ -945,7 +1135,7 @@
 						block_hash = <span class="question-mark">?</span>hash,
 						<span class="string">&quot;Cound not recover. Block was never announced as candidate&quot;
 					</span>);
-					<span class="kw">break </span><span class="bool-val">false
+					<span class="kw">return
 				</span>},
 			};
 
@@ -954,7 +1144,7 @@
 					candidate.waiting_recovery = <span class="bool-val">true</span>;
 					to_recover.push(hash);
 				},
-				<span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="kw">break </span><span class="bool-val">true</span>,
+				<span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="kw">break</span>,
 				<span class="prelude-val">Err</span>(e) =&gt; {
 					<span class="macro">tracing::error!</span>(
 						target: LOG_TARGET,
@@ -962,36 +1152,22 @@
 						block_hash = <span class="question-mark">?</span>hash,
 						<span class="string">&quot;Failed to get block status&quot;</span>,
 					);
-					<span class="kw">break </span><span class="bool-val">false
+					<span class="kw">for </span>hash <span class="kw">in </span>to_recover {
+						<span class="self">self</span>.clear_waiting_recovery(<span class="kw-2">&amp;</span>hash);
+					}
+					<span class="kw">return
 				</span>},
 			}
 
 			<span class="kw">if </span>kind == RecoveryKind::Simple {
-				<span class="kw">break </span><span class="bool-val">true
+				<span class="kw">break
 			</span>}
 
 			hash = candidate.parent_hash;
-		};
+		}
 
-		<span class="kw">if </span>do_recover {
-			<span class="kw">for </span>hash <span class="kw">in </span>to_recover.into_iter().rev() {
-				<span class="kw">let </span>delay =
-					delay.min + delay.max.saturating_sub(delay.min).mul_f64(thread_rng().gen());
-				<span class="macro">tracing::debug!</span>(
-					target: LOG_TARGET,
-					block_hash = <span class="question-mark">?</span>hash,
-					<span class="string">&quot;Starting {:?} block recovery in {:?} sec&quot;</span>,
-					kind,
-					delay.as_secs(),
-				);
-				<span class="self">self</span>.next_candidate_to_recover.push(
-					<span class="kw">async move </span>{
-						Delay::new(delay).<span class="kw">await</span>;
-						hash
-					}
-					.boxed(),
-				);
-			}
+		<span class="kw">for </span>hash <span class="kw">in </span>to_recover.into_iter().rev() {
+			<span class="self">self</span>.candidate_recovery_queue.push_recovery(hash);
 		}
 	}
 
@@ -1030,7 +1206,7 @@
 				},
 				imported = imported_blocks.next() =&gt; {
 					<span class="kw">if let </span><span class="prelude-val">Some</span>(imported) = imported {
-						<span class="self">self</span>.handle_block_imported(<span class="kw-2">&amp;</span>imported.hash);
+						<span class="self">self</span>.clear_waiting_recovery(<span class="kw-2">&amp;</span>imported.hash);
 					} <span class="kw">else </span>{
 						<span class="macro">tracing::debug!</span>(target: LOG_TARGET,	<span class="string">&quot;Imported blocks stream ended&quot;</span>);
 						<span class="kw">return</span>;
@@ -1044,10 +1220,8 @@
 						<span class="kw">return</span>;
 					}
 				},
-				next_to_recover = <span class="self">self</span>.next_candidate_to_recover.next() =&gt; {
-					<span class="kw">if let </span><span class="prelude-val">Some</span>(block_hash) = next_to_recover {
-						<span class="self">self</span>.recover_candidate(block_hash).<span class="kw">await</span>;
-					}
+				next_to_recover = <span class="self">self</span>.candidate_recovery_queue.next_recovery().fuse() =&gt; {
+						<span class="self">self</span>.recover_candidate(next_to_recover).<span class="kw">await</span>;
 				},
 				(block_hash, available_data) =
 					<span class="self">self</span>.active_candidate_recovery.wait_for_recovery().fuse() =&gt;

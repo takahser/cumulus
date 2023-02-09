@@ -105,10 +105,6 @@
 <a href="#105" id="105">105</a>
 <a href="#106" id="106">106</a>
 <a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2021 Parity Technologies (UK) Ltd.
 // This file is part of Polkadot.
 
@@ -129,11 +125,12 @@
 
 <span class="kw">use </span>polkadot_node_primitives::AvailableData;
 <span class="kw">use </span>polkadot_node_subsystem::messages::AvailabilityRecoveryMessage;
-<span class="kw">use </span>polkadot_overseer::Handle <span class="kw">as </span>OverseerHandle;
 
 <span class="kw">use </span>futures::{channel::oneshot, stream::FuturesUnordered, Future, FutureExt, StreamExt};
 
 <span class="kw">use </span>std::{collections::HashSet, pin::Pin};
+
+<span class="kw">use </span><span class="kw">crate</span>::RecoveryHandle;
 
 <span class="doccomment">/// The active candidate recovery.
 ///
@@ -145,12 +142,12 @@
 	&gt;,
 	<span class="doccomment">/// The block hashes of the candidates currently being recovered.
 	</span>candidates: HashSet&lt;Block::Hash&gt;,
-	overseer_handle: OverseerHandle,
+	recovery_handle: Box&lt;<span class="kw">dyn </span>RecoveryHandle&gt;,
 }
 
 <span class="kw">impl</span>&lt;Block: BlockT&gt; ActiveCandidateRecovery&lt;Block&gt; {
-	<span class="kw">pub fn </span>new(overseer_handle: OverseerHandle) -&gt; <span class="self">Self </span>{
-		<span class="self">Self </span>{ recoveries: Default::default(), candidates: Default::default(), overseer_handle }
+	<span class="kw">pub fn </span>new(recovery_handle: Box&lt;<span class="kw">dyn </span>RecoveryHandle&gt;) -&gt; <span class="self">Self </span>{
+		<span class="self">Self </span>{ recoveries: Default::default(), candidates: Default::default(), recovery_handle }
 	}
 
 	<span class="doccomment">/// Recover the given `candidate`.
@@ -161,8 +158,8 @@
 	) {
 		<span class="kw">let </span>(tx, rx) = oneshot::channel();
 
-		<span class="self">self</span>.overseer_handle
-			.send_msg(
+		<span class="self">self</span>.recovery_handle
+			.send_recovery_msg(
 				AvailabilityRecoveryMessage::RecoverAvailableData(
 					candidate.receipt.clone(),
 					candidate.session_index,
@@ -199,11 +196,6 @@
 			}
 			.boxed(),
 		);
-	}
-
-	<span class="doccomment">/// Returns if the given `candidate` is being recovered.
-	</span><span class="kw">pub fn </span>is_being_recovered(<span class="kw-2">&amp;</span><span class="self">self</span>, candidate: <span class="kw-2">&amp;</span>Block::Hash) -&gt; bool {
-		<span class="self">self</span>.candidates.contains(candidate)
 	}
 
 	<span class="doccomment">/// Waits for the next recovery.

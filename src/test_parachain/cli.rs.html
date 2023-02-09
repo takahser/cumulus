@@ -347,6 +347,9 @@
 <a href="#347" id="347">347</a>
 <a href="#348" id="348">348</a>
 <a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -398,6 +401,9 @@
 
 	<span class="attr">#[arg(long)]
 	</span><span class="kw">pub </span>disable_block_announcements: bool,
+
+	<span class="attr">#[arg(long)]
+	</span><span class="kw">pub </span>fail_pov_recovery: bool,
 }
 
 <span class="attr">#[derive(Debug, clap::Subcommand)]
