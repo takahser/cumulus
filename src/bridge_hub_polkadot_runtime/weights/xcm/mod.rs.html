@@ -241,6 +241,17 @@
 <a href="#241" id="241">241</a>
 <a href="#242" id="242">242</a>
 <a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2023 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -260,7 +271,7 @@
 </span><span class="kw">mod </span>pallet_xcm_benchmarks_fungible;
 <span class="kw">mod </span>pallet_xcm_benchmarks_generic;
 
-<span class="kw">use </span><span class="kw">crate</span>::Runtime;
+<span class="kw">use crate</span>::{xcm_config::MaxAssetsIntoHolding, Runtime};
 <span class="kw">use </span>frame_support::weights::Weight;
 <span class="kw">use </span>pallet_xcm_benchmarks_fungible::WeightInfo <span class="kw">as </span>XcmFungibleWeight;
 <span class="kw">use </span>pallet_xcm_benchmarks_generic::WeightInfo <span class="kw">as </span>XcmGeneric;
@@ -278,7 +289,18 @@
 		<span class="kw">match </span><span class="self">self </span>{
 			<span class="self">Self</span>::Definite(assets) =&gt;
 				weight.saturating_mul(assets.inner().into_iter().count() <span class="kw">as </span>u64),
-			<span class="self">Self</span>::Wild(<span class="kw">_</span>) =&gt; weight.saturating_mul(MAX_ASSETS <span class="kw">as </span>u64),
+			<span class="self">Self</span>::Wild(asset) =&gt; <span class="kw">match </span>asset {
+				All =&gt; weight.saturating_mul(MAX_ASSETS <span class="kw">as </span>u64),
+				AllOf { fun, .. } =&gt; <span class="kw">match </span>fun {
+					WildFungibility::Fungible =&gt; weight,
+					<span class="comment">// Magic number 2 has to do with the fact that we could have up to 2 times
+					// MaxAssetsIntoHolding in the worst-case scenario.
+					</span>WildFungibility::NonFungible =&gt;
+						weight.saturating_mul((MaxAssetsIntoHolding::get() * <span class="number">2</span>) <span class="kw">as </span>u64),
+				},
+				AllCounted(count) =&gt; weight.saturating_mul(<span class="kw-2">*</span>count <span class="kw">as </span>u64),
+				AllOfCounted { count, .. } =&gt; weight.saturating_mul(<span class="kw-2">*</span>count <span class="kw">as </span>u64),
+			},
 		}
 	}
 }
