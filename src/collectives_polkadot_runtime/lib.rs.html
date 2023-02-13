@@ -820,6 +820,7 @@
 <a href="#820" id="820">820</a>
 <a href="#821" id="821">821</a>
 <a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -1265,6 +1266,7 @@
 	<span class="kw">type </span>MaxProposals = ConstU32&lt;ALLIANCE_MAX_PROPOSALS&gt;;
 	<span class="kw">type </span>MaxMembers = ConstU32&lt;ALLIANCE_MAX_MEMBERS&gt;;
 	<span class="kw">type </span>DefaultVote = pallet_collective::MoreThanMajorityThenPrimeDefaultVote;
+	<span class="kw">type </span>SetMembersOrigin = EnsureRoot&lt;AccountId&gt;;
 	<span class="kw">type </span>WeightInfo = weights::pallet_collective::WeightInfo&lt;Runtime&gt;;
 }
 
