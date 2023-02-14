@@ -424,6 +424,37 @@
 <a href="#424" id="424">424</a>
 <a href="#425" id="425">425</a>
 <a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -848,6 +879,37 @@
 		</span>Weight::from_ref_time(<span class="number">90_000_000</span>)
 			.saturating_add(T::DbWeight::get().reads(<span class="number">8</span>))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">11</span>))
+	}
+	<span class="doccomment">/// Storage: Nfts Collection (r:1 w:1)
+	/// Proof: Nfts Collection (max_values: None, max_size: Some(80), added: 2555, mode: MaxEncodedLen)
+	/// Storage: Nfts CollectionConfigOf (r:1 w:0)
+	/// Proof: Nfts CollectionConfigOf (max_values: None, max_size: Some(73), added: 2548, mode: MaxEncodedLen)
+	/// Storage: Nfts Item (r:1 w:1)
+	/// Proof: Nfts Item (max_values: None, max_size: Some(861), added: 3336, mode: MaxEncodedLen)
+	/// Storage: Nfts ItemConfigOf (r:1 w:1)
+	/// Proof: Nfts ItemConfigOf (max_values: None, max_size: Some(48), added: 2523, mode: MaxEncodedLen)
+	/// Storage: System Account (r:1 w:1)
+	/// Proof: System Account (max_values: None, max_size: Some(128), added: 2603, mode: MaxEncodedLen)
+	/// Storage: Nfts Attribute (r:10 w:10)
+	/// Proof: Nfts Attribute (max_values: None, max_size: Some(446), added: 2921, mode: MaxEncodedLen)
+	/// Storage: Nfts ItemMetadataOf (r:1 w:1)
+	/// Proof: Nfts ItemMetadataOf (max_values: None, max_size: Some(140), added: 2615, mode: MaxEncodedLen)
+	/// Storage: Nfts Account (r:0 w:1)
+	/// Proof: Nfts Account (max_values: None, max_size: Some(88), added: 2563, mode: MaxEncodedLen)
+	/// The range of component `n` is `[0, 10]`.
+	</span><span class="kw">fn </span>mint_pre_signed(n: u32, ) -&gt; Weight {
+		<span class="comment">// Proof Size summary in bytes:
+		//  Measured:  `596`
+		//  Estimated: `16180 + n * (2921 ±0)`
+		// Minimum execution time: 124_354 nanoseconds.
+		</span>Weight::from_parts(<span class="number">133_779_491</span>, <span class="number">16180</span>)
+			<span class="comment">// Standard Error: 38_452
+			</span>.saturating_add(Weight::from_ref_time(<span class="number">25_110_697</span>).saturating_mul(n.into()))
+			.saturating_add(T::DbWeight::get().reads(<span class="number">6_u64</span>))
+			.saturating_add(T::DbWeight::get().reads((<span class="number">1_u64</span>).saturating_mul(n.into())))
+			.saturating_add(T::DbWeight::get().writes(<span class="number">6_u64</span>))
+			.saturating_add(T::DbWeight::get().writes((<span class="number">1_u64</span>).saturating_mul(n.into())))
+			.saturating_add(Weight::from_proof_size(<span class="number">2921</span>).saturating_mul(n.into()))
 	}
 }
 </code></pre></div>
