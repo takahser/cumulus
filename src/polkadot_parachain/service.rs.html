@@ -1619,19 +1619,6 @@
 <a href="#1619" id="1619">1619</a>
 <a href="#1620" id="1620">1620</a>
 <a href="#1621" id="1621">1621</a>
-<a href="#1622" id="1622">1622</a>
-<a href="#1623" id="1623">1623</a>
-<a href="#1624" id="1624">1624</a>
-<a href="#1625" id="1625">1625</a>
-<a href="#1626" id="1626">1626</a>
-<a href="#1627" id="1627">1627</a>
-<a href="#1628" id="1628">1628</a>
-<a href="#1629" id="1629">1629</a>
-<a href="#1630" id="1630">1630</a>
-<a href="#1631" id="1631">1631</a>
-<a href="#1632" id="1632">1632</a>
-<a href="#1633" id="1633">1633</a>
-<a href="#1634" id="1634">1634</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1654,10 +1641,9 @@
 <span class="kw">use </span>cumulus_client_consensus_common::{
 	ParachainBlockImport <span class="kw">as </span>TParachainBlockImport, ParachainCandidate, ParachainConsensus,
 };
-<span class="kw">use </span>cumulus_client_network::BlockAnnounceValidator;
 <span class="kw">use </span>cumulus_client_service::{
-	build_relay_chain_interface, prepare_node_config, start_collator, start_full_node,
-	StartCollatorParams, StartFullNodeParams,
+	build_network, build_relay_chain_interface, prepare_node_config, start_collator,
+	start_full_node, BuildNetworkParams, StartCollatorParams, StartFullNodeParams,
 };
 <span class="kw">use </span>cumulus_primitives_core::{
 	relay_chain::{Hash <span class="kw">as </span>PHash, PersistedValidationData},
@@ -2024,9 +2010,6 @@
 		s =&gt; s.to_string().into(),
 	})<span class="question-mark">?</span>;
 
-	<span class="kw">let </span>block_announce_validator =
-		BlockAnnounceValidator::new(relay_chain_interface.clone(), para_id);
-
 	<span class="kw">let </span>force_authoring = parachain_config.force_authoring;
 	<span class="kw">let </span>validator = parachain_config.role.is_authority();
 	<span class="kw">let </span>prometheus_registry = parachain_config.prometheus_registry().cloned();
@@ -2034,17 +2017,16 @@
 	<span class="kw">let </span>import_queue_service = params.import_queue.service();
 
 	<span class="kw">let </span>(network, system_rpc_tx, tx_handler_controller, start_network) =
-		sc_service::build_network(sc_service::BuildNetworkParams {
-			config: <span class="kw-2">&amp;</span>parachain_config,
+		build_network(BuildNetworkParams {
+			parachain_config: <span class="kw-2">&amp;</span>parachain_config,
 			client: client.clone(),
 			transaction_pool: transaction_pool.clone(),
+			para_id,
 			spawn_handle: task_manager.spawn_handle(),
+			relay_chain_interface: relay_chain_interface.clone(),
 			import_queue: params.import_queue,
-			block_announce_validator_builder: <span class="prelude-val">Some</span>(Box::new(|<span class="kw">_</span>| {
-				Box::new(block_announce_validator)
-			})),
-			warp_sync: <span class="prelude-val">None</span>,
-		})<span class="question-mark">?</span>;
+		})
+		.<span class="kw">await</span><span class="question-mark">?</span>;
 
 	<span class="kw">let </span>rpc_client = client.clone();
 	<span class="kw">let </span>rpc_builder = Box::new(<span class="kw">move </span>|<span class="kw">_</span>, <span class="kw">_</span>| rpc_ext_builder(rpc_client.clone()));
@@ -2217,9 +2199,6 @@
 		s =&gt; s.to_string().into(),
 	})<span class="question-mark">?</span>;
 
-	<span class="kw">let </span>block_announce_validator =
-		BlockAnnounceValidator::new(relay_chain_interface.clone(), para_id);
-
 	<span class="kw">let </span>force_authoring = parachain_config.force_authoring;
 	<span class="kw">let </span>validator = parachain_config.role.is_authority();
 	<span class="kw">let </span>prometheus_registry = parachain_config.prometheus_registry().cloned();
@@ -2227,17 +2206,16 @@
 	<span class="kw">let </span>import_queue_service = params.import_queue.service();
 
 	<span class="kw">let </span>(network, system_rpc_tx, tx_handler_controller, start_network) =
-		sc_service::build_network(sc_service::BuildNetworkParams {
-			config: <span class="kw-2">&amp;</span>parachain_config,
+		build_network(cumulus_client_service::BuildNetworkParams {
+			parachain_config: <span class="kw-2">&amp;</span>parachain_config,
 			client: client.clone(),
 			transaction_pool: transaction_pool.clone(),
+			para_id,
 			spawn_handle: task_manager.spawn_handle(),
+			relay_chain_interface: relay_chain_interface.clone(),
 			import_queue: params.import_queue,
-			block_announce_validator_builder: <span class="prelude-val">Some</span>(Box::new(|<span class="kw">_</span>| {
-				Box::new(block_announce_validator)
-			})),
-			warp_sync: <span class="prelude-val">None</span>,
-		})<span class="question-mark">?</span>;
+		})
+		.<span class="kw">await</span><span class="question-mark">?</span>;
 
 	<span class="kw">let </span>rpc_builder = {
 		<span class="kw">let </span>client = client.clone();
@@ -2996,9 +2974,6 @@
 		s =&gt; s.to_string().into(),
 	})<span class="question-mark">?</span>;
 
-	<span class="kw">let </span>block_announce_validator =
-		BlockAnnounceValidator::new(relay_chain_interface.clone(), para_id);
-
 	<span class="kw">let </span>force_authoring = parachain_config.force_authoring;
 	<span class="kw">let </span>validator = parachain_config.role.is_authority();
 	<span class="kw">let </span>prometheus_registry = parachain_config.prometheus_registry().cloned();
@@ -3006,17 +2981,16 @@
 	<span class="kw">let </span>import_queue_service = params.import_queue.service();
 
 	<span class="kw">let </span>(network, system_rpc_tx, tx_handler_controller, start_network) =
-		sc_service::build_network(sc_service::BuildNetworkParams {
-			config: <span class="kw-2">&amp;</span>parachain_config,
+		build_network(BuildNetworkParams {
+			parachain_config: <span class="kw-2">&amp;</span>parachain_config,
 			client: client.clone(),
 			transaction_pool: transaction_pool.clone(),
+			para_id,
 			spawn_handle: task_manager.spawn_handle(),
+			relay_chain_interface: relay_chain_interface.clone(),
 			import_queue: params.import_queue,
-			block_announce_validator_builder: <span class="prelude-val">Some</span>(Box::new(|<span class="kw">_</span>| {
-				Box::new(block_announce_validator)
-			})),
-			warp_sync: <span class="prelude-val">None</span>,
-		})<span class="question-mark">?</span>;
+		})
+		.<span class="kw">await</span><span class="question-mark">?</span>;
 
 	<span class="kw">let </span>rpc_builder = {
 		<span class="kw">let </span>client = client.clone();

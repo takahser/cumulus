@@ -282,6 +282,13 @@
 <a href="#282" id="282">282</a>
 <a href="#283" id="283">283</a>
 <a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -388,6 +395,9 @@
 
 	<span class="doccomment">/// Get the hash of the current best block.
 	</span><span class="kw">async fn </span>best_block_hash(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RelayChainResult&lt;PHash&gt;;
+
+	<span class="doccomment">/// Get the hash of the finalized block.
+	</span><span class="kw">async fn </span>finalized_block_hash(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RelayChainResult&lt;PHash&gt;;
 
 	<span class="doccomment">/// Returns the whole contents of the downward message queue for the parachain we are collating
 	/// for.
@@ -530,6 +540,10 @@
 
 	<span class="kw">async fn </span>best_block_hash(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RelayChainResult&lt;PHash&gt; {
 		(<span class="kw-2">**</span><span class="self">self</span>).best_block_hash().<span class="kw">await
+	</span>}
+
+	<span class="kw">async fn </span>finalized_block_hash(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RelayChainResult&lt;PHash&gt; {
+		(<span class="kw-2">**</span><span class="self">self</span>).finalized_block_hash().<span class="kw">await
 	</span>}
 
 	<span class="kw">async fn </span>is_major_syncing(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RelayChainResult&lt;bool&gt; {

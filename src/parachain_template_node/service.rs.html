@@ -424,11 +424,6 @@
 <a href="#424" id="424">424</a>
 <a href="#425" id="425">425</a>
 <a href="#426" id="426">426</a>
-<a href="#427" id="427">427</a>
-<a href="#428" id="428">428</a>
-<a href="#429" id="429">429</a>
-<a href="#430" id="430">430</a>
-<a href="#431" id="431">431</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Service and ServiceFactory implementation. Specialized wrapper over substrate service.
 
 </span><span class="comment">// std
@@ -443,10 +438,9 @@
 <span class="kw">use </span>cumulus_client_consensus_common::{
 	ParachainBlockImport <span class="kw">as </span>TParachainBlockImport, ParachainConsensus,
 };
-<span class="kw">use </span>cumulus_client_network::BlockAnnounceValidator;
 <span class="kw">use </span>cumulus_client_service::{
-	build_relay_chain_interface, prepare_node_config, start_collator, start_full_node,
-	StartCollatorParams, StartFullNodeParams,
+	build_network, build_relay_chain_interface, prepare_node_config, start_collator,
+	start_full_node, BuildNetworkParams, StartCollatorParams, StartFullNodeParams,
 };
 <span class="kw">use </span>cumulus_primitives_core::ParaId;
 <span class="kw">use </span>cumulus_relay_chain_interface::{RelayChainError, RelayChainInterface};
@@ -599,9 +593,6 @@
 		s =&gt; s.to_string().into(),
 	})<span class="question-mark">?</span>;
 
-	<span class="kw">let </span>block_announce_validator =
-		BlockAnnounceValidator::new(relay_chain_interface.clone(), para_id);
-
 	<span class="kw">let </span>force_authoring = parachain_config.force_authoring;
 	<span class="kw">let </span>validator = parachain_config.role.is_authority();
 	<span class="kw">let </span>prometheus_registry = parachain_config.prometheus_registry().cloned();
@@ -609,17 +600,16 @@
 	<span class="kw">let </span>import_queue_service = params.import_queue.service();
 
 	<span class="kw">let </span>(network, system_rpc_tx, tx_handler_controller, start_network) =
-		sc_service::build_network(sc_service::BuildNetworkParams {
-			config: <span class="kw-2">&amp;</span>parachain_config,
+		build_network(BuildNetworkParams {
+			parachain_config: <span class="kw-2">&amp;</span>parachain_config,
 			client: client.clone(),
 			transaction_pool: transaction_pool.clone(),
+			para_id,
 			spawn_handle: task_manager.spawn_handle(),
+			relay_chain_interface: relay_chain_interface.clone(),
 			import_queue: params.import_queue,
-			block_announce_validator_builder: <span class="prelude-val">Some</span>(Box::new(|<span class="kw">_</span>| {
-				Box::new(block_announce_validator)
-			})),
-			warp_sync: <span class="prelude-val">None</span>,
-		})<span class="question-mark">?</span>;
+		})
+		.<span class="kw">await</span><span class="question-mark">?</span>;
 
 	<span class="kw">if </span>parachain_config.offchain_worker.enabled {
 		sc_service::build_offchain_workers(
