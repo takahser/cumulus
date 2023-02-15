@@ -413,6 +413,17 @@
 <a href="#413" id="413">413</a>
 <a href="#414" id="414">414</a>
 <a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -674,6 +685,17 @@
 		index: polkadot_primitives::SessionIndex,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;polkadot_primitives::OldV1SessionInfo&gt;, sp_api::ApiError&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self</span>.rpc_client.parachain_host_session_info_before_version_2(at, index).<span class="kw">await</span><span class="question-mark">?</span>)
+	}
+
+	<span class="kw">async fn </span>session_executor_params(
+		<span class="kw-2">&amp;</span><span class="self">self</span>,
+		at: Hash,
+		session_index: polkadot_primitives::SessionIndex,
+	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;polkadot_primitives::vstaging::ExecutorParams&gt;, sp_api::ApiError&gt; {
+		<span class="prelude-val">Ok</span>(<span class="self">self
+			</span>.rpc_client
+			.parachain_host_session_executor_params(at, session_index)
+			.<span class="kw">await</span><span class="question-mark">?</span>)
 	}
 
 	<span class="kw">async fn </span>submit_pvf_check_statement(
