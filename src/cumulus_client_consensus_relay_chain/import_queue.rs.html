@@ -128,13 +128,6 @@
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
 <a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -164,10 +157,7 @@
 <span class="kw">use </span>sp_blockchain::Result <span class="kw">as </span>ClientResult;
 <span class="kw">use </span>sp_consensus::{error::Error <span class="kw">as </span>ConsensusError, CacheKeyId};
 <span class="kw">use </span>sp_inherents::{CreateInherentDataProviders, InherentDataProvider};
-<span class="kw">use </span>sp_runtime::{
-	generic::BlockId,
-	traits::{Block <span class="kw">as </span>BlockT, Header <span class="kw">as </span>HeaderT},
-};
+<span class="kw">use </span>sp_runtime::traits::{Block <span class="kw">as </span>BlockT, Header <span class="kw">as </span>HeaderT};
 
 <span class="doccomment">/// A verifier that just checks the inherents.
 </span><span class="kw">pub struct </span>Verifier&lt;Client, Block, CIDP&gt; {
@@ -220,11 +210,7 @@
 			<span class="kw">let </span>inherent_res = <span class="self">self
 				</span>.client
 				.runtime_api()
-				.check_inherents(
-					<span class="kw-2">&amp;</span>BlockId::Hash(<span class="kw-2">*</span>block.header().parent_hash()),
-					block.clone(),
-					inherent_data,
-				)
+				.check_inherents(<span class="kw-2">*</span>block.header().parent_hash(), block.clone(), inherent_data)
 				.map_err(|e| <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, e))<span class="question-mark">?</span>;
 
 			<span class="kw">if </span>!inherent_res.ok() {

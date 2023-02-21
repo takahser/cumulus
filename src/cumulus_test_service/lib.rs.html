@@ -1689,7 +1689,7 @@
 	<span class="kw">let </span>best_hash = client.chain_info().best_hash;
 	client
 		.runtime_api()
-		.account_nonce(<span class="kw-2">&amp;</span>generic::BlockId::Hash(best_hash), account.into())
+		.account_nonce(best_hash, account.into())
 		.expect(<span class="string">&quot;Fetching account nonce works; qed&quot;</span>)
 }
 
