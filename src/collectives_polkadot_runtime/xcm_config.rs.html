@@ -285,6 +285,10 @@
 <a href="#285" id="285">285</a>
 <a href="#286" id="286">286</a>
 <a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -442,6 +446,9 @@
 			RuntimeCall::DmpQueue(..) |
 			RuntimeCall::Utility(pallet_utility::Call::as_derivative { .. }) |
 			RuntimeCall::Alliance(
+				<span class="comment">// `init_members` accepts unbounded vecs as arguments,
+				// but the call can be initiated only by root origin.
+				</span>pallet_alliance::Call::init_members { .. } |
 				pallet_alliance::Call::vote { .. } |
 				pallet_alliance::Call::close_old_weight { .. } |
 				pallet_alliance::Call::disband { .. } |
@@ -462,7 +469,8 @@
 				pallet_collective::Call::close_old_weight { .. } |
 				pallet_collective::Call::disapprove_proposal { .. } |
 				pallet_collective::Call::close { .. },
-			) =&gt; <span class="bool-val">true</span>,
+			) |
+			RuntimeCall::PolkadotXcm(pallet_xcm::Call::force_xcm_version { .. }) =&gt; <span class="bool-val">true</span>,
 			<span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
 		}
 	}
