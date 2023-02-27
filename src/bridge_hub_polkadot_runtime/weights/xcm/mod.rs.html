@@ -282,7 +282,7 @@
 	<span class="kw">fn </span>weigh_multi_assets(<span class="kw-2">&amp;</span><span class="self">self</span>, weight: Weight) -&gt; Weight;
 }
 
-<span class="kw">const </span>MAX_ASSETS: u32 = <span class="number">100</span>;
+<span class="kw">const </span>MAX_ASSETS: u64 = <span class="number">100</span>;
 
 <span class="kw">impl </span>WeighMultiAssets <span class="kw">for </span>MultiAssetFilter {
 	<span class="kw">fn </span>weigh_multi_assets(<span class="kw-2">&amp;</span><span class="self">self</span>, weight: Weight) -&gt; Weight {
@@ -290,7 +290,7 @@
 			<span class="self">Self</span>::Definite(assets) =&gt;
 				weight.saturating_mul(assets.inner().into_iter().count() <span class="kw">as </span>u64),
 			<span class="self">Self</span>::Wild(asset) =&gt; <span class="kw">match </span>asset {
-				All =&gt; weight.saturating_mul(MAX_ASSETS <span class="kw">as </span>u64),
+				All =&gt; weight.saturating_mul(MAX_ASSETS),
 				AllOf { fun, .. } =&gt; <span class="kw">match </span>fun {
 					WildFungibility::Fungible =&gt; weight,
 					<span class="comment">// Magic number 2 has to do with the fact that we could have up to 2 times
@@ -298,8 +298,8 @@
 					</span>WildFungibility::NonFungible =&gt;
 						weight.saturating_mul((MaxAssetsIntoHolding::get() * <span class="number">2</span>) <span class="kw">as </span>u64),
 				},
-				AllCounted(count) =&gt; weight.saturating_mul(<span class="kw-2">*</span>count <span class="kw">as </span>u64),
-				AllOfCounted { count, .. } =&gt; weight.saturating_mul(<span class="kw-2">*</span>count <span class="kw">as </span>u64),
+				AllCounted(count) =&gt; weight.saturating_mul(MAX_ASSETS.min(<span class="kw-2">*</span>count <span class="kw">as </span>u64)),
+				AllOfCounted { count, .. } =&gt; weight.saturating_mul(MAX_ASSETS.min(<span class="kw-2">*</span>count <span class="kw">as </span>u64)),
 			},
 		}
 	}
