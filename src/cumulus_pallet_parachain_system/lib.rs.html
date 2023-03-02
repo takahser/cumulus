@@ -1107,6 +1107,52 @@
 <a href="#1107" id="1107">1107</a>
 <a href="#1108" id="1108">1108</a>
 <a href="#1109" id="1109">1109</a>
+<a href="#1110" id="1110">1110</a>
+<a href="#1111" id="1111">1111</a>
+<a href="#1112" id="1112">1112</a>
+<a href="#1113" id="1113">1113</a>
+<a href="#1114" id="1114">1114</a>
+<a href="#1115" id="1115">1115</a>
+<a href="#1116" id="1116">1116</a>
+<a href="#1117" id="1117">1117</a>
+<a href="#1118" id="1118">1118</a>
+<a href="#1119" id="1119">1119</a>
+<a href="#1120" id="1120">1120</a>
+<a href="#1121" id="1121">1121</a>
+<a href="#1122" id="1122">1122</a>
+<a href="#1123" id="1123">1123</a>
+<a href="#1124" id="1124">1124</a>
+<a href="#1125" id="1125">1125</a>
+<a href="#1126" id="1126">1126</a>
+<a href="#1127" id="1127">1127</a>
+<a href="#1128" id="1128">1128</a>
+<a href="#1129" id="1129">1129</a>
+<a href="#1130" id="1130">1130</a>
+<a href="#1131" id="1131">1131</a>
+<a href="#1132" id="1132">1132</a>
+<a href="#1133" id="1133">1133</a>
+<a href="#1134" id="1134">1134</a>
+<a href="#1135" id="1135">1135</a>
+<a href="#1136" id="1136">1136</a>
+<a href="#1137" id="1137">1137</a>
+<a href="#1138" id="1138">1138</a>
+<a href="#1139" id="1139">1139</a>
+<a href="#1140" id="1140">1140</a>
+<a href="#1141" id="1141">1141</a>
+<a href="#1142" id="1142">1142</a>
+<a href="#1143" id="1143">1143</a>
+<a href="#1144" id="1144">1144</a>
+<a href="#1145" id="1145">1145</a>
+<a href="#1146" id="1146">1146</a>
+<a href="#1147" id="1147">1147</a>
+<a href="#1148" id="1148">1148</a>
+<a href="#1149" id="1149">1149</a>
+<a href="#1150" id="1150">1150</a>
+<a href="#1151" id="1151">1151</a>
+<a href="#1152" id="1152">1152</a>
+<a href="#1153" id="1153">1153</a>
+<a href="#1154" id="1154">1154</a>
+<a href="#1155" id="1155">1155</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2020 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1125,18 +1171,18 @@
 
 </span><span class="attr">#![cfg_attr(not(feature = <span class="string">&quot;std&quot;</span>), no_std)]
 
-</span><span class="doccomment">//! cumulus-pallet-parachain-system is a base pallet for cumulus-based parachains.
+</span><span class="doccomment">//! `cumulus-pallet-parachain-system` is a base pallet for Cumulus-based parachains.
 //!
-//! This pallet handles low-level details of being a parachain. It&#39;s responsibilities include:
+//! This pallet handles low-level details of being a parachain. Its responsibilities include:
 //!
-//! - ingestion of the parachain validation data
-//! - ingestion of incoming downward and lateral messages and dispatching them
-//! - coordinating upgrades with the relay-chain
-//! - communication of parachain outputs, such as sent messages, signalling an upgrade, etc.
+//! - ingestion of the parachain validation data;
+//! - ingestion and dispatch of incoming downward and lateral messages;
+//! - coordinating upgrades with the Relay Chain; and
+//! - communication of parachain outputs, such as sent messages, signaling an upgrade, etc.
 //!
 //! Users must ensure that they register this pallet as an inherent provider.
 
-</span><span class="kw">use </span>codec::Encode;
+</span><span class="kw">use </span>codec::{Decode, Encode, MaxEncodedLen};
 <span class="kw">use </span>cumulus_primitives_core::{
 	relay_chain, AbridgedHostConfiguration, ChannelStatus, CollationInfo, DmpMessageHandler,
 	GetChannelInfo, InboundDownwardMessage, InboundHrmpMessage, MessageSendError,
@@ -1154,6 +1200,7 @@
 };
 <span class="kw">use </span>frame_system::{ensure_none, ensure_root};
 <span class="kw">use </span>polkadot_parachain::primitives::RelayChainBlockNumber;
+<span class="kw">use </span>scale_info::TypeInfo;
 <span class="kw">use </span>sp_runtime::{
 	traits::{Block <span class="kw">as </span>BlockT, BlockNumberProvider, Hash},
 	transaction_validity::{
@@ -1241,6 +1288,20 @@
 
 <span class="kw">impl </span>CheckAssociatedRelayNumber <span class="kw">for </span>AnyRelayNumber {
 	<span class="kw">fn </span>check_associated_relay_number(<span class="kw">_</span>: RelayChainBlockNumber, <span class="kw">_</span>: RelayChainBlockNumber) {}
+}
+
+<span class="doccomment">/// Information needed when a new runtime binary is submitted and needs to be authorized before
+/// replacing the current runtime.
+</span><span class="attr">#[derive(Decode, Encode, Default, PartialEq, Eq, MaxEncodedLen, TypeInfo)]
+#[scale_info(skip_type_params(T))]
+</span><span class="kw">struct </span>CodeUpgradeAuthorization&lt;T&gt;
+<span class="kw">where
+	</span>T: Config,
+{
+	<span class="doccomment">/// Hash of the new runtime binary.
+	</span>code_hash: T::Hash,
+	<span class="doccomment">/// Whether or not to carry out version checks.
+	</span>check_version: bool,
 }
 
 <span class="attr">#[frame_support::pallet]
@@ -1551,18 +1612,41 @@
 			<span class="prelude-val">Ok</span>(())
 		}
 
-		<span class="attr">#[pallet::call_index(<span class="number">2</span>)]
+		<span class="doccomment">/// Authorize an upgrade to a given `code_hash` for the runtime. The runtime can be supplied
+		/// later.
+		///
+		/// The `check_version` parameter sets a boolean flag for whether or not the runtime&#39;s spec
+		/// version and name should be verified on upgrade. Since the authorization only has a hash,
+		/// it cannot actually perform the verification.
+		///
+		/// This call requires Root origin.
+		</span><span class="attr">#[pallet::call_index(<span class="number">2</span>)]
 		#[pallet::weight((<span class="number">1_000_000</span>, DispatchClass::Operational))]
-		</span><span class="kw">pub fn </span>authorize_upgrade(origin: OriginFor&lt;T&gt;, code_hash: T::Hash) -&gt; DispatchResult {
+		</span><span class="kw">pub fn </span>authorize_upgrade(
+			origin: OriginFor&lt;T&gt;,
+			code_hash: T::Hash,
+			check_version: bool,
+		) -&gt; DispatchResult {
 			ensure_root(origin)<span class="question-mark">?</span>;
-
-			AuthorizedUpgrade::&lt;T&gt;::put(<span class="kw-2">&amp;</span>code_hash);
+			AuthorizedUpgrade::&lt;T&gt;::put(CodeUpgradeAuthorization {
+				code_hash: code_hash.clone(),
+				check_version,
+			});
 
 			<span class="self">Self</span>::deposit_event(Event::UpgradeAuthorized { code_hash });
 			<span class="prelude-val">Ok</span>(())
 		}
 
-		<span class="attr">#[pallet::call_index(<span class="number">3</span>)]
+		<span class="doccomment">/// Provide the preimage (runtime binary) `code` for an upgrade that has been authorized.
+		///
+		/// If the authorization required a version check, this call will ensure the spec name
+		/// remains unchanged and that the spec version has increased.
+		///
+		/// Note that this function will not apply the new `code`, but only attempt to schedule the
+		/// upgrade with the Relay Chain.
+		///
+		/// All origins are allowed.
+		</span><span class="attr">#[pallet::call_index(<span class="number">3</span>)]
 		#[pallet::weight(<span class="number">1_000_000</span>)]
 		</span><span class="kw">pub fn </span>enact_authorized_upgrade(
 			<span class="kw">_</span>: OriginFor&lt;T&gt;,
@@ -1596,16 +1680,16 @@
 
 	<span class="attr">#[pallet::error]
 	</span><span class="kw">pub enum </span>Error&lt;T&gt; {
-		<span class="doccomment">/// Attempt to upgrade validation function while existing upgrade pending
+		<span class="doccomment">/// Attempt to upgrade validation function while existing upgrade pending.
 		</span>OverlappingUpgrades,
-		<span class="doccomment">/// Polkadot currently prohibits this parachain from upgrading its validation function
+		<span class="doccomment">/// Polkadot currently prohibits this parachain from upgrading its validation function.
 		</span>ProhibitedByPolkadot,
 		<span class="doccomment">/// The supplied validation function has compiled into a blob larger than Polkadot is
-		/// willing to run
+		/// willing to run.
 		</span>TooBig,
-		<span class="doccomment">/// The inherent which supplies the validation data did not run this block
+		<span class="doccomment">/// The inherent which supplies the validation data did not run this block.
 		</span>ValidationDataNotAvailable,
-		<span class="doccomment">/// The inherent which supplies the host configuration did not run this block
+		<span class="doccomment">/// The inherent which supplies the host configuration did not run this block.
 		</span>HostConfigurationNotAvailable,
 		<span class="doccomment">/// No validation function upgrade is currently scheduled.
 		</span>NotScheduled,
@@ -1754,7 +1838,7 @@
 
 	<span class="doccomment">/// The next authorized upgrade, if there is one.
 	</span><span class="attr">#[pallet::storage]
-	</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type </span>AuthorizedUpgrade&lt;T: Config&gt; = StorageValue&lt;<span class="kw">_</span>, T::Hash&gt;;
+	</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type </span>AuthorizedUpgrade&lt;T: Config&gt; = StorageValue&lt;<span class="kw">_</span>, CodeUpgradeAuthorization&lt;T&gt;&gt;;
 
 	<span class="doccomment">/// A custom head data that should be returned as result of `validate_block`.
 	///
@@ -1821,9 +1905,17 @@
 
 <span class="kw">impl</span>&lt;T: Config&gt; Pallet&lt;T&gt; {
 	<span class="kw">fn </span>validate_authorized_upgrade(code: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;T::Hash, DispatchError&gt; {
-		<span class="kw">let </span>required_hash = AuthorizedUpgrade::&lt;T&gt;::get().ok_or(Error::&lt;T&gt;::NothingAuthorized)<span class="question-mark">?</span>;
-		<span class="kw">let </span>actual_hash = T::Hashing::hash(<span class="kw-2">&amp;</span>code[..]);
-		<span class="macro">ensure!</span>(actual_hash == required_hash, Error::&lt;T&gt;::Unauthorized);
+		<span class="kw">let </span>authorization = AuthorizedUpgrade::&lt;T&gt;::get().ok_or(Error::&lt;T&gt;::NothingAuthorized)<span class="question-mark">?</span>;
+
+		<span class="comment">// ensure that the actual hash matches the authorized hash
+		</span><span class="kw">let </span>actual_hash = T::Hashing::hash(<span class="kw-2">&amp;</span>code[..]);
+		<span class="macro">ensure!</span>(actual_hash == authorization.code_hash, Error::&lt;T&gt;::Unauthorized);
+
+		<span class="comment">// check versions if required as part of the authorization
+		</span><span class="kw">if </span>authorization.check_version {
+			frame_system::Pallet::&lt;T&gt;::can_set_code(code)<span class="question-mark">?</span>;
+		}
+
 		<span class="prelude-val">Ok</span>(actual_hash)
 	}
 }
