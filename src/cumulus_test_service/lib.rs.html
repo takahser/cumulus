@@ -1675,7 +1675,7 @@
 		<span class="self">self</span>.send_extrinsic(
 			runtime::SudoCall::sudo_unchecked_weight {
 				call: Box::new(call.into()),
-				weight: Weight::from_ref_time(<span class="number">1_000</span>),
+				weight: Weight::from_parts(<span class="number">1_000</span>, <span class="number">0</span>),
 			},
 			Sr25519Keyring::Alice,
 		)
