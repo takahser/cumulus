@@ -879,8 +879,6 @@
 <a href="#879" id="879">879</a>
 <a href="#880" id="880">880</a>
 <a href="#881" id="881">881</a>
-<a href="#882" id="882">882</a>
-<a href="#883" id="883">883</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1135,7 +1133,8 @@
 			polkadot_service::IsCollator::Yes(CollatorPair::generate().<span class="number">0</span>)
 		},
 		<span class="prelude-val">None</span>,
-	)<span class="question-mark">?</span>;
+	)
+	.map_err(|e| RelayChainError::Application(Box::new(e) <span class="kw">as </span>Box&lt;<span class="kw">_</span>&gt;))<span class="question-mark">?</span>;
 
 	task_manager.add_child(relay_chain_full_node.task_manager);
 	<span class="macro">tracing::info!</span>(<span class="string">&quot;Using inprocess node.&quot;</span>);
@@ -1192,10 +1191,7 @@
 		<span class="kw-2">&amp;mut </span>task_manager,
 	)
 	.<span class="kw">await
-	</span>.map_err(|e| <span class="kw">match </span>e {
-		RelayChainError::ServiceError(polkadot_service::Error::Sub(x)) =&gt; x,
-		s =&gt; s.to_string().into(),
-	})<span class="question-mark">?</span>;
+	</span>.map_err(|e| sc_service::Error::Application(Box::new(e) <span class="kw">as </span>Box&lt;<span class="kw">_</span>&gt;))<span class="question-mark">?</span>;
 
 	<span class="kw">let </span>import_queue_service = params.import_queue.service();
 	<span class="kw">let </span>(network, system_rpc_tx, tx_handler_controller, start_network, sync_service) =
