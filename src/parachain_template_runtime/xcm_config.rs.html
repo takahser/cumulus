@@ -248,11 +248,15 @@
 <a href="#248" id="248">248</a>
 <a href="#249" id="249">249</a>
 <a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
 </pre><pre class="rust"><code><span class="kw">use super</span>::{
 	AccountId, AllPalletsWithSystem, Balances, ParachainInfo, ParachainSystem, PolkadotXcm,
 	Runtime, RuntimeCall, RuntimeEvent, RuntimeOrigin, WeightToFee, XcmpQueue,
 };
-<span class="kw">use </span>core::marker::PhantomData;
+<span class="kw">use </span>core::{marker::PhantomData, ops::ControlFlow};
 <span class="kw">use </span>frame_support::{
 	log, match_types, parameter_types,
 	traits::{ConstU32, Everything, Nothing},
@@ -261,7 +265,7 @@
 <span class="kw">use </span>pallet_xcm::XcmPassthrough;
 <span class="kw">use </span>polkadot_parachain::primitives::Sibling;
 <span class="kw">use </span>polkadot_runtime_common::impls::ToAuthor;
-<span class="kw">use </span>xcm::latest::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>xcm::{latest::prelude::<span class="kw-2">*</span>, CreateMatcher, MatchXcm};
 <span class="kw">use </span>xcm_builder::{
 	AccountId32Aliases, AllowExplicitUnpaidExecutionFrom, AllowTopLevelPaidExecutionFrom,
 	CurrencyAdapter, EnsureXcmOrigin, FixedWeightBounds, IsConcrete, NativeAsset, ParentIsPreset,
@@ -372,32 +376,36 @@
 		_max_weight: Weight,
 		_weight_credit: <span class="kw-2">&amp;mut </span>Weight,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
-		<span class="kw">if </span>message.iter().any(|inst| {
-			<span class="macro">matches!</span>(
-				inst,
+		message.matcher().match_next_inst_while(
+			|<span class="kw">_</span>| <span class="bool-val">true</span>,
+			|inst| <span class="kw">match </span>inst {
 				InitiateReserveWithdraw {
 					reserve: MultiLocation { parents: <span class="number">1</span>, interior: Here },
 					..
-				} | DepositReserveAsset { dest: MultiLocation { parents: <span class="number">1</span>, interior: Here }, .. } |
-					TransferReserveAsset {
-						dest: MultiLocation { parents: <span class="number">1</span>, interior: Here },
-						..
-					}
-			)
-		}) {
-			<span class="kw">return </span><span class="prelude-val">Err</span>(()) <span class="comment">// Deny
-		</span>}
+				} |
+				DepositReserveAsset {
+					dest: MultiLocation { parents: <span class="number">1</span>, interior: Here }, ..
+				} |
+				TransferReserveAsset {
+					dest: MultiLocation { parents: <span class="number">1</span>, interior: Here }, ..
+				} =&gt; {
+					<span class="prelude-val">Err</span>(()) <span class="comment">// Deny
+				</span>},
+				<span class="comment">// An unexpected reserve transfer has arrived from the Relay Chain. Generally,
+				// `IsReserve` should not allow this, but we just log it here.
+				</span>ReserveAssetDeposited { .. }
+					<span class="kw">if </span><span class="macro">matches!</span>(origin, MultiLocation { parents: <span class="number">1</span>, interior: Here }) =&gt;
+				{
+					<span class="macro">log::warn!</span>(
+						target: <span class="string">&quot;xcm::barrier&quot;</span>,
+						<span class="string">&quot;Unexpected ReserveAssetDeposited from the Relay Chain&quot;</span>,
+					);
+					<span class="prelude-val">Ok</span>(ControlFlow::Continue(()))
+				},
+				<span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(ControlFlow::Continue(())),
+			},
+		)<span class="question-mark">?</span>;
 
-		<span class="comment">// An unexpected reserve transfer has arrived from the Relay Chain. Generally, `IsReserve`
-		// should not allow this, but we just log it here.
-		</span><span class="kw">if </span><span class="macro">matches!</span>(origin, MultiLocation { parents: <span class="number">1</span>, interior: Here }) &amp;&amp;
-			message.iter().any(|inst| <span class="macro">matches!</span>(inst, ReserveAssetDeposited { .. }))
-		{
-			<span class="macro">log::warn!</span>(
-				target: <span class="string">&quot;xcm::barriers&quot;</span>,
-				<span class="string">&quot;Unexpected ReserveAssetDeposited from the Relay Chain&quot;</span>,
-			);
-		}
 		<span class="comment">// Permit everything else
 		</span><span class="prelude-val">Ok</span>(())
 	}
