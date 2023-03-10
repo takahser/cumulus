@@ -475,6 +475,9 @@
 <a href="#475" id="475">475</a>
 <a href="#476" id="476">476</a>
 <a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -491,10 +494,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Cumulus.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::reconnecting_ws_client::ReconnectingWsClient;
+</span><span class="kw">use </span>futures::channel::mpsc::Receiver;
+<span class="kw">use </span>jsonrpsee::{core::params::ArrayParams, rpc_params};
+<span class="kw">use </span>parity_scale_codec::{Decode, Encode};
+<span class="kw">use </span>serde::de::DeserializeOwned;
+<span class="kw">pub use </span>url::Url;
+
+<span class="kw">use </span>sc_client_api::StorageData;
+<span class="kw">use </span>sc_rpc_api::{state::ReadProof, system::Health};
+<span class="kw">use </span>sc_service::TaskManager;
+<span class="kw">use </span>sp_api::RuntimeVersion;
+<span class="kw">use </span>sp_consensus_babe::Epoch;
+<span class="kw">use </span>sp_core::sp_std::collections::btree_map::BTreeMap;
+<span class="kw">use </span>sp_storage::StorageKey;
+
 <span class="kw">use </span>cumulus_primitives_core::{
 	relay_chain::{
-		vstaging::ExecutorParams, CandidateCommitments, CandidateEvent, CandidateHash,
+		vstaging::ExecutorParams, BlockNumber, CandidateCommitments, CandidateEvent, CandidateHash,
 		CommittedCandidateReceipt, CoreState, DisputeState, GroupRotationInfo, Hash <span class="kw">as </span>RelayHash,
 		Header <span class="kw">as </span>RelayHeader, InboundHrmpMessage, OccupiedCoreAssumption, PvfCheckStatement,
 		ScrapedOnChainVotes, SessionIndex, SessionInfo, ValidationCode, ValidationCodeHash,
@@ -503,18 +519,8 @@
 	InboundDownwardMessage, ParaId, PersistedValidationData,
 };
 <span class="kw">use </span>cumulus_relay_chain_interface::{RelayChainError, RelayChainResult};
-<span class="kw">use </span>futures::channel::mpsc::Receiver;
-<span class="kw">use </span>jsonrpsee::{core::params::ArrayParams, rpc_params};
-<span class="kw">use </span>parity_scale_codec::{Decode, Encode};
-<span class="kw">use </span>polkadot_service::{BlockNumber, TaskManager};
-<span class="kw">use </span>sc_client_api::StorageData;
-<span class="kw">use </span>sc_rpc_api::{state::ReadProof, system::Health};
-<span class="kw">use </span>serde::de::DeserializeOwned;
-<span class="kw">use </span>sp_api::RuntimeVersion;
-<span class="kw">use </span>sp_consensus_babe::Epoch;
-<span class="kw">use </span>sp_core::sp_std::collections::btree_map::BTreeMap;
-<span class="kw">use </span>sp_storage::StorageKey;
-<span class="kw">pub use </span>url::Url;
+
+<span class="kw">use </span><span class="kw">crate</span>::reconnecting_ws_client::ReconnectingWsClient;
 
 <span class="kw">const </span>LOG_TARGET: <span class="kw-2">&amp;</span>str = <span class="string">&quot;relay-chain-rpc-client&quot;</span>;
 
@@ -738,7 +744,7 @@
 	<span class="doccomment">/// Get hash of n-th block.
 	</span><span class="kw">pub async fn </span>chain_get_block_hash(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
-		block_number: <span class="prelude-ty">Option</span>&lt;polkadot_service::BlockNumber&gt;,
+		block_number: <span class="prelude-ty">Option</span>&lt;BlockNumber&gt;,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;RelayHash&gt;, RelayChainError&gt; {
 		<span class="kw">let </span>params = <span class="macro">rpc_params!</span>[block_number];
 		<span class="self">self</span>.request(<span class="string">&quot;chain_getBlockHash&quot;</span>, params).<span class="kw">await
