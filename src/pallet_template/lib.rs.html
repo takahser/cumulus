@@ -104,7 +104,6 @@
 <a href="#104" id="104">104</a>
 <a href="#105" id="105">105</a>
 <a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
 </pre><pre class="rust"><code><span class="attr">#![cfg_attr(not(feature = <span class="string">&quot;std&quot;</span>), no_std)]
 
 </span><span class="doccomment">/// Edit this file to define custom logic or remove it if it is not needed.
@@ -134,7 +133,6 @@
 	}
 
 	<span class="attr">#[pallet::pallet]
-	#[pallet::generate_store(<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">trait </span>Store)]
 	</span><span class="kw">pub struct </span>Pallet&lt;T&gt;(<span class="kw">_</span>);
 
 	<span class="comment">// The pallet&#39;s runtime storage items.

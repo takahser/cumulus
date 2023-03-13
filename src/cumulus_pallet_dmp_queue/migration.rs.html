@@ -136,7 +136,7 @@
 
 </span><span class="doccomment">//! A module that is responsible for migration of storage.
 
-</span><span class="kw">use crate</span>::{Config, Pallet, Store, DEFAULT_POV_SIZE};
+</span><span class="kw">use crate</span>::{Config, Configuration, Overweight, Pallet, DEFAULT_POV_SIZE};
 <span class="kw">use </span>frame_support::{
 	pallet_prelude::<span class="kw-2">*</span>,
 	traits::StorageVersion,
@@ -194,7 +194,7 @@
 		}
 	};
 
-	<span class="kw">if let </span><span class="prelude-val">Err</span>(<span class="kw">_</span>) = &lt;Pallet&lt;T&gt; <span class="kw">as </span>Store&gt;::Configuration::translate(|pre| pre.map(translate)) {
+	<span class="kw">if let </span><span class="prelude-val">Err</span>(<span class="kw">_</span>) = Configuration::&lt;T&gt;::translate(|pre| pre.map(translate)) {
 		<span class="macro">log::error!</span>(
 			target: <span class="string">&quot;dmp_queue&quot;</span>,
 			<span class="string">&quot;unexpected error when performing translation of the QueueConfig type during storage upgrade to v2&quot;
@@ -209,7 +209,7 @@
 /// NOTE: Only use this function if you know what you&#39;re doing. Default to using
 /// `migrate_to_latest`.
 </span><span class="kw">pub fn </span>migrate_to_v2&lt;T: Config&gt;() -&gt; Weight {
-	<span class="kw">let </span>overweight_messages = &lt;Pallet&lt;T&gt; <span class="kw">as </span>Store&gt;::Overweight::initialize_counter() <span class="kw">as </span>u64;
+	<span class="kw">let </span>overweight_messages = Overweight::&lt;T&gt;::initialize_counter() <span class="kw">as </span>u64;
 
 	T::DbWeight::get().reads_writes(overweight_messages, <span class="number">1</span>)
 }

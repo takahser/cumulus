@@ -1190,7 +1190,6 @@
 <a href="#1190" id="1190">1190</a>
 <a href="#1191" id="1191">1191</a>
 <a href="#1192" id="1192">1192</a>
-<a href="#1193" id="1193">1193</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2020-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1272,7 +1271,6 @@
 	<span class="kw">use </span>frame_system::pallet_prelude::<span class="kw-2">*</span>;
 
 	<span class="attr">#[pallet::pallet]
-	#[pallet::generate_store(<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">trait </span>Store)]
 	#[pallet::storage_version(migration::STORAGE_VERSION)]
 	#[pallet::without_storage_info]
 	</span><span class="kw">pub struct </span>Pallet&lt;T&gt;(<span class="kw">_</span>);
@@ -1956,13 +1954,13 @@
 		sent_at: RelayBlockNumber,
 		xcm: Vec&lt;u8&gt;,
 	) -&gt; OverweightIndex {
-		<span class="kw">let </span>index = &lt;<span class="self">Self </span><span class="kw">as </span>Store&gt;::OverweightCount::mutate(|count| {
+		<span class="kw">let </span>index = OverweightCount::&lt;T&gt;::mutate(|count| {
 			<span class="kw">let </span>index = <span class="kw-2">*</span>count;
 			<span class="kw-2">*</span>count += <span class="number">1</span>;
 			index
 		});
 
-		&lt;<span class="self">Self </span><span class="kw">as </span>Store&gt;::Overweight::insert(index, (sender, sent_at, xcm));
+		Overweight::&lt;T&gt;::insert(index, (sender, sent_at, xcm));
 		index
 	}
 
