@@ -1814,7 +1814,7 @@
 <span class="doccomment">/// Extrinsic type that has already been checked.
 </span><span class="kw">pub type </span>CheckedExtrinsic = generic::CheckedExtrinsic&lt;AccountId, RuntimeCall, SignedExtra&gt;;
 <span class="doccomment">/// Migrations to apply on runtime upgrade.
-</span><span class="kw">pub type </span>Migrations = ();
+</span><span class="kw">pub type </span>Migrations = (pallet_nfts::migration::v1::MigrateToV1&lt;Runtime&gt;,);
 
 <span class="doccomment">/// Executive: handles dispatch to the various modules.
 </span><span class="kw">pub type </span>Executive = frame_executive::Executive&lt;
