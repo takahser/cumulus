@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["schedule_migration","NOTE: This function is an automatically generated, doc only, uncallable stub. designed to document the [`schedule_migration`][`Call::schedule_migration`] variant of the pallet [`Call`] enum. You should not attempt to call this function directly."]]};

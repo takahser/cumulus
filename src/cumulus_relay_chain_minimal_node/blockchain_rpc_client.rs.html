@@ -627,7 +627,7 @@
 		<span class="kw-2">&amp;</span><span class="self">self</span>,
 		at: Hash,
 		session_index: polkadot_primitives::SessionIndex,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;polkadot_primitives::vstaging::ExecutorParams&gt;, sp_api::ApiError&gt; {
+	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;polkadot_primitives::ExecutorParams&gt;, sp_api::ApiError&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self
 			</span>.rpc_client
 			.parachain_host_session_executor_params(at, session_index)

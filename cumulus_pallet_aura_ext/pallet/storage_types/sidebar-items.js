@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["Authorities","Serves as cache for the authorities."]]};

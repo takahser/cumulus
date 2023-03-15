@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["PingCount","The total number of pings sent."],["Pings","The sent pings."],["Targets","The target parachains to ping."]]};
