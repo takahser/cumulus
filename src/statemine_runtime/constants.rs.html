@@ -71,6 +71,39 @@
 <a href="#71" id="71">71</a>
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2021 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -107,8 +140,8 @@
 <span class="doccomment">/// Fee-related.
 </span><span class="kw">pub mod </span>fee {
 	<span class="kw">use </span>frame_support::weights::{
-		constants::ExtrinsicBaseWeight, WeightToFeeCoefficient, WeightToFeeCoefficients,
-		WeightToFeePolynomial,
+		constants::ExtrinsicBaseWeight, FeePolynomial, Weight, WeightToFeeCoefficient,
+		WeightToFeeCoefficients, WeightToFeePolynomial,
 	};
 	<span class="kw">use </span>polkadot_core_primitives::Balance;
 	<span class="kw">use </span>smallvec::smallvec;
@@ -128,13 +161,46 @@
 	///   - Setting it to `0` will essentially disable the weight fee.
 	///   - Setting it to `1` will cause the literal `#[weight = x]` values to be charged.
 	</span><span class="kw">pub struct </span>WeightToFee;
-	<span class="kw">impl </span>WeightToFeePolynomial <span class="kw">for </span>WeightToFee {
+	<span class="kw">impl </span>frame_support::weights::WeightToFee <span class="kw">for </span>WeightToFee {
+		<span class="kw">type </span>Balance = Balance;
+
+		<span class="kw">fn </span>weight_to_fee(weight: <span class="kw-2">&amp;</span>Weight) -&gt; <span class="self">Self</span>::Balance {
+			<span class="kw">let </span>time_poly: FeePolynomial&lt;Balance&gt; = RefTimeToFee::polynomial().into();
+			<span class="kw">let </span>proof_poly: FeePolynomial&lt;Balance&gt; = ProofSizeToFee::polynomial().into();
+
+			<span class="comment">// Take the maximum instead of the sum to charge by the more scarce resource.
+			</span>time_poly.eval(weight.ref_time()).max(proof_poly.eval(weight.proof_size()))
+		}
+	}
+
+	<span class="doccomment">/// Maps the reference time component of `Weight` to a fee.
+	</span><span class="kw">pub struct </span>RefTimeToFee;
+	<span class="kw">impl </span>WeightToFeePolynomial <span class="kw">for </span>RefTimeToFee {
 		<span class="kw">type </span>Balance = Balance;
 		<span class="kw">fn </span>polynomial() -&gt; WeightToFeeCoefficients&lt;<span class="self">Self</span>::Balance&gt; {
 			<span class="comment">// in Kusama, extrinsic base weight (smallest non-zero weight) is mapped to 1/10 CENT:
 			// in Statemine, we map to 1/10 of that, or 1/100 CENT
 			</span><span class="kw">let </span>p = <span class="kw">super</span>::currency::CENTS;
 			<span class="kw">let </span>q = <span class="number">100 </span>* Balance::from(ExtrinsicBaseWeight::get().ref_time());
+
+			<span class="macro">smallvec!</span>[WeightToFeeCoefficient {
+				degree: <span class="number">1</span>,
+				negative: <span class="bool-val">false</span>,
+				coeff_frac: Perbill::from_rational(p % q, q),
+				coeff_integer: p / q,
+			}]
+		}
+	}
+
+	<span class="doccomment">/// Maps the proof size component of `Weight` to a fee.
+	</span><span class="kw">pub struct </span>ProofSizeToFee;
+	<span class="kw">impl </span>WeightToFeePolynomial <span class="kw">for </span>ProofSizeToFee {
+		<span class="kw">type </span>Balance = Balance;
+		<span class="kw">fn </span>polynomial() -&gt; WeightToFeeCoefficients&lt;<span class="self">Self</span>::Balance&gt; {
+			<span class="comment">// Map 10kb proof to 1 CENT.
+			</span><span class="kw">let </span>p = <span class="kw">super</span>::currency::CENTS;
+			<span class="kw">let </span>q = <span class="number">10_000</span>;
+
 			<span class="macro">smallvec!</span>[WeightToFeeCoefficient {
 				degree: <span class="number">1</span>,
 				negative: <span class="bool-val">false</span>,

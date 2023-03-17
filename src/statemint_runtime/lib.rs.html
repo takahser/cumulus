@@ -1077,6 +1077,62 @@
 <a href="#1077" id="1077">1077</a>
 <a href="#1078" id="1078">1078</a>
 <a href="#1079" id="1079">1079</a>
+<a href="#1080" id="1080">1080</a>
+<a href="#1081" id="1081">1081</a>
+<a href="#1082" id="1082">1082</a>
+<a href="#1083" id="1083">1083</a>
+<a href="#1084" id="1084">1084</a>
+<a href="#1085" id="1085">1085</a>
+<a href="#1086" id="1086">1086</a>
+<a href="#1087" id="1087">1087</a>
+<a href="#1088" id="1088">1088</a>
+<a href="#1089" id="1089">1089</a>
+<a href="#1090" id="1090">1090</a>
+<a href="#1091" id="1091">1091</a>
+<a href="#1092" id="1092">1092</a>
+<a href="#1093" id="1093">1093</a>
+<a href="#1094" id="1094">1094</a>
+<a href="#1095" id="1095">1095</a>
+<a href="#1096" id="1096">1096</a>
+<a href="#1097" id="1097">1097</a>
+<a href="#1098" id="1098">1098</a>
+<a href="#1099" id="1099">1099</a>
+<a href="#1100" id="1100">1100</a>
+<a href="#1101" id="1101">1101</a>
+<a href="#1102" id="1102">1102</a>
+<a href="#1103" id="1103">1103</a>
+<a href="#1104" id="1104">1104</a>
+<a href="#1105" id="1105">1105</a>
+<a href="#1106" id="1106">1106</a>
+<a href="#1107" id="1107">1107</a>
+<a href="#1108" id="1108">1108</a>
+<a href="#1109" id="1109">1109</a>
+<a href="#1110" id="1110">1110</a>
+<a href="#1111" id="1111">1111</a>
+<a href="#1112" id="1112">1112</a>
+<a href="#1113" id="1113">1113</a>
+<a href="#1114" id="1114">1114</a>
+<a href="#1115" id="1115">1115</a>
+<a href="#1116" id="1116">1116</a>
+<a href="#1117" id="1117">1117</a>
+<a href="#1118" id="1118">1118</a>
+<a href="#1119" id="1119">1119</a>
+<a href="#1120" id="1120">1120</a>
+<a href="#1121" id="1121">1121</a>
+<a href="#1122" id="1122">1122</a>
+<a href="#1123" id="1123">1123</a>
+<a href="#1124" id="1124">1124</a>
+<a href="#1125" id="1125">1125</a>
+<a href="#1126" id="1126">1126</a>
+<a href="#1127" id="1127">1127</a>
+<a href="#1128" id="1128">1128</a>
+<a href="#1129" id="1129">1129</a>
+<a href="#1130" id="1130">1130</a>
+<a href="#1131" id="1131">1131</a>
+<a href="#1132" id="1132">1132</a>
+<a href="#1133" id="1133">1133</a>
+<a href="#1134" id="1134">1134</a>
+<a href="#1135" id="1135">1135</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2021-2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -2155,6 +2211,62 @@
 	Runtime = Runtime,
 	BlockExecutor = cumulus_pallet_aura_ext::BlockExecutor::&lt;Runtime, Executive&gt;,
 	CheckInherents = CheckInherents,
+}
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+	<span class="kw">use super</span>::{constants::fee, <span class="kw-2">*</span>};
+	<span class="kw">use crate</span>::{CENTS, MILLICENTS};
+	<span class="kw">use </span>sp_runtime::traits::Zero;
+	<span class="kw">use </span>sp_weights::WeightToFee;
+
+	<span class="doccomment">/// We can fit at least 1000 transfers in a block.
+	</span><span class="attr">#[test]
+	</span><span class="kw">fn </span>sane_block_weight() {
+		<span class="kw">use </span>pallet_balances::WeightInfo;
+		<span class="kw">let </span>block = RuntimeBlockWeights::get().max_block;
+		<span class="kw">let </span>base = RuntimeBlockWeights::get().get(DispatchClass::Normal).base_extrinsic;
+		<span class="kw">let </span>transfer = base + weights::pallet_balances::WeightInfo::&lt;Runtime&gt;::transfer();
+
+		<span class="kw">let </span>fit = block.checked_div_per_component(<span class="kw-2">&amp;</span>transfer).unwrap_or_default();
+		<span class="macro">assert!</span>(fit &gt;= <span class="number">1000</span>, <span class="string">&quot;{} should be at least 1000&quot;</span>, fit);
+	}
+
+	<span class="doccomment">/// The fee for one transfer is at most 1 CENT.
+	</span><span class="attr">#[test]
+	</span><span class="kw">fn </span>sane_transfer_fee() {
+		<span class="kw">use </span>pallet_balances::WeightInfo;
+		<span class="kw">let </span>base = RuntimeBlockWeights::get().get(DispatchClass::Normal).base_extrinsic;
+		<span class="kw">let </span>transfer = base + weights::pallet_balances::WeightInfo::&lt;Runtime&gt;::transfer();
+
+		<span class="kw">let </span>fee: Balance = fee::WeightToFee::weight_to_fee(<span class="kw-2">&amp;</span>transfer);
+		<span class="macro">assert!</span>(fee &lt;= CENTS, <span class="string">&quot;{} MILLICENTS should be at most 1000&quot;</span>, fee / MILLICENTS);
+	}
+
+	<span class="doccomment">/// Weight is being charged for both dimensions.
+	</span><span class="attr">#[test]
+	</span><span class="kw">fn </span>weight_charged_for_both_components() {
+		<span class="kw">let </span>fee: Balance = fee::WeightToFee::weight_to_fee(<span class="kw-2">&amp;</span>Weight::from_parts(<span class="number">10_000</span>, <span class="number">0</span>));
+		<span class="macro">assert!</span>(!fee.is_zero(), <span class="string">&quot;Charges for ref time&quot;</span>);
+
+		<span class="kw">let </span>fee: Balance = fee::WeightToFee::weight_to_fee(<span class="kw-2">&amp;</span>Weight::from_parts(<span class="number">0</span>, <span class="number">10_000</span>));
+		<span class="macro">assert_eq!</span>(fee, CENTS, <span class="string">&quot;10kb maps to CENT&quot;</span>);
+	}
+
+	<span class="doccomment">/// Filling up a block by proof size is at most 30 times more expensive than ref time.
+	///
+	/// This is just a sanity check.
+	</span><span class="attr">#[test]
+	</span><span class="kw">fn </span>full_block_fee_ratio() {
+		<span class="kw">let </span>block = RuntimeBlockWeights::get().max_block;
+		<span class="kw">let </span>time_fee: Balance = fee::WeightToFee::weight_to_fee(<span class="kw-2">&amp;</span>block.without_proof_size());
+		<span class="kw">let </span>proof_fee: Balance = fee::WeightToFee::weight_to_fee(<span class="kw-2">&amp;</span>block.without_ref_time());
+
+		<span class="kw">let </span>proof_o_time = proof_fee.checked_div(time_fee).unwrap_or_default();
+		<span class="macro">assert!</span>(proof_o_time &lt;= <span class="number">30</span>, <span class="string">&quot;{} should be at most 30&quot;</span>, proof_o_time);
+		<span class="kw">let </span>time_o_proof = time_fee.checked_div(proof_fee).unwrap_or_default();
+		<span class="macro">assert!</span>(time_o_proof &lt;= <span class="number">30</span>, <span class="string">&quot;{} should be at most 30&quot;</span>, time_o_proof);
+	}
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="statemint_runtime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0 (2c8cc3432 2023-03-06)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

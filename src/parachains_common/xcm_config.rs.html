@@ -139,7 +139,7 @@
 <span class="kw">use </span>frame_support::{
 	log,
 	traits::{fungibles::Inspect, tokens::BalanceConversion, ContainsPair},
-	weights::{Weight, WeightToFee, WeightToFeePolynomial},
+	weights::Weight,
 };
 <span class="kw">use </span>sp_runtime::traits::Get;
 <span class="kw">use </span>xcm::{latest::prelude::<span class="kw-2">*</span>, CreateMatcher, MatchXcm};
@@ -231,7 +231,7 @@
 	&gt; <span class="kw">for </span>AssetFeeAsExistentialDepositMultiplier&lt;Runtime, WeightToFee, BalanceConverter, AssetInstance&gt;
 <span class="kw">where
 	</span>Runtime: pallet_assets::Config&lt;AssetInstance&gt;,
-	WeightToFee: WeightToFeePolynomial&lt;Balance = CurrencyBalance&gt;,
+	WeightToFee: frame_support::weights::WeightToFee&lt;Balance = CurrencyBalance&gt;,
 	BalanceConverter: BalanceConversion&lt;
 		CurrencyBalance,
 		&lt;Runtime <span class="kw">as </span>pallet_assets::Config&lt;AssetInstance&gt;&gt;::AssetId,
