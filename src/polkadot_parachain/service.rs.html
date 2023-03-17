@@ -1659,7 +1659,7 @@
 <span class="kw">use </span>sc_telemetry::{Telemetry, TelemetryHandle, TelemetryWorker, TelemetryWorkerHandle};
 <span class="kw">use </span>sp_api::{ApiExt, ConstructRuntimeApi};
 <span class="kw">use </span>sp_consensus_aura::AuraApi;
-<span class="kw">use </span>sp_keystore::SyncCryptoStorePtr;
+<span class="kw">use </span>sp_keystore::KeystorePtr;
 <span class="kw">use </span>sp_runtime::{
 	app_crypto::AppKey,
 	traits::{BlakeTwo256, Header <span class="kw">as </span>HeaderT},
@@ -1969,7 +1969,7 @@
 		Arc&lt;<span class="kw">dyn </span>RelayChainInterface&gt;,
 		Arc&lt;sc_transaction_pool::FullPool&lt;Block, ParachainClient&lt;RuntimeApi&gt;&gt;&gt;,
 		Arc&lt;SyncingService&lt;Block&gt;&gt;,
-		SyncCryptoStorePtr,
+		KeystorePtr,
 		bool,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>ParachainConsensus&lt;Block&gt;&gt;, sc_service::Error&gt;,
 {
@@ -2021,7 +2021,7 @@
 		transaction_pool: transaction_pool.clone(),
 		task_manager: <span class="kw-2">&amp;mut </span>task_manager,
 		config: parachain_config,
-		keystore: params.keystore_container.sync_keystore(),
+		keystore: params.keystore_container.keystore(),
 		backend: backend.clone(),
 		network: network.clone(),
 		sync_service: sync_service.clone(),
@@ -2067,7 +2067,7 @@
 			relay_chain_interface.clone(),
 			transaction_pool,
 			sync_service,
-			params.keystore_container.sync_keystore(),
+			params.keystore_container.keystore(),
 			force_authoring,
 		)<span class="question-mark">?</span>;
 
@@ -2157,7 +2157,7 @@
 		Arc&lt;<span class="kw">dyn </span>RelayChainInterface&gt;,
 		Arc&lt;sc_transaction_pool::FullPool&lt;Block, ParachainClient&lt;RuntimeApi&gt;&gt;&gt;,
 		Arc&lt;SyncingService&lt;Block&gt;&gt;,
-		SyncCryptoStorePtr,
+		KeystorePtr,
 		bool,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>ParachainConsensus&lt;Block&gt;&gt;, sc_service::Error&gt;,
 {
@@ -2221,7 +2221,7 @@
 		transaction_pool: transaction_pool.clone(),
 		task_manager: <span class="kw-2">&amp;mut </span>task_manager,
 		config: parachain_config,
-		keystore: params.keystore_container.sync_keystore(),
+		keystore: params.keystore_container.keystore(),
 		backend: backend.clone(),
 		network: network.clone(),
 		sync_service: sync_service.clone(),
@@ -2266,7 +2266,7 @@
 			relay_chain_interface.clone(),
 			transaction_pool,
 			sync_service,
-			params.keystore_container.sync_keystore(),
+			params.keystore_container.keystore(),
 			force_authoring,
 		)<span class="question-mark">?</span>;
 
@@ -2927,7 +2927,7 @@
 		Arc&lt;<span class="kw">dyn </span>RelayChainInterface&gt;,
 		Arc&lt;sc_transaction_pool::FullPool&lt;Block, ParachainClient&lt;RuntimeApi&gt;&gt;&gt;,
 		Arc&lt;SyncingService&lt;Block&gt;&gt;,
-		SyncCryptoStorePtr,
+		KeystorePtr,
 		bool,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>ParachainConsensus&lt;Block&gt;&gt;, sc_service::Error&gt;,
 {
@@ -2990,7 +2990,7 @@
 		transaction_pool: transaction_pool.clone(),
 		task_manager: <span class="kw-2">&amp;mut </span>task_manager,
 		config: parachain_config,
-		keystore: params.keystore_container.sync_keystore(),
+		keystore: params.keystore_container.keystore(),
 		backend: backend.clone(),
 		network: network.clone(),
 		sync_service: sync_service.clone(),
@@ -3035,7 +3035,7 @@
 			relay_chain_interface.clone(),
 			transaction_pool,
 			sync_service,
-			params.keystore_container.sync_keystore(),
+			params.keystore_container.keystore(),
 			force_authoring,
 		)<span class="question-mark">?</span>;
 

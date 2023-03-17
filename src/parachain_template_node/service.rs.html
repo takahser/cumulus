@@ -451,7 +451,7 @@
 <span class="kw">use </span>sc_network_sync::SyncingService;
 <span class="kw">use </span>sc_service::{Configuration, PartialComponents, TFullBackend, TFullClient, TaskManager};
 <span class="kw">use </span>sc_telemetry::{Telemetry, TelemetryHandle, TelemetryWorker, TelemetryWorkerHandle};
-<span class="kw">use </span>sp_keystore::SyncCryptoStorePtr;
+<span class="kw">use </span>sp_keystore::KeystorePtr;
 <span class="kw">use </span>substrate_prometheus_endpoint::Registry;
 
 <span class="doccomment">/// Native executor type.
@@ -636,7 +636,7 @@
 		transaction_pool: transaction_pool.clone(),
 		task_manager: <span class="kw-2">&amp;mut </span>task_manager,
 		config: parachain_config,
-		keystore: params.keystore_container.sync_keystore(),
+		keystore: params.keystore_container.keystore(),
 		backend,
 		network: network.clone(),
 		sync_service: sync_service.clone(),
@@ -687,7 +687,7 @@
 			relay_chain_interface.clone(),
 			transaction_pool,
 			sync_service,
-			params.keystore_container.sync_keystore(),
+			params.keystore_container.keystore(),
 			force_authoring,
 			para_id,
 		)<span class="question-mark">?</span>;
@@ -776,7 +776,7 @@
 	relay_chain_interface: Arc&lt;<span class="kw">dyn </span>RelayChainInterface&gt;,
 	transaction_pool: Arc&lt;sc_transaction_pool::FullPool&lt;Block, ParachainClient&gt;&gt;,
 	sync_oracle: Arc&lt;SyncingService&lt;Block&gt;&gt;,
-	keystore: SyncCryptoStorePtr,
+	keystore: KeystorePtr,
 	force_authoring: bool,
 	para_id: ParaId,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>ParachainConsensus&lt;Block&gt;&gt;, sc_service::Error&gt; {
