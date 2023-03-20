@@ -367,7 +367,7 @@
 	dest: sp_keyring::AccountKeyring,
 	value: Balance,
 ) -&gt; UncheckedExtrinsic {
-	<span class="kw">let </span>function = RuntimeCall::Balances(pallet_balances::Call::transfer {
+	<span class="kw">let </span>function = RuntimeCall::Balances(pallet_balances::Call::transfer_allow_death {
 		dest: dest.public().into(),
 		value,
 	});

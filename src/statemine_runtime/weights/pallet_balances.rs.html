@@ -132,6 +132,9 @@
 <a href="#132" id="132">132</a>
 <a href="#133" id="133">133</a>
 <a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -183,7 +186,7 @@
 <span class="kw">impl</span>&lt;T: frame_system::Config&gt; pallet_balances::WeightInfo <span class="kw">for </span>WeightInfo&lt;T&gt; {
 	<span class="doccomment">/// Storage: System Account (r:1 w:1)
 	/// Proof: System Account (max_values: None, max_size: Some(128), added: 2603, mode: MaxEncodedLen)
-	</span><span class="kw">fn </span>transfer() -&gt; Weight {
+	</span><span class="kw">fn </span>transfer_allow_death() -&gt; Weight {
 		<span class="comment">// Proof Size summary in bytes:
 		//  Measured:  `1178`
 		//  Estimated: `2603`
@@ -207,7 +210,7 @@
 	}
 	<span class="doccomment">/// Storage: System Account (r:1 w:1)
 	/// Proof: System Account (max_values: None, max_size: Some(128), added: 2603, mode: MaxEncodedLen)
-	</span><span class="kw">fn </span>set_balance_creating() -&gt; Weight {
+	</span><span class="kw">fn </span>force_set_balance_creating() -&gt; Weight {
 		<span class="comment">// Proof Size summary in bytes:
 		//  Measured:  `1174`
 		//  Estimated: `2603`
@@ -219,7 +222,7 @@
 	}
 	<span class="doccomment">/// Storage: System Account (r:1 w:1)
 	/// Proof: System Account (max_values: None, max_size: Some(128), added: 2603, mode: MaxEncodedLen)
-	</span><span class="kw">fn </span>set_balance_killing() -&gt; Weight {
+	</span><span class="kw">fn </span>force_set_balance_killing() -&gt; Weight {
 		<span class="comment">// Proof Size summary in bytes:
 		//  Measured:  `1174`
 		//  Estimated: `2603`
@@ -255,7 +258,10 @@
 	}
 	<span class="doccomment">/// Storage: System Account (r:1 w:1)
 	/// Proof: System Account (max_values: None, max_size: Some(128), added: 2603, mode: MaxEncodedLen)
-	</span><span class="kw">fn </span>force_unreserve() -&gt; Weight {
+	</span><span class="kw">fn </span>upgrade_accounts(<span class="kw">_</span>: u32) -&gt; Weight {
+		Weight::from_parts(<span class="number">0</span>, <span class="number">0</span>)
+	}
+	<span class="kw">fn </span>force_unreserve() -&gt; Weight {
 		<span class="comment">// Proof Size summary in bytes:
 		//  Measured:  `1058`
 		//  Estimated: `2603`
