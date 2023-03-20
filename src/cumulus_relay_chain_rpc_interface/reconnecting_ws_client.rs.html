@@ -518,6 +518,61 @@
 <a href="#518" id="518">518</a>
 <a href="#519" id="519">519</a>
 <a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -582,6 +637,25 @@
 </span><span class="kw">pub struct </span>ReconnectingWsClient {
 	<span class="doccomment">/// Channel to communicate with the RPC worker
 	</span>to_worker_channel: TokioSender&lt;RpcDispatcherMessage&gt;,
+}
+
+<span class="doccomment">/// Format url and force addition of a port
+</span><span class="kw">fn </span>url_to_string_with_port(url: Url) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+	<span class="comment">// This is already validated on CLI side, just defensive here
+	</span><span class="kw">if </span>(url.scheme() != <span class="string">&quot;ws&quot; </span>&amp;&amp; url.scheme() != <span class="string">&quot;wss&quot;</span>) || url.host_str().is_none() {
+		<span class="macro">tracing::warn!</span>(target: LOG_TARGET, <span class="question-mark">?</span>url, <span class="string">&quot;Non-WebSocket URL or missing host.&quot;</span>);
+		<span class="kw">return </span><span class="prelude-val">None
+	</span>}
+
+	<span class="comment">// Either we have a user-supplied port or use the default for &#39;ws&#39; or &#39;wss&#39; here
+	</span><span class="prelude-val">Some</span>(<span class="macro">format!</span>(
+		<span class="string">&quot;{}://{}:{}{}{}&quot;</span>,
+		url.scheme(),
+		url.host_str()<span class="question-mark">?</span>,
+		url.port_or_known_default()<span class="question-mark">?</span>,
+		url.path(),
+		url.query().map(|query| <span class="macro">format!</span>(<span class="string">&quot;?{}&quot;</span>, query)).unwrap_or_default()
+	))
 }
 
 <span class="kw">impl </span>ReconnectingWsClient {
@@ -664,7 +738,7 @@
 
 <span class="doccomment">/// Worker that should be used in combination with [`RelayChainRpcClient`]. Must be polled to distribute header notifications to listeners.
 </span><span class="kw">struct </span>ReconnectingWebsocketWorker {
-	ws_urls: Vec&lt;Url&gt;,
+	ws_urls: Vec&lt;String&gt;,
 	<span class="doccomment">/// Communication channel with the RPC client
 	</span>client_receiver: TokioReceiver&lt;RpcDispatcherMessage&gt;,
 
@@ -696,7 +770,7 @@
 /// and reconnections.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">struct </span>ClientManager {
-	urls: Vec&lt;Url&gt;,
+	urls: Vec&lt;String&gt;,
 	active_client: Arc&lt;JsonRpcClient&gt;,
 	active_index: usize,
 }
@@ -709,7 +783,7 @@
 
 <span class="doccomment">/// Try to find a new RPC server to connect to.
 </span><span class="kw">async fn </span>connect_next_available_rpc_server(
-	urls: <span class="kw-2">&amp;</span>Vec&lt;Url&gt;,
+	urls: <span class="kw-2">&amp;</span>Vec&lt;String&gt;,
 	starting_position: usize,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, Arc&lt;JsonRpcClient&gt;), ()&gt; {
 	<span class="macro">tracing::debug!</span>(target: LOG_TARGET, starting_position, <span class="string">&quot;Connecting to RPC server.&quot;</span>);
@@ -718,18 +792,19 @@
 		<span class="macro">tracing::info!</span>(
 			target: LOG_TARGET,
 			index,
-			<span class="question-mark">?</span>url,
+			url,
 			<span class="string">&quot;Trying to connect to next external relaychain node.&quot;</span>,
 		);
-		<span class="kw">if let </span><span class="prelude-val">Ok</span>(ws_client) = WsClientBuilder::default().build(url).<span class="kw">await </span>{
-			<span class="kw">return </span><span class="prelude-val">Ok</span>((index, Arc::new(ws_client)))
+		<span class="kw">match </span>WsClientBuilder::default().build(<span class="kw-2">&amp;</span>url).<span class="kw">await </span>{
+			<span class="prelude-val">Ok</span>(ws_client) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((index, Arc::new(ws_client))),
+			<span class="prelude-val">Err</span>(err) =&gt; <span class="macro">tracing::debug!</span>(target: LOG_TARGET, url, <span class="question-mark">?</span>err, <span class="string">&quot;Unable to connect.&quot;</span>),
 		};
 	}
 	<span class="prelude-val">Err</span>(())
 }
 
 <span class="kw">impl </span>ClientManager {
-	<span class="kw">pub async fn </span>new(urls: Vec&lt;Url&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ()&gt; {
+	<span class="kw">pub async fn </span>new(urls: Vec&lt;String&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ()&gt; {
 		<span class="kw">if </span>urls.is_empty() {
 			<span class="kw">return </span><span class="prelude-val">Err</span>(())
 		}
@@ -845,6 +920,8 @@
 	</span><span class="kw">async fn </span>new(
 		urls: Vec&lt;Url&gt;,
 	) -&gt; (ReconnectingWebsocketWorker, TokioSender&lt;RpcDispatcherMessage&gt;) {
+		<span class="kw">let </span>urls = urls.into_iter().filter_map(url_to_string_with_port).collect();
+
 		<span class="kw">let </span>(tx, rx) = tokio_channel(<span class="number">100</span>);
 		<span class="kw">let </span>worker = ReconnectingWebsocketWorker {
 			ws_urls: urls,
@@ -1036,6 +1113,39 @@
 				}
 			}
 		}
+	}
+}
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+	<span class="kw">use </span><span class="kw">super</span>::url_to_string_with_port;
+	<span class="kw">use </span>url::Url;
+
+	<span class="attr">#[test]
+	</span><span class="kw">fn </span>url_to_string_works() {
+		<span class="kw">let </span>url = Url::parse(<span class="string">&quot;wss://something/path&quot;</span>).unwrap();
+		<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;wss://something:443/path&quot;</span>.to_string()), url_to_string_with_port(url));
+
+		<span class="kw">let </span>url = Url::parse(<span class="string">&quot;ws://something/path&quot;</span>).unwrap();
+		<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;ws://something:80/path&quot;</span>.to_string()), url_to_string_with_port(url));
+
+		<span class="kw">let </span>url = Url::parse(<span class="string">&quot;wss://something:100/path&quot;</span>).unwrap();
+		<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;wss://something:100/path&quot;</span>.to_string()), url_to_string_with_port(url));
+
+		<span class="kw">let </span>url = Url::parse(<span class="string">&quot;wss://something:100/path&quot;</span>).unwrap();
+		<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;wss://something:100/path&quot;</span>.to_string()), url_to_string_with_port(url));
+
+		<span class="kw">let </span>url = Url::parse(<span class="string">&quot;wss://something/path?query=yes&quot;</span>).unwrap();
+		<span class="macro">assert_eq!</span>(
+			<span class="prelude-val">Some</span>(<span class="string">&quot;wss://something:443/path?query=yes&quot;</span>.to_string()),
+			url_to_string_with_port(url)
+		);
+
+		<span class="kw">let </span>url = Url::parse(<span class="string">&quot;wss://something:9090/path?query=yes&quot;</span>).unwrap();
+		<span class="macro">assert_eq!</span>(
+			<span class="prelude-val">Some</span>(<span class="string">&quot;wss://something:9090/path?query=yes&quot;</span>.to_string()),
+			url_to_string_with_port(url)
+		);
 	}
 }
 </code></pre></div>
