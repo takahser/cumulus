@@ -373,6 +373,44 @@
 <a href="#373" id="373">373</a>
 <a href="#374" id="374">374</a>
 <a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -584,6 +622,44 @@
 				pallet_assets::Call::transfer_approved { .. } |
 				pallet_assets::Call::touch { .. } |
 				pallet_assets::Call::refund { .. },
+			) |
+			RuntimeCall::Nfts(
+				pallet_nfts::Call::create { .. } |
+				pallet_nfts::Call::force_create { .. } |
+				pallet_nfts::Call::destroy { .. } |
+				pallet_nfts::Call::mint { .. } |
+				pallet_nfts::Call::force_mint { .. } |
+				pallet_nfts::Call::burn { .. } |
+				pallet_nfts::Call::transfer { .. } |
+				pallet_nfts::Call::lock_item_transfer { .. } |
+				pallet_nfts::Call::unlock_item_transfer { .. } |
+				pallet_nfts::Call::lock_collection { .. } |
+				pallet_nfts::Call::transfer_ownership { .. } |
+				pallet_nfts::Call::set_team { .. } |
+				pallet_nfts::Call::force_collection_owner { .. } |
+				pallet_nfts::Call::force_collection_config { .. } |
+				pallet_nfts::Call::approve_transfer { .. } |
+				pallet_nfts::Call::cancel_approval { .. } |
+				pallet_nfts::Call::clear_all_transfer_approvals { .. } |
+				pallet_nfts::Call::lock_item_properties { .. } |
+				pallet_nfts::Call::set_attribute { .. } |
+				pallet_nfts::Call::force_set_attribute { .. } |
+				pallet_nfts::Call::clear_attribute { .. } |
+				pallet_nfts::Call::approve_item_attributes { .. } |
+				pallet_nfts::Call::cancel_item_attributes_approval { .. } |
+				pallet_nfts::Call::set_metadata { .. } |
+				pallet_nfts::Call::clear_metadata { .. } |
+				pallet_nfts::Call::set_collection_metadata { .. } |
+				pallet_nfts::Call::clear_collection_metadata { .. } |
+				pallet_nfts::Call::set_accept_ownership { .. } |
+				pallet_nfts::Call::set_collection_max_supply { .. } |
+				pallet_nfts::Call::update_mint_settings { .. } |
+				pallet_nfts::Call::set_price { .. } |
+				pallet_nfts::Call::buy_item { .. } |
+				pallet_nfts::Call::pay_tips { .. } |
+				pallet_nfts::Call::create_swap { .. } |
+				pallet_nfts::Call::cancel_swap { .. } |
+				pallet_nfts::Call::claim_swap { .. },
 			) |
 			RuntimeCall::Uniques(
 				pallet_uniques::Call::create { .. } |

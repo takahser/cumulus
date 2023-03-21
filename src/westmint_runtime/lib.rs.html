@@ -1144,6 +1144,11 @@
 <a href="#1144" id="1144">1144</a>
 <a href="#1145" id="1145">1145</a>
 <a href="#1146" id="1146">1146</a>
+<a href="#1147" id="1147">1147</a>
+<a href="#1148" id="1148">1148</a>
+<a href="#1149" id="1149">1149</a>
+<a href="#1150" id="1150">1150</a>
+<a href="#1151" id="1151">1151</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2021-2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -1507,15 +1512,11 @@
 					RuntimeCall::Assets(TrustBackedAssetsCall::clear_metadata { .. }) |
 					RuntimeCall::Nfts(pallet_nfts::Call::create { .. }) |
 					RuntimeCall::Nfts(pallet_nfts::Call::destroy { .. }) |
+					RuntimeCall::Nfts(pallet_nfts::Call::redeposit { .. }) |
 					RuntimeCall::Nfts(pallet_nfts::Call::transfer_ownership { .. }) |
 					RuntimeCall::Nfts(pallet_nfts::Call::set_team { .. }) |
-					RuntimeCall::Nfts(pallet_nfts::Call::lock_item_properties { .. }) |
-					RuntimeCall::Nfts(pallet_nfts::Call::set_metadata { .. }) |
-					RuntimeCall::Nfts(pallet_nfts::Call::set_collection_metadata { .. }) |
-					RuntimeCall::Nfts(pallet_nfts::Call::clear_metadata { .. }) |
-					RuntimeCall::Nfts(pallet_nfts::Call::clear_collection_metadata { .. }) |
 					RuntimeCall::Nfts(pallet_nfts::Call::set_collection_max_supply { .. }) |
-					RuntimeCall::Nfts(pallet_nfts::Call::update_mint_settings { .. }) |
+					RuntimeCall::Nfts(pallet_nfts::Call::lock_collection { .. }) |
 					RuntimeCall::Uniques(pallet_uniques::Call::create { .. }) |
 					RuntimeCall::Uniques(pallet_uniques::Call::destroy { .. }) |
 					RuntimeCall::Uniques(pallet_uniques::Call::transfer_ownership { .. }) |
@@ -1539,10 +1540,16 @@
 					RuntimeCall::Assets(TrustBackedAssetsCall::freeze_asset { .. }) |
 					RuntimeCall::Assets(TrustBackedAssetsCall::thaw_asset { .. }) |
 					RuntimeCall::Nfts(pallet_nfts::Call::force_mint { .. }) |
-					RuntimeCall::Nfts(pallet_nfts::Call::burn { .. }) |
+					RuntimeCall::Nfts(pallet_nfts::Call::update_mint_settings { .. }) |
+					RuntimeCall::Nfts(pallet_nfts::Call::mint_pre_signed { .. }) |
+					RuntimeCall::Nfts(pallet_nfts::Call::set_attributes_pre_signed { .. }) |
 					RuntimeCall::Nfts(pallet_nfts::Call::lock_item_transfer { .. }) |
 					RuntimeCall::Nfts(pallet_nfts::Call::unlock_item_transfer { .. }) |
-					RuntimeCall::Nfts(pallet_nfts::Call::lock_collection { .. }) |
+					RuntimeCall::Nfts(pallet_nfts::Call::lock_item_properties { .. }) |
+					RuntimeCall::Nfts(pallet_nfts::Call::set_metadata { .. }) |
+					RuntimeCall::Nfts(pallet_nfts::Call::clear_metadata { .. }) |
+					RuntimeCall::Nfts(pallet_nfts::Call::set_collection_metadata { .. }) |
+					RuntimeCall::Nfts(pallet_nfts::Call::clear_collection_metadata { .. }) |
 					RuntimeCall::Uniques(pallet_uniques::Call::mint { .. }) |
 					RuntimeCall::Uniques(pallet_uniques::Call::burn { .. }) |
 					RuntimeCall::Uniques(pallet_uniques::Call::freeze { .. }) |
@@ -1694,14 +1701,11 @@
 }
 
 <span class="macro">parameter_types! </span>{
-	<span class="kw">pub const </span>CollectionDeposit: Balance = UNITS / <span class="number">10</span>; <span class="comment">// 1 / 10 UNIT deposit to create asset class
-	</span><span class="kw">pub const </span>ItemDeposit: Balance = UNITS / <span class="number">1_000</span>; <span class="comment">// 1 / 1000 UNIT deposit to create asset instance
-	</span><span class="kw">pub const </span>KeyLimit: u32 = <span class="number">32</span>;	<span class="comment">// Max 32 bytes per key
-	</span><span class="kw">pub const </span>ValueLimit: u32 = <span class="number">64</span>;	<span class="comment">// Max 64 bytes per value
+	<span class="kw">pub const </span>UniquesCollectionDeposit: Balance = UNITS / <span class="number">10</span>; <span class="comment">// 1 / 10 UNIT deposit to create a collection
+	</span><span class="kw">pub const </span>UniquesItemDeposit: Balance = UNITS / <span class="number">1_000</span>; <span class="comment">// 1 / 1000 UNIT deposit to mint an item
 	</span><span class="kw">pub const </span>UniquesMetadataDepositBase: Balance = deposit(<span class="number">1</span>, <span class="number">129</span>);
-	<span class="kw">pub const </span>AttributeDepositBase: Balance = deposit(<span class="number">1</span>, <span class="number">0</span>);
-	<span class="kw">pub const </span>DepositPerByte: Balance = deposit(<span class="number">0</span>, <span class="number">1</span>);
-	<span class="kw">pub const </span>UniquesStringLimit: u32 = <span class="number">128</span>;
+	<span class="kw">pub const </span>UniquesAttributeDepositBase: Balance = deposit(<span class="number">1</span>, <span class="number">0</span>);
+	<span class="kw">pub const </span>UniquesDepositPerByte: Balance = deposit(<span class="number">0</span>, <span class="number">1</span>);
 }
 
 <span class="kw">impl </span>pallet_uniques::Config <span class="kw">for </span>Runtime {
@@ -1710,14 +1714,14 @@
 	<span class="kw">type </span>ItemId = u32;
 	<span class="kw">type </span>Currency = Balances;
 	<span class="kw">type </span>ForceOrigin = AssetsForceOrigin;
-	<span class="kw">type </span>CollectionDeposit = CollectionDeposit;
-	<span class="kw">type </span>ItemDeposit = ItemDeposit;
+	<span class="kw">type </span>CollectionDeposit = UniquesCollectionDeposit;
+	<span class="kw">type </span>ItemDeposit = UniquesItemDeposit;
 	<span class="kw">type </span>MetadataDepositBase = UniquesMetadataDepositBase;
-	<span class="kw">type </span>AttributeDepositBase = AttributeDepositBase;
-	<span class="kw">type </span>DepositPerByte = DepositPerByte;
-	<span class="kw">type </span>StringLimit = UniquesStringLimit;
-	<span class="kw">type </span>KeyLimit = KeyLimit;
-	<span class="kw">type </span>ValueLimit = ValueLimit;
+	<span class="kw">type </span>AttributeDepositBase = UniquesAttributeDepositBase;
+	<span class="kw">type </span>DepositPerByte = UniquesDepositPerByte;
+	<span class="kw">type </span>StringLimit = ConstU32&lt;<span class="number">128</span>&gt;;
+	<span class="kw">type </span>KeyLimit = ConstU32&lt;<span class="number">32</span>&gt;;
+	<span class="kw">type </span>ValueLimit = ConstU32&lt;<span class="number">64</span>&gt;;
 	<span class="kw">type </span>WeightInfo = weights::pallet_uniques::WeightInfo&lt;Runtime&gt;;
 	<span class="attr">#[cfg(feature = <span class="string">&quot;runtime-benchmarks&quot;</span>)]
 	</span><span class="kw">type </span>Helper = ();
@@ -1728,6 +1732,12 @@
 <span class="macro">parameter_types! </span>{
 	<span class="kw">pub </span>NftsPalletFeatures: PalletFeatures = PalletFeatures::all_enabled();
 	<span class="kw">pub const </span>NftsMaxDeadlineDuration: BlockNumber = <span class="number">12 </span>* <span class="number">30 </span>* DAYS;
+	<span class="comment">// re-use the Uniques deposits
+	</span><span class="kw">pub const </span>NftsCollectionDeposit: Balance = UniquesCollectionDeposit::get();
+	<span class="kw">pub const </span>NftsItemDeposit: Balance = UniquesItemDeposit::get();
+	<span class="kw">pub const </span>NftsMetadataDepositBase: Balance = UniquesMetadataDepositBase::get();
+	<span class="kw">pub const </span>NftsAttributeDepositBase: Balance = UniquesAttributeDepositBase::get();
+	<span class="kw">pub const </span>NftsDepositPerByte: Balance = UniquesDepositPerByte::get();
 }
 
 <span class="kw">impl </span>pallet_nfts::Config <span class="kw">for </span>Runtime {
@@ -1738,14 +1748,14 @@
 	<span class="kw">type </span>CreateOrigin = AsEnsureOriginWithArg&lt;EnsureSigned&lt;AccountId&gt;&gt;;
 	<span class="kw">type </span>ForceOrigin = AssetsForceOrigin;
 	<span class="kw">type </span>Locker = ();
-	<span class="kw">type </span>CollectionDeposit = CollectionDeposit;
-	<span class="kw">type </span>ItemDeposit = ItemDeposit;
-	<span class="kw">type </span>MetadataDepositBase = UniquesMetadataDepositBase;
-	<span class="kw">type </span>AttributeDepositBase = AttributeDepositBase;
-	<span class="kw">type </span>DepositPerByte = DepositPerByte;
-	<span class="kw">type </span>StringLimit = UniquesStringLimit;
-	<span class="kw">type </span>KeyLimit = KeyLimit;
-	<span class="kw">type </span>ValueLimit = ValueLimit;
+	<span class="kw">type </span>CollectionDeposit = NftsCollectionDeposit;
+	<span class="kw">type </span>ItemDeposit = NftsItemDeposit;
+	<span class="kw">type </span>MetadataDepositBase = NftsMetadataDepositBase;
+	<span class="kw">type </span>AttributeDepositBase = NftsAttributeDepositBase;
+	<span class="kw">type </span>DepositPerByte = NftsDepositPerByte;
+	<span class="kw">type </span>StringLimit = ConstU32&lt;<span class="number">256</span>&gt;;
+	<span class="kw">type </span>KeyLimit = ConstU32&lt;<span class="number">64</span>&gt;;
+	<span class="kw">type </span>ValueLimit = ConstU32&lt;<span class="number">256</span>&gt;;
 	<span class="kw">type </span>ApprovalsLimit = ConstU32&lt;<span class="number">20</span>&gt;;
 	<span class="kw">type </span>ItemAttributesApprovalsLimit = ConstU32&lt;<span class="number">30</span>&gt;;
 	<span class="kw">type </span>MaxTips = ConstU32&lt;<span class="number">10</span>&gt;;
