@@ -1139,6 +1139,14 @@
 <a href="#1139" id="1139">1139</a>
 <a href="#1140" id="1140">1140</a>
 <a href="#1141" id="1141">1141</a>
+<a href="#1142" id="1142">1142</a>
+<a href="#1143" id="1143">1143</a>
+<a href="#1144" id="1144">1144</a>
+<a href="#1145" id="1145">1145</a>
+<a href="#1146" id="1146">1146</a>
+<a href="#1147" id="1147">1147</a>
+<a href="#1148" id="1148">1148</a>
+<a href="#1149" id="1149">1149</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2021-2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -1235,14 +1243,15 @@
 	NORMAL_DISPATCH_RATIO, SLOT_DURATION,
 };
 <span class="kw">use </span>xcm_config::{
-	DotLocation, TrustBackedAssetsConvertedConcreteId, XcmConfig, XcmOriginToTransactDispatchOrigin,
+	DotLocation, FellowshipLocation, GovernanceLocation, TrustBackedAssetsConvertedConcreteId,
+	XcmConfig, XcmOriginToTransactDispatchOrigin,
 };
 
 <span class="attr">#[cfg(any(feature = <span class="string">&quot;std&quot;</span>, test))]
 </span><span class="kw">pub use </span>sp_runtime::BuildStorage;
 
 <span class="comment">// Polkadot imports
-</span><span class="kw">use </span>pallet_xcm::{EnsureXcm, IsMajorityOfBody};
+</span><span class="kw">use </span>pallet_xcm::{EnsureXcm, IsVoiceOfBody};
 <span class="kw">use </span>polkadot_runtime_common::{BlockHashCount, SlowAdjustingFeeUpdate};
 <span class="kw">use </span>xcm::latest::BodyId;
 <span class="kw">use </span>xcm_executor::XcmExecutor;
@@ -1385,12 +1394,10 @@
 	</span><span class="comment">// https://github.com/paritytech/substrate/blob/069917b/frame/assets/src/lib.rs#L257L271
 	</span><span class="kw">pub const </span>MetadataDepositBase: Balance = deposit(<span class="number">1</span>, <span class="number">68</span>);
 	<span class="kw">pub const </span>MetadataDepositPerByte: Balance = deposit(<span class="number">0</span>, <span class="number">1</span>);
-	<span class="kw">pub const </span>ExecutiveBody: BodyId = BodyId::Executive;
 }
 
-<span class="doccomment">/// We allow root and the Relay Chain council to execute privileged asset operations.
-</span><span class="kw">pub type </span>AssetsForceOrigin =
-	EitherOfDiverse&lt;EnsureRoot&lt;AccountId&gt;, EnsureXcm&lt;IsMajorityOfBody&lt;DotLocation, ExecutiveBody&gt;&gt;&gt;;
+<span class="doccomment">/// We allow root to execute privileged asset operations.
+</span><span class="kw">pub type </span>AssetsForceOrigin = EnsureRoot&lt;AccountId&gt;;
 
 <span class="comment">// Called &quot;Trust Backed&quot; assets because these are generally registered by some account, and users of
 // the asset assume it has some claimed backing. The pallet is called `Assets` in
@@ -1617,6 +1624,11 @@
 
 <span class="kw">impl </span>cumulus_pallet_aura_ext::Config <span class="kw">for </span>Runtime {}
 
+<span class="macro">parameter_types! </span>{
+	<span class="comment">// Fellows pluralistic body.
+	</span><span class="kw">pub const </span>FellowsBodyId: BodyId = BodyId::Technical;
+}
+
 <span class="kw">impl </span>cumulus_pallet_xcmp_queue::Config <span class="kw">for </span>Runtime {
 	<span class="kw">type </span>WeightInfo = weights::cumulus_pallet_xcmp_queue::WeightInfo&lt;Runtime&gt;;
 	<span class="kw">type </span>RuntimeEvent = RuntimeEvent;
@@ -1626,7 +1638,7 @@
 	<span class="kw">type </span>ExecuteOverweightOrigin = EnsureRoot&lt;AccountId&gt;;
 	<span class="kw">type </span>ControllerOrigin = EitherOfDiverse&lt;
 		EnsureRoot&lt;AccountId&gt;,
-		EnsureXcm&lt;IsMajorityOfBody&lt;DotLocation, ExecutiveBody&gt;&gt;,
+		EnsureXcm&lt;IsVoiceOfBody&lt;FellowshipLocation, FellowsBodyId&gt;&gt;,
 	&gt;;
 	<span class="kw">type </span>ControllerOriginConverter = XcmOriginToTransactDispatchOrigin;
 	<span class="kw">type </span>PriceForSiblingDelivery = ();
@@ -1669,11 +1681,15 @@
 	<span class="kw">pub const </span>MinCandidates: u32 = <span class="number">5</span>;
 	<span class="kw">pub const </span>SessionLength: BlockNumber = <span class="number">6 </span>* HOURS;
 	<span class="kw">pub const </span>MaxInvulnerables: u32 = <span class="number">100</span>;
+	<span class="comment">// `StakingAdmin` pluralistic body.
+	</span><span class="kw">pub const </span>StakingAdminBodyId: BodyId = BodyId::Defense;
 }
 
-<span class="doccomment">/// We allow root and the Relay Chain council to execute privileged collator selection operations.
-</span><span class="kw">pub type </span>CollatorSelectionUpdateOrigin =
-	EitherOfDiverse&lt;EnsureRoot&lt;AccountId&gt;, EnsureXcm&lt;IsMajorityOfBody&lt;DotLocation, ExecutiveBody&gt;&gt;&gt;;
+<span class="doccomment">/// We allow root and the `StakingAdmin` to execute privileged collator selection operations.
+</span><span class="kw">pub type </span>CollatorSelectionUpdateOrigin = EitherOfDiverse&lt;
+	EnsureRoot&lt;AccountId&gt;,
+	EnsureXcm&lt;IsVoiceOfBody&lt;GovernanceLocation, StakingAdminBodyId&gt;&gt;,
+&gt;;
 
 <span class="kw">impl </span>pallet_collator_selection::Config <span class="kw">for </span>Runtime {
 	<span class="kw">type </span>RuntimeEvent = RuntimeEvent;

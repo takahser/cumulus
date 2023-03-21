@@ -814,8 +814,6 @@
 <a href="#814" id="814">814</a>
 <a href="#815" id="815">815</a>
 <a href="#816" id="816">816</a>
-<a href="#817" id="817">817</a>
-<a href="#818" id="818">818</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -894,7 +892,6 @@
 	opaque, AccountId, Balance, BlockNumber, Hash, Header, Index, Signature,
 	AVERAGE_ON_INITIALIZE_RATIO, HOURS, MAXIMUM_BLOCK_WEIGHT, NORMAL_DISPATCH_RATIO, SLOT_DURATION,
 };
-<span class="kw">use </span>xcm::latest::prelude::BodyId;
 <span class="kw">use </span>xcm_executor::XcmExecutor;
 
 <span class="doccomment">/// The address format for describing accounts.
@@ -1222,7 +1219,6 @@
 <span class="macro">parameter_types! </span>{
 	<span class="kw">pub const </span>PotId: PalletId = PalletId(<span class="kw-2">*</span><span class="string">b&quot;PotStake&quot;</span>);
 	<span class="kw">pub const </span>SessionLength: BlockNumber = <span class="number">6 </span>* HOURS;
-	<span class="kw">pub const </span>ExecutiveBody: BodyId = BodyId::Executive;
 }
 
 <span class="kw">pub type </span>CollatorSelectionUpdateOrigin = EnsureRoot&lt;AccountId&gt;;

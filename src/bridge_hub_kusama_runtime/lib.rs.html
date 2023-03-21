@@ -756,6 +756,14 @@
 <a href="#756" id="756">756</a>
 <a href="#757" id="757">757</a>
 <a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -812,10 +820,12 @@
 	limits::{BlockLength, BlockWeights},
 	EnsureRoot,
 };
-<span class="kw">use </span>pallet_xcm::{EnsureXcm, IsMajorityOfBody};
+<span class="kw">use </span>pallet_xcm::{EnsureXcm, IsVoiceOfBody};
 <span class="kw">pub use </span>sp_consensus_aura::sr25519::AuthorityId <span class="kw">as </span>AuraId;
 <span class="kw">pub use </span>sp_runtime::{MultiAddress, Perbill, Permill};
-<span class="kw">use </span>xcm_config::{XcmConfig, XcmOriginToTransactDispatchOrigin};
+<span class="kw">use </span>xcm_config::{
+	FellowshipLocation, GovernanceLocation, XcmConfig, XcmOriginToTransactDispatchOrigin,
+};
 
 <span class="attr">#[cfg(any(feature = <span class="string">&quot;std&quot;</span>, test))]
 </span><span class="kw">pub use </span>sp_runtime::BuildStorage;
@@ -825,13 +835,12 @@
 
 <span class="kw">use </span>weights::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight};
 
-<span class="comment">// XCM Imports
-</span><span class="kw">use </span><span class="kw">crate</span>::xcm_config::KsmRelayLocation;
 <span class="kw">use </span>parachains_common::{
 	opaque, AccountId, Balance, BlockNumber, Hash, Header, Index, Signature,
 	AVERAGE_ON_INITIALIZE_RATIO, HOURS, MAXIMUM_BLOCK_WEIGHT, NORMAL_DISPATCH_RATIO, SLOT_DURATION,
 };
-<span class="kw">use </span>xcm::latest::prelude::BodyId;
+<span class="comment">// XCM Imports
+</span><span class="kw">use </span>xcm::latest::prelude::BodyId;
 <span class="kw">use </span>xcm_executor::XcmExecutor;
 
 <span class="doccomment">/// The address format for describing accounts.
@@ -1049,11 +1058,15 @@
 
 <span class="kw">impl </span>cumulus_pallet_aura_ext::Config <span class="kw">for </span>Runtime {}
 
-<span class="comment">// TODO: map gov2 origins here - after merge https://github.com/paritytech/cumulus/pull/1895
-</span><span class="doccomment">/// Privileged origin that represents Root or the majority of the Relay Chain Council.
-</span><span class="kw">pub type </span>RootOrExecutiveSimpleMajority = EitherOfDiverse&lt;
+<span class="macro">parameter_types! </span>{
+	<span class="comment">// Fellows pluralistic body.
+	</span><span class="kw">pub const </span>FellowsBodyId: BodyId = BodyId::Technical;
+}
+
+<span class="doccomment">/// Privileged origin that represents Root or Fellows pluralistic body.
+</span><span class="kw">pub type </span>RootOrFellows = EitherOfDiverse&lt;
 	EnsureRoot&lt;AccountId&gt;,
-	EnsureXcm&lt;IsMajorityOfBody&lt;KsmRelayLocation, ExecutiveBody&gt;&gt;,
+	EnsureXcm&lt;IsVoiceOfBody&lt;FellowshipLocation, FellowsBodyId&gt;&gt;,
 &gt;;
 
 <span class="kw">impl </span>cumulus_pallet_xcmp_queue::Config <span class="kw">for </span>Runtime {
@@ -1062,7 +1075,7 @@
 	<span class="kw">type </span>ChannelInfo = ParachainSystem;
 	<span class="kw">type </span>VersionWrapper = PolkadotXcm;
 	<span class="kw">type </span>ExecuteOverweightOrigin = EnsureRoot&lt;AccountId&gt;;
-	<span class="kw">type </span>ControllerOrigin = RootOrExecutiveSimpleMajority;
+	<span class="kw">type </span>ControllerOrigin = RootOrFellows;
 	<span class="kw">type </span>ControllerOriginConverter = XcmOriginToTransactDispatchOrigin;
 	<span class="kw">type </span>WeightInfo = weights::cumulus_pallet_xcmp_queue::WeightInfo&lt;Runtime&gt;;
 	<span class="kw">type </span>PriceForSiblingDelivery = ();
@@ -1100,12 +1113,15 @@
 <span class="macro">parameter_types! </span>{
 	<span class="kw">pub const </span>PotId: PalletId = PalletId(<span class="kw-2">*</span><span class="string">b&quot;PotStake&quot;</span>);
 	<span class="kw">pub const </span>SessionLength: BlockNumber = <span class="number">6 </span>* HOURS;
-	<span class="kw">pub const </span>ExecutiveBody: BodyId = BodyId::Executive;
+	<span class="comment">// StakingAdmin pluralistic body.
+	</span><span class="kw">pub const </span>StakingAdminBodyId: BodyId = BodyId::Defense;
 }
 
-<span class="comment">// TODO: map gov2 origins here - after merge https://github.com/paritytech/cumulus/pull/1895
-</span><span class="doccomment">/// We allow root and the Relay Chain council to execute privileged collator selection operations.
-</span><span class="kw">pub type </span>CollatorSelectionUpdateOrigin = RootOrExecutiveSimpleMajority;
+<span class="doccomment">/// We allow root, the StakingAdmin to execute privileged collator selection operations.
+</span><span class="kw">pub type </span>CollatorSelectionUpdateOrigin = EitherOfDiverse&lt;
+	EnsureRoot&lt;AccountId&gt;,
+	EnsureXcm&lt;IsVoiceOfBody&lt;GovernanceLocation, StakingAdminBodyId&gt;&gt;,
+&gt;;
 
 <span class="kw">impl </span>pallet_collator_selection::Config <span class="kw">for </span>Runtime {
 	<span class="kw">type </span>RuntimeEvent = RuntimeEvent;

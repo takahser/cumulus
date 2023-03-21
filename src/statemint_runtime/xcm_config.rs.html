@@ -372,6 +372,12 @@
 <a href="#372" id="372">372</a>
 <a href="#373" id="373">373</a>
 <a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -426,6 +432,8 @@
 	<span class="kw">pub </span>TrustBackedAssetsPalletLocation: MultiLocation =
 		PalletInstance(&lt;Assets <span class="kw">as </span>PalletInfoAccess&gt;::index() <span class="kw">as </span>u8).into();
 	<span class="kw">pub </span>CheckingAccount: AccountId = PolkadotXcm::check_account();
+	<span class="kw">pub </span>FellowshipLocation: MultiLocation = MultiLocation::new(<span class="number">1</span>, Parachain(<span class="number">1001</span>));
+	<span class="kw">pub const </span>GovernanceLocation: MultiLocation = MultiLocation::parent();
 }
 
 <span class="doccomment">/// Type for specifying how a `MultiLocation` can be converted into an `AccountId`. This is used
@@ -516,6 +524,9 @@
 		MultiLocation { parents: <span class="number">1</span>, interior: Here } |
 		MultiLocation { parents: <span class="number">1</span>, interior: X1(<span class="kw">_</span>) }
 	};
+	<span class="kw">pub type </span>FellowsPlurality: <span class="kw">impl </span>Contains&lt;MultiLocation&gt; = {
+		MultiLocation { parents: <span class="number">1</span>, interior: X2(Parachain(<span class="number">1001</span>), Plurality { id: BodyId::Technical, ..}) }
+	};
 }
 
 <span class="doccomment">/// A call filter for the XCM Transact instruction. This is a temporary measure until we properly
@@ -550,7 +561,8 @@
 				pallet_collator_selection::Call::set_desired_candidates { .. } |
 				pallet_collator_selection::Call::set_candidacy_bond { .. } |
 				pallet_collator_selection::Call::register_as_candidate { .. } |
-				pallet_collator_selection::Call::leave_intent { .. },
+				pallet_collator_selection::Call::leave_intent { .. } |
+				pallet_collator_selection::Call::set_invulnerables { .. },
 			) |
 			RuntimeCall::Session(pallet_session::Call::purge_keys { .. }) |
 			RuntimeCall::XcmpQueue(..) |
@@ -627,8 +639,8 @@
 			(
 				<span class="comment">// If the message is one that immediately attemps to pay for execution, then allow it.
 				</span>AllowTopLevelPaidExecutionFrom&lt;Everything&gt;,
-				<span class="comment">// Parent and its plurality (i.e. governance bodies) gets free execution.
-				</span>AllowExplicitUnpaidExecutionFrom&lt;ParentOrParentsPlurality&gt;,
+				<span class="comment">// Parent, its plurality (i.e. governance bodies) and Fellows plurality gets free execution.
+				</span>AllowExplicitUnpaidExecutionFrom&lt;(ParentOrParentsPlurality, FellowsPlurality)&gt;,
 				<span class="comment">// Subscriptions for version tracking are OK.
 				</span>AllowSubscriptionsFrom&lt;ParentOrSiblings&gt;,
 			),
