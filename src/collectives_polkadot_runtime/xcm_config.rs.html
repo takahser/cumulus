@@ -302,7 +302,6 @@
 <a href="#302" id="302">302</a>
 <a href="#303" id="303">303</a>
 <a href="#304" id="304">304</a>
-<a href="#305" id="305">305</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -351,7 +350,6 @@
 	<span class="kw">pub </span>RelayChainOrigin: RuntimeOrigin = cumulus_pallet_xcm::Origin::Relay.into();
 	<span class="kw">pub </span>UniversalLocation: InteriorMultiLocation =
 		X2(GlobalConsensus(RelayNetwork::get().unwrap()), Parachain(ParachainInfo::parachain_id().into()));
-	<span class="kw">pub const </span>Local: MultiLocation = Here.into_location();
 	<span class="kw">pub </span>CheckingAccount: AccountId = PolkadotXcm::check_account();
 	<span class="kw">pub const </span>GovernanceLocation: MultiLocation = MultiLocation::parent();
 }

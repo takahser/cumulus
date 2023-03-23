@@ -134,30 +134,50 @@
 <a href="#134" id="134">134</a>
 <a href="#135" id="135">135</a>
 <a href="#136" id="136">136</a>
-</pre><pre class="rust"><code><span class="comment">// This file is part of Substrate.
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2023 Parity Technologies (UK) Ltd.
+// SPDX-License-Identifier: Apache-2.0
 
-// Copyright (C) 2018-2022 Parity Technologies (UK) Ltd.
-// SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
-
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-
-// You should have received a copy of the GNU General Public License
-// along with this program. If not, see &lt;https://www.gnu.org/licenses/&gt;.
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// 	http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 </span><span class="doccomment">//! Runtime API definition for assets.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::runtime_api::FungiblesAccessError;
+<span class="kw">use </span>frame_support::traits::Contains;
 <span class="kw">use </span>sp_std::{borrow::Borrow, vec::Vec};
 <span class="kw">use </span>xcm::latest::{MultiAsset, MultiLocation};
-<span class="kw">use </span>xcm_builder::ConvertedConcreteId;
+<span class="kw">use </span>xcm_builder::{ConvertedConcreteId, MatchedConvertedConcreteId};
 <span class="kw">use </span>xcm_executor::traits::{Convert, MatchesFungibles};
 
 <span class="doccomment">/// Converting any [`(AssetId, Balance)`] to [`MultiAsset`]
@@ -181,6 +201,29 @@
 		ConvertBalance: Convert&lt;u128, Balance&gt;,
 	&gt; MultiAssetConverter&lt;AssetId, Balance, ConvertAssetId, ConvertBalance&gt;
 	<span class="kw">for </span>ConvertedConcreteId&lt;AssetId, Balance, ConvertAssetId, ConvertBalance&gt;
+{
+	<span class="kw">fn </span>convert_ref(
+		value: <span class="kw">impl </span>Borrow&lt;(AssetId, Balance)&gt;,
+	) -&gt; <span class="prelude-ty">Result</span>&lt;MultiAsset, FungiblesAccessError&gt; {
+		<span class="kw">let </span>(asset_id, balance) = value.borrow();
+		<span class="kw">match </span>ConvertAssetId::reverse_ref(asset_id) {
+			<span class="prelude-val">Ok</span>(asset_id_as_multilocation) =&gt; <span class="kw">match </span>ConvertBalance::reverse_ref(balance) {
+				<span class="prelude-val">Ok</span>(amount) =&gt; <span class="prelude-val">Ok</span>((asset_id_as_multilocation, amount).into()),
+				<span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(FungiblesAccessError::AmountToBalanceConversionFailed),
+			},
+			<span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(FungiblesAccessError::AssetIdConversionFailed),
+		}
+	}
+}
+
+<span class="kw">impl</span>&lt;
+		AssetId: Clone,
+		Balance: Clone,
+		MatchAssetId: Contains&lt;MultiLocation&gt;,
+		ConvertAssetId: Convert&lt;MultiLocation, AssetId&gt;,
+		ConvertBalance: Convert&lt;u128, Balance&gt;,
+	&gt; MultiAssetConverter&lt;AssetId, Balance, ConvertAssetId, ConvertBalance&gt;
+	<span class="kw">for </span>MatchedConvertedConcreteId&lt;AssetId, Balance, MatchAssetId, ConvertAssetId, ConvertBalance&gt;
 {
 	<span class="kw">fn </span>convert_ref(
 		value: <span class="kw">impl </span>Borrow&lt;(AssetId, Balance)&gt;,
@@ -226,11 +269,12 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
 	<span class="kw">use super</span>::<span class="kw-2">*</span>;
+	<span class="kw">use </span>frame_support::traits::Everything;
 
 	<span class="kw">use </span>xcm::latest::prelude::<span class="kw-2">*</span>;
 	<span class="kw">use </span>xcm_executor::traits::{Identity, JustTry};
 
-	<span class="kw">type </span>Converter = ConvertedConcreteId&lt;MultiLocation, u64, Identity, JustTry&gt;;
+	<span class="kw">type </span>Converter = MatchedConvertedConcreteId&lt;MultiLocation, u64, Everything, Identity, JustTry&gt;;
 
 	<span class="attr">#[test]
 	</span><span class="kw">fn </span>converted_concrete_id_fungible_multi_asset_conversion_roundtrip_works() {
