@@ -1608,6 +1608,7 @@
 <a href="#1608" id="1608">1608</a>
 <a href="#1609" id="1609">1609</a>
 <a href="#1610" id="1610">1610</a>
+<a href="#1611" id="1611">1611</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1661,7 +1662,7 @@
 <span class="kw">use </span>sp_consensus_aura::AuraApi;
 <span class="kw">use </span>sp_keystore::KeystorePtr;
 <span class="kw">use </span>sp_runtime::{
-	app_crypto::AppKey,
+	app_crypto::AppCrypto,
 	traits::{BlakeTwo256, Header <span class="kw">as </span>HeaderT},
 };
 <span class="kw">use </span>std::{marker::PhantomData, sync::Arc, time::Duration};
@@ -2652,7 +2653,7 @@
 }
 
 <span class="doccomment">/// Build the import queue for Statemint and other Aura-based runtimes.
-</span><span class="kw">pub fn </span>aura_build_import_queue&lt;RuntimeApi, AuraId: AppKey&gt;(
+</span><span class="kw">pub fn </span>aura_build_import_queue&lt;RuntimeApi, AuraId: AppCrypto&gt;(
 	client: Arc&lt;ParachainClient&lt;RuntimeApi&gt;&gt;,
 	block_import: ParachainBlockImport&lt;RuntimeApi&gt;,
 	config: <span class="kw-2">&amp;</span>Configuration,
@@ -2669,9 +2670,9 @@
 			StateBackend = sc_client_api::StateBackendFor&lt;ParachainBackend, Block&gt;,
 		&gt; + sp_offchain::OffchainWorkerApi&lt;Block&gt;
 		+ sp_block_builder::BlockBuilder&lt;Block&gt;
-		+ sp_consensus_aura::AuraApi&lt;Block, &lt;&lt;AuraId <span class="kw">as </span>AppKey&gt;::Pair <span class="kw">as </span>Pair&gt;::Public&gt;,
+		+ sp_consensus_aura::AuraApi&lt;Block, &lt;&lt;AuraId <span class="kw">as </span>AppCrypto&gt;::Pair <span class="kw">as </span>Pair&gt;::Public&gt;,
 	sc_client_api::StateBackendFor&lt;ParachainBackend, Block&gt;: sp_api::StateBackend&lt;BlakeTwo256&gt;,
-	&lt;&lt;AuraId <span class="kw">as </span>AppKey&gt;::Pair <span class="kw">as </span>Pair&gt;::Signature:
+	&lt;&lt;AuraId <span class="kw">as </span>AppCrypto&gt;::Pair <span class="kw">as </span>Pair&gt;::Signature:
 		TryFrom&lt;Vec&lt;u8&gt;&gt; + std::hash::Hash + sp_runtime::traits::Member + Codec,
 {
 	<span class="kw">let </span>client2 = client.clone();
@@ -2679,25 +2680,26 @@
 	<span class="kw">let </span>aura_verifier = <span class="kw">move </span>|| {
 		<span class="kw">let </span>slot_duration = cumulus_client_consensus_aura::slot_duration(<span class="kw-2">&amp;*</span>client2).unwrap();
 
-		Box::new(
-			cumulus_client_consensus_aura::build_verifier::&lt;&lt;AuraId <span class="kw">as </span>AppKey&gt;::Pair, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>&gt;(
-				cumulus_client_consensus_aura::BuildVerifierParams {
-					client: client2.clone(),
-					create_inherent_data_providers: <span class="kw">move </span>|<span class="kw">_</span>, <span class="kw">_</span>| <span class="kw">async move </span>{
-						<span class="kw">let </span>timestamp = sp_timestamp::InherentDataProvider::from_system_time();
+		Box::new(cumulus_client_consensus_aura::build_verifier::&lt;
+			&lt;AuraId <span class="kw">as </span>AppCrypto&gt;::Pair,
+			<span class="kw">_</span>,
+			<span class="kw">_</span>,
+			<span class="kw">_</span>,
+		&gt;(cumulus_client_consensus_aura::BuildVerifierParams {
+			client: client2.clone(),
+			create_inherent_data_providers: <span class="kw">move </span>|<span class="kw">_</span>, <span class="kw">_</span>| <span class="kw">async move </span>{
+				<span class="kw">let </span>timestamp = sp_timestamp::InherentDataProvider::from_system_time();
 
-						<span class="kw">let </span>slot =
+				<span class="kw">let </span>slot =
 							sp_consensus_aura::inherents::InherentDataProvider::from_timestamp_and_slot_duration(
 								<span class="kw-2">*</span>timestamp,
 								slot_duration,
 							);
 
-						<span class="prelude-val">Ok</span>((slot, timestamp))
-					},
-					telemetry: telemetry_handle,
-				},
-			),
-		) <span class="kw">as </span>Box&lt;<span class="kw">_</span>&gt;
+				<span class="prelude-val">Ok</span>((slot, timestamp))
+			},
+			telemetry: telemetry_handle,
+		})) <span class="kw">as </span>Box&lt;<span class="kw">_</span>&gt;
 	};
 
 	<span class="kw">let </span>relay_chain_verifier =
@@ -2718,7 +2720,7 @@
 
 <span class="doccomment">/// Start an aura powered parachain node.
 /// (collective-polkadot and statemine/t use this)
-</span><span class="kw">pub async fn </span>start_generic_aura_node&lt;RuntimeApi, AuraId: AppKey&gt;(
+</span><span class="kw">pub async fn </span>start_generic_aura_node&lt;RuntimeApi, AuraId: AppCrypto&gt;(
 	parachain_config: Configuration,
 	polkadot_config: Configuration,
 	collator_options: CollatorOptions,
@@ -2736,11 +2738,11 @@
 		&gt; + sp_offchain::OffchainWorkerApi&lt;Block&gt;
 		+ sp_block_builder::BlockBuilder&lt;Block&gt;
 		+ cumulus_primitives_core::CollectCollationInfo&lt;Block&gt;
-		+ sp_consensus_aura::AuraApi&lt;Block, &lt;&lt;AuraId <span class="kw">as </span>AppKey&gt;::Pair <span class="kw">as </span>Pair&gt;::Public&gt;
+		+ sp_consensus_aura::AuraApi&lt;Block, &lt;&lt;AuraId <span class="kw">as </span>AppCrypto&gt;::Pair <span class="kw">as </span>Pair&gt;::Public&gt;
 		+ pallet_transaction_payment_rpc::TransactionPaymentRuntimeApi&lt;Block, Balance&gt;
 		+ frame_rpc_system::AccountNonceApi&lt;Block, AccountId, Nonce&gt;,
 	sc_client_api::StateBackendFor&lt;ParachainBackend, Block&gt;: sp_api::StateBackend&lt;BlakeTwo256&gt;,
-	&lt;&lt;AuraId <span class="kw">as </span>AppKey&gt;::Pair <span class="kw">as </span>Pair&gt;::Signature:
+	&lt;&lt;AuraId <span class="kw">as </span>AppCrypto&gt;::Pair <span class="kw">as </span>Pair&gt;::Signature:
 		TryFrom&lt;Vec&lt;u8&gt;&gt; + std::hash::Hash + sp_runtime::traits::Member + Codec,
 {
 	start_node_impl::&lt;RuntimeApi, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>&gt;(
@@ -2780,7 +2782,7 @@
 					telemetry2.clone(),
 				);
 
-				AuraConsensus::build::&lt;&lt;AuraId <span class="kw">as </span>AppKey&gt;::Pair, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>&gt;(
+				AuraConsensus::build::&lt;&lt;AuraId <span class="kw">as </span>AppCrypto&gt;::Pair, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>&gt;(
 					BuildAuraConsensusParams {
 						proposer_factory,
 						create_inherent_data_providers:
