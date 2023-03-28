@@ -146,19 +146,6 @@
 <a href="#146" id="146">146</a>
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -175,7 +162,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Cumulus.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span>polkadot_core_primitives::{Block, Hash};
+</span><span class="kw">use </span>polkadot_core_primitives::{Block, Hash, Header};
 <span class="kw">use </span>sp_runtime::traits::{Block <span class="kw">as </span>BlockT, NumberFor};
 
 <span class="kw">use </span>sc_network::{
@@ -185,45 +172,32 @@
 	NetworkService,
 };
 
-<span class="kw">use </span>sc_client_api::HeaderBackend;
 <span class="kw">use </span>sc_network_common::{role::Roles, sync::message::BlockAnnouncesHandshake};
 <span class="kw">use </span>sc_service::{error::Error, Configuration, NetworkStarter, SpawnTaskHandle};
 
 <span class="kw">use </span>std::{iter, sync::Arc};
 
-<span class="kw">use </span><span class="kw">crate</span>::BlockChainRpcClient;
-
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>BuildCollatorNetworkParams&lt;<span class="lifetime">&#39;a</span>&gt; {
-	<span class="doccomment">/// The service configuration.
-	</span><span class="kw">pub </span>config: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Configuration,
-	<span class="doccomment">/// A shared client returned by `new_full_parts`.
-	</span><span class="kw">pub </span>client: Arc&lt;BlockChainRpcClient&gt;,
-	<span class="doccomment">/// A handle for spawning tasks.
-	</span><span class="kw">pub </span>spawn_handle: SpawnTaskHandle,
-	<span class="doccomment">/// Genesis hash
-	</span><span class="kw">pub </span>genesis_hash: Hash,
-}
-
 <span class="doccomment">/// Build the network service, the network status sinks and an RPC sender.
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>build_collator_network(
-	params: BuildCollatorNetworkParams,
+	config: <span class="kw-2">&amp;</span>Configuration,
+	spawn_handle: SpawnTaskHandle,
+	genesis_hash: Hash,
+	best_header: Header,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;
 	(Arc&lt;NetworkService&lt;Block, Hash&gt;&gt;, NetworkStarter, Box&lt;<span class="kw">dyn </span>sp_consensus::SyncOracle + Send&gt;),
 	Error,
 &gt; {
-	<span class="kw">let </span>BuildCollatorNetworkParams { config, client, spawn_handle, genesis_hash } = params;
-
 	<span class="kw">let </span>protocol_id = config.protocol_id();
 	<span class="kw">let </span>block_announce_config = get_block_announce_proto_config::&lt;Block&gt;(
 		protocol_id.clone(),
 		<span class="kw-2">&amp;</span><span class="prelude-val">None</span>,
 		Roles::from(<span class="kw-2">&amp;</span>config.role),
-		client.info().best_number,
-		client.info().best_hash,
+		best_header.number,
+		best_header.hash(),
 		genesis_hash,
 	);
 
-	<span class="kw">let </span>network_params = sc_network::config::Params {
+	<span class="kw">let </span>network_params = sc_network::config::Params::&lt;Block&gt; {
 		role: config.role.clone(),
 		executor: {
 			<span class="kw">let </span>spawn_handle = Clone::clone(<span class="kw-2">&amp;</span>spawn_handle);
@@ -233,7 +207,7 @@
 		},
 		fork_id: <span class="prelude-val">None</span>,
 		network_config: config.network.clone(),
-		chain: client.clone(),
+		genesis_hash,
 		protocol_id,
 		metrics_registry: config.prometheus_config.as_ref().map(|config| config.registry.clone()),
 		block_announce_config,
