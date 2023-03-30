@@ -146,6 +146,10 @@
 <a href="#146" id="146">146</a>
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -174,6 +178,7 @@
 
 <span class="kw">use </span>sc_network_common::{role::Roles, sync::message::BlockAnnouncesHandshake};
 <span class="kw">use </span>sc_service::{error::Error, Configuration, NetworkStarter, SpawnTaskHandle};
+<span class="kw">use </span>sc_utils::mpsc::tracing_unbounded;
 
 <span class="kw">use </span>std::{iter, sync::Arc};
 
@@ -197,6 +202,8 @@
 		genesis_hash,
 	);
 
+	<span class="comment">// RX is not used for anything because syncing is not started for the minimal node
+	</span><span class="kw">let </span>(tx, _rx) = tracing_unbounded(<span class="string">&quot;mpsc_syncing_engine_protocol&quot;</span>, <span class="number">100_000</span>);
 	<span class="kw">let </span>network_params = sc_network::config::Params::&lt;Block&gt; {
 		role: config.role.clone(),
 		executor: {
@@ -212,6 +219,7 @@
 		metrics_registry: config.prometheus_config.as_ref().map(|config| config.registry.clone()),
 		block_announce_config,
 		request_response_protocol_configs: Vec::new(),
+		tx,
 	};
 
 	<span class="kw">let </span>network_worker = sc_network::NetworkWorker::new(network_params)<span class="question-mark">?</span>;
