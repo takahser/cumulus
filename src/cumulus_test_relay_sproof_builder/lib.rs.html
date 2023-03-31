@@ -170,6 +170,12 @@
 <a href="#170" id="170">170</a>
 <a href="#171" id="171">171</a>
 <a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -217,6 +223,7 @@
 	<span class="kw">pub </span>current_slot: relay_chain::Slot,
 	<span class="kw">pub </span>current_epoch: u64,
 	<span class="kw">pub </span>randomness: relay_chain::Hash,
+	<span class="kw">pub </span>additional_key_values: Vec&lt;(Vec&lt;u8&gt;, Vec&lt;u8&gt;)&gt;,
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>RelayStateSproofBuilder {
@@ -243,6 +250,7 @@
 			current_slot: <span class="number">0</span>.into(),
 			current_epoch: <span class="number">0u64</span>,
 			randomness: relay_chain::Hash::default(),
+			additional_key_values: <span class="macro">vec!</span>[],
 		}
 	}
 }
@@ -335,6 +343,10 @@
 				<span class="self">self</span>.randomness.encode(),
 			);
 			insert(relay_chain::well_known_keys::CURRENT_SLOT.to_vec(), <span class="self">self</span>.current_slot.encode());
+
+			<span class="kw">for </span>(key, value) <span class="kw">in </span><span class="self">self</span>.additional_key_values {
+				insert(key, value);
+			}
 		}
 
 		<span class="kw">let </span>root = backend.root().clone();
