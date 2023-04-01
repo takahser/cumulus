@@ -956,7 +956,7 @@
 		}
 
 		<span class="kw">if </span>client_manager.connect_to_new_rpc_server().<span class="kw">await</span>.is_err() {
-			<span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Unable to find valid external RPC server, shutting down.&quot;</span>))
+			<span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">&quot;Unable to find valid external RPC server, shutting down.&quot;</span>.to_string())
 		};
 
 		<span class="kw">for </span>item <span class="kw">in </span>requests_to_retry.into_iter() {

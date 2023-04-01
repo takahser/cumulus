@@ -96,6 +96,19 @@
 <a href="#96" id="96">96</a>
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::path::PathBuf;
 
 <span class="doccomment">/// Sub-commands supported by the collator.
@@ -142,12 +155,25 @@
 	</span>TryRuntime,
 }
 
+<span class="kw">const </span>AFTER_HELP_EXAMPLE: <span class="kw-2">&amp;</span>str = <span class="macro">color_print::cstr!</span>(
+	<span class="string">r#&quot;&lt;bold&gt;&lt;underline&gt;Examples:&lt;/&gt;&lt;/&gt;
+   &lt;bold&gt;parachain-template-node build-spec --disable-default-bootnode &gt; plain-parachain-chainspec.json&lt;/&gt;
+           Export a chainspec for a local testnet in json format.
+   &lt;bold&gt;parachain-template-node --chain plain-parachain-chainspec.json --tmp -- --chain rococo-local&lt;/&gt;
+           Launch a full node with chain specification loaded from plain-parachain-chainspec.json.
+   &lt;bold&gt;parachain-template-node&lt;/&gt;
+           Launch a full node with default parachain &lt;italic&gt;local-testnet&lt;/&gt; and relay chain &lt;italic&gt;rococo-local&lt;/&gt;.
+   &lt;bold&gt;parachain-template-node --collator&lt;/&gt;
+           Launch a collator with default parachain &lt;italic&gt;local-testnet&lt;/&gt; and relay chain &lt;italic&gt;rococo-local&lt;/&gt;.
+ &quot;#
+</span>);
 <span class="attr">#[derive(Debug, clap::Parser)]
 #[command(
 	propagate_version = <span class="bool-val">true</span>,
 	args_conflicts_with_subcommands = <span class="bool-val">true</span>,
 	subcommand_negates_reqs = <span class="bool-val">true
 </span>)]
+#[clap(after_help = AFTER_HELP_EXAMPLE)]
 </span><span class="kw">pub struct </span>Cli {
 	<span class="attr">#[command(subcommand)]
 	</span><span class="kw">pub </span>subcommand: <span class="prelude-ty">Option</span>&lt;Subcommand&gt;,
