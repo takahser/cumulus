@@ -1710,7 +1710,7 @@
 		///
 		/// All origins are allowed.
 		</span><span class="attr">#[pallet::call_index(<span class="number">3</span>)]
-		#[pallet::weight(<span class="number">1_000_000</span>)]
+		#[pallet::weight({<span class="number">1_000_000</span>})]
 		</span><span class="kw">pub fn </span>enact_authorized_upgrade(
 			<span class="kw">_</span>: OriginFor&lt;T&gt;,
 			code: Vec&lt;u8&gt;,

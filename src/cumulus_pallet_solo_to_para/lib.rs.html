@@ -162,7 +162,7 @@
 	<span class="attr">#[pallet::call]
 	</span><span class="kw">impl</span>&lt;T: Config&gt; Pallet&lt;T&gt; {
 		<span class="attr">#[pallet::call_index(<span class="number">0</span>)]
-		#[pallet::weight(<span class="number">0</span>)]
+		#[pallet::weight({<span class="number">0</span>})]
 		</span><span class="kw">pub fn </span>schedule_migration(
 			origin: OriginFor&lt;T&gt;,
 			code: Vec&lt;u8&gt;,
