@@ -177,24 +177,24 @@
 //! THIS FILE WAS AUTO-GENERATED USING THE SUBSTRATE BENCHMARK CLI VERSION 4.0.0-dev
 //! DATE: 2023-03-23, STEPS: `50`, REPEAT: `20`, LOW RANGE: `[]`, HIGH RANGE: `[]`
 //! WORST CASE MAP SIZE: `1000000`
-//! HOSTNAME: `bm2`, CPU: `Intel(R) Core(TM) i7-7700K CPU @ 4.20GHz`
+//! HOSTNAME: `bm5`, CPU: `Intel(R) Core(TM) i7-7700K CPU @ 4.20GHz`
 //! EXECUTION: Some(Wasm), WASM-EXECUTION: Compiled, CHAIN: Some(&quot;bridge-hub-rococo-dev&quot;), DB CACHE: 1024
 
 </span><span class="comment">// Executed Command:
-// ./target/production/polkadot-parachain
+// ./artifacts/polkadot-parachain
 // benchmark
 // pallet
-// --steps=50
-// --repeat=20
-// --extrinsic=
+// --template=./templates/xcm-bench-template.hbs
+// --chain=bridge-hub-rococo-dev
 // --execution=wasm
 // --wasm-execution=compiled
-// --heap-pages=4096
 // --pallet=pallet_xcm_benchmarks::fungible
-// --chain=bridge-hub-rococo-dev
+// --extrinsic=*
+// --steps=50
+// --repeat=20
+// --json
 // --header=./file_header.txt
-// --template=./templates/xcm-bench-template.hbs
-// --output=./parachains/runtimes/bridge-hubs/bridge-hub-rococo/src/weights/xcm/
+// --output=./parachains/runtimes/bridge-hubs/bridge-hub-rococo/src/weights/xcm/pallet_xcm_benchmarks_fungible.rs
 
 </span><span class="attr">#![cfg_attr(rustfmt, rustfmt_skip)]
 #![allow(unused_parens)]
@@ -212,8 +212,8 @@
 		<span class="comment">// Proof Size summary in bytes:
 		//  Measured:  `101`
 		//  Estimated: `3593`
-		// Minimum execution time: 22_222_000 picoseconds.
-		</span>Weight::from_parts(<span class="number">22_591_000</span>, <span class="number">3593</span>)
+		// Minimum execution time: 21_045_000 picoseconds.
+		</span>Weight::from_parts(<span class="number">21_781_000</span>, <span class="number">3593</span>)
 			.saturating_add(T::DbWeight::get().reads(<span class="number">1</span>))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">1</span>))
 	}
@@ -223,8 +223,8 @@
 		<span class="comment">// Proof Size summary in bytes:
 		//  Measured:  `153`
 		//  Estimated: `6196`
-		// Minimum execution time: 47_612_000 picoseconds.
-		</span>Weight::from_parts(<span class="number">48_901_000</span>, <span class="number">6196</span>)
+		// Minimum execution time: 33_123_000 picoseconds.
+		</span>Weight::from_parts(<span class="number">33_378_000</span>, <span class="number">6196</span>)
 			.saturating_add(T::DbWeight::get().reads(<span class="number">2</span>))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">2</span>))
 	}
@@ -246,8 +246,8 @@
 		<span class="comment">// Proof Size summary in bytes:
 		//  Measured:  `223`
 		//  Estimated: `18205`
-		// Minimum execution time: 72_062_000 picoseconds.
-		</span>Weight::from_parts(<span class="number">73_077_000</span>, <span class="number">18205</span>)
+		// Minimum execution time: 57_689_000 picoseconds.
+		</span>Weight::from_parts(<span class="number">58_320_000</span>, <span class="number">18205</span>)
 			.saturating_add(T::DbWeight::get().reads(<span class="number">8</span>))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">4</span>))
 	}
@@ -255,8 +255,8 @@
 		<span class="comment">// Proof Size summary in bytes:
 		//  Measured:  `0`
 		//  Estimated: `0`
-		// Minimum execution time: 4_363_000 picoseconds.
-		</span>Weight::from_parts(<span class="number">4_430_000</span>, <span class="number">0</span>)
+		// Minimum execution time: 4_838_000 picoseconds.
+		</span>Weight::from_parts(<span class="number">4_906_000</span>, <span class="number">0</span>)
 	}
 	<span class="comment">// Storage: System Account (r:1 w:1)
 	// Proof: System Account (max_values: None, max_size: Some(128), added: 2603, mode: MaxEncodedLen)
@@ -264,8 +264,8 @@
 		<span class="comment">// Proof Size summary in bytes:
 		//  Measured:  `52`
 		//  Estimated: `3593`
-		// Minimum execution time: 26_314_000 picoseconds.
-		</span>Weight::from_parts(<span class="number">26_624_000</span>, <span class="number">3593</span>)
+		// Minimum execution time: 25_197_000 picoseconds.
+		</span>Weight::from_parts(<span class="number">25_562_000</span>, <span class="number">3593</span>)
 			.saturating_add(T::DbWeight::get().reads(<span class="number">1</span>))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">1</span>))
 	}
@@ -287,8 +287,8 @@
 		<span class="comment">// Proof Size summary in bytes:
 		//  Measured:  `122`
 		//  Estimated: `15097`
-		// Minimum execution time: 51_846_000 picoseconds.
-		</span>Weight::from_parts(<span class="number">52_430_000</span>, <span class="number">15097</span>)
+		// Minimum execution time: 52_159_000 picoseconds.
+		</span>Weight::from_parts(<span class="number">52_637_000</span>, <span class="number">15097</span>)
 			.saturating_add(T::DbWeight::get().reads(<span class="number">7</span>))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">3</span>))
 	}
@@ -308,8 +308,8 @@
 		<span class="comment">// Proof Size summary in bytes:
 		//  Measured:  `70`
 		//  Estimated: `11244`
-		// Minimum execution time: 28_548_000 picoseconds.
-		</span>Weight::from_parts(<span class="number">28_880_000</span>, <span class="number">11244</span>)
+		// Minimum execution time: 30_471_000 picoseconds.
+		</span>Weight::from_parts(<span class="number">31_112_000</span>, <span class="number">11244</span>)
 			.saturating_add(T::DbWeight::get().reads(<span class="number">6</span>))
 			.saturating_add(T::DbWeight::get().writes(<span class="number">2</span>))
 	}

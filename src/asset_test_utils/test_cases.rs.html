@@ -2454,17 +2454,17 @@
 				BuyExecution { fees: buy_execution_fee.clone().into(), weight_limit: Unlimited },
 				Transact {
 					origin_kind: OriginKind::Xcm,
-					require_weight_at_most: Weight::from_parts(<span class="number">40_000_000_000</span>, <span class="number">6000</span>),
+					require_weight_at_most: Weight::from_parts(<span class="number">40_000_000_000</span>, <span class="number">8000</span>),
 					call: foreign_asset_create.into(),
 				},
 				Transact {
 					origin_kind: OriginKind::SovereignAccount,
-					require_weight_at_most: Weight::from_parts(<span class="number">20_000_000_000</span>, <span class="number">6000</span>),
+					require_weight_at_most: Weight::from_parts(<span class="number">20_000_000_000</span>, <span class="number">8000</span>),
 					call: foreign_asset_set_metadata.into(),
 				},
 				Transact {
 					origin_kind: OriginKind::SovereignAccount,
-					require_weight_at_most: Weight::from_parts(<span class="number">20_000_000_000</span>, <span class="number">6000</span>),
+					require_weight_at_most: Weight::from_parts(<span class="number">20_000_000_000</span>, <span class="number">8000</span>),
 					call: foreign_asset_set_team.into(),
 				},
 				ExpectTransactStatus(MaybeErrorCode::Success),
@@ -2571,7 +2571,7 @@
 				BuyExecution { fees: buy_execution_fee.clone().into(), weight_limit: Unlimited },
 				Transact {
 					origin_kind: OriginKind::Xcm,
-					require_weight_at_most: Weight::from_parts(<span class="number">20_000_000_000</span>, <span class="number">6000</span>),
+					require_weight_at_most: Weight::from_parts(<span class="number">20_000_000_000</span>, <span class="number">8000</span>),
 					call: foreign_asset_create.into(),
 				},
 				ExpectTransactStatus(MaybeErrorCode::from(DispatchError::BadOrigin.encode())),

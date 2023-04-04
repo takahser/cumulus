@@ -138,7 +138,7 @@
 <span class="kw">use </span>core::{marker::PhantomData, ops::ControlFlow};
 <span class="kw">use </span>frame_support::{
 	log,
-	traits::{fungibles::Inspect, tokens::BalanceConversion, ContainsPair},
+	traits::{fungibles::Inspect, tokens::ConversionToAssetBalance, ContainsPair},
 	weights::Weight,
 };
 <span class="kw">use </span>sp_runtime::traits::Get;
@@ -232,7 +232,7 @@
 <span class="kw">where
 	</span>Runtime: pallet_assets::Config&lt;AssetInstance&gt;,
 	WeightToFee: frame_support::weights::WeightToFee&lt;Balance = CurrencyBalance&gt;,
-	BalanceConverter: BalanceConversion&lt;
+	BalanceConverter: ConversionToAssetBalance&lt;
 		CurrencyBalance,
 		&lt;Runtime <span class="kw">as </span>pallet_assets::Config&lt;AssetInstance&gt;&gt;::AssetId,
 		&lt;Runtime <span class="kw">as </span>pallet_assets::Config&lt;AssetInstance&gt;&gt;::Balance,

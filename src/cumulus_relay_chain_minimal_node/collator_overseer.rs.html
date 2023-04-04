@@ -252,6 +252,7 @@
 <a href="#252" id="252">252</a>
 <a href="#253" id="253">253</a>
 <a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Polkadot.
 
@@ -272,6 +273,14 @@
 <span class="kw">use </span>lru::LruCache;
 <span class="kw">use </span>std::sync::Arc;
 
+<span class="kw">use </span>polkadot_availability_recovery::AvailabilityRecoverySubsystem;
+<span class="kw">use </span>polkadot_collator_protocol::{CollatorProtocolSubsystem, ProtocolSide};
+<span class="kw">use </span>polkadot_network_bridge::{
+	Metrics <span class="kw">as </span>NetworkBridgeMetrics, NetworkBridgeRx <span class="kw">as </span>NetworkBridgeRxSubsystem,
+	NetworkBridgeTx <span class="kw">as </span>NetworkBridgeTxSubsystem,
+};
+<span class="kw">use </span>polkadot_node_collation_generation::CollationGenerationSubsystem;
+<span class="kw">use </span>polkadot_node_core_runtime_api::RuntimeApiSubsystem;
 <span class="kw">use </span>polkadot_node_network_protocol::{
 	peer_set::PeerSetProtocolNames,
 	request_response::{
@@ -281,18 +290,10 @@
 };
 <span class="kw">use </span>polkadot_node_subsystem_util::metrics::{prometheus::Registry, Metrics};
 <span class="kw">use </span>polkadot_overseer::{
-	BlockInfo, DummySubsystem, Handle, MetricsTrait, Overseer, OverseerHandle, OverseerMetrics,
-	SpawnGlue, KNOWN_LEAVES_CACHE_SIZE,
+	BlockInfo, DummySubsystem, Handle, Overseer, OverseerConnector, OverseerHandle, SpawnGlue,
+	KNOWN_LEAVES_CACHE_SIZE,
 };
 <span class="kw">use </span>polkadot_primitives::CollatorPair;
-<span class="kw">use </span>polkadot_service::{
-	overseer::{
-		AvailabilityRecoverySubsystem, CollationGenerationSubsystem, CollatorProtocolSubsystem,
-		NetworkBridgeMetrics, NetworkBridgeRxSubsystem, NetworkBridgeTxSubsystem, ProtocolSide,
-		RuntimeApiSubsystem,
-	},
-	Error, OverseerConnector,
-};
 
 <span class="kw">use </span>sc_authority_discovery::Service <span class="kw">as </span>AuthorityDiscoveryService;
 <span class="kw">use </span>sc_network::NetworkStateInfo;
@@ -347,9 +348,8 @@
 	}: CollatorOverseerGenArgs&lt;<span class="lifetime">&#39;a</span>&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;
 	(Overseer&lt;SpawnGlue&lt;sc_service::SpawnTaskHandle&gt;, Arc&lt;BlockChainRpcClient&gt;&gt;, OverseerHandle),
-	Error,
+	RelayChainError,
 &gt; {
-	<span class="kw">let </span>metrics = &lt;OverseerMetrics <span class="kw">as </span>MetricsTrait&gt;::register(registry)<span class="question-mark">?</span>;
 	<span class="kw">let </span>spawner = SpawnGlue(spawner);
 	<span class="kw">let </span>network_bridge_metrics: NetworkBridgeMetrics = Metrics::register(registry)<span class="question-mark">?</span>;
 	<span class="kw">let </span>builder = Overseer::builder()
@@ -407,17 +407,19 @@
 		.active_leaves(Default::default())
 		.supports_parachains(runtime_client)
 		.known_leaves(LruCache::new(KNOWN_LEAVES_CACHE_SIZE))
-		.metrics(metrics)
+		.metrics(Metrics::register(registry)<span class="question-mark">?</span>)
 		.spawner(spawner);
 
-	builder.build_with_connector(connector).map_err(|e| e.into())
+	builder
+		.build_with_connector(connector)
+		.map_err(|e| RelayChainError::Application(e.into()))
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>spawn_overseer(
 	overseer_args: CollatorOverseerGenArgs,
 	task_manager: <span class="kw-2">&amp;</span>TaskManager,
 	relay_chain_rpc_client: Arc&lt;BlockChainRpcClient&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;polkadot_overseer::Handle, polkadot_service::Error&gt; {
+) -&gt; <span class="prelude-ty">Result</span>&lt;polkadot_overseer::Handle, RelayChainError&gt; {
 	<span class="kw">let </span>(overseer, overseer_handle) = build_overseer(OverseerConnector::default(), overseer_args)
 		.map_err(|e| {
 		<span class="macro">tracing::error!</span>(<span class="string">&quot;Failed to initialize overseer: {}&quot;</span>, e);
