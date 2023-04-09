@@ -139,6 +139,7 @@
 <a href="#139" id="139">139</a>
 <a href="#140" id="140">140</a>
 <a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2023 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -157,7 +158,8 @@
 
 </span><span class="doccomment">//! The Polkadot Technical Fellowship.
 
-</span><span class="kw">mod </span>origins;
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>migration;
+<span class="kw">mod </span>origins;
 <span class="kw">mod </span>tracks;
 <span class="kw">pub use </span>origins::{
 	pallet_origins <span class="kw">as </span>pallet_fellowship_origins, Fellows, FellowshipCandidates, FellowshipExperts,
