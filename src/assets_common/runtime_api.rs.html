@@ -62,7 +62,7 @@
 <span class="kw">use </span>xcm::latest::MultiAsset;
 
 <span class="doccomment">/// The possible errors that can happen querying the storage of assets.
-</span><span class="attr">#[derive(Eq, PartialEq, Encode, Decode, RuntimeDebug)]
+</span><span class="attr">#[derive(Eq, PartialEq, Encode, Decode, RuntimeDebug, scale_info::TypeInfo)]
 </span><span class="kw">pub enum </span>FungiblesAccessError {
 	<span class="doccomment">/// `MultiLocation` to `AssetId`/`ClassId` conversion failed.
 	</span>AssetIdConversionFailed,

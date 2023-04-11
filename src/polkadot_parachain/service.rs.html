@@ -1609,6 +1609,10 @@
 <a href="#1609" id="1609">1609</a>
 <a href="#1610" id="1610">1610</a>
 <a href="#1611" id="1611">1611</a>
+<a href="#1612" id="1612">1612</a>
+<a href="#1613" id="1613">1613</a>
+<a href="#1614" id="1614">1614</a>
+<a href="#1615" id="1615">1615</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1653,7 +1657,7 @@
 	import_queue::{BasicQueue, Verifier <span class="kw">as </span>VerifierT},
 	BlockImportParams, ImportQueue,
 };
-<span class="kw">use </span>sc_executor::WasmExecutor;
+<span class="kw">use </span>sc_executor::{HeapAllocStrategy, WasmExecutor, DEFAULT_HEAP_ALLOC_STRATEGY};
 <span class="kw">use </span>sc_network::NetworkBlock;
 <span class="kw">use </span>sc_network_sync::SyncingService;
 <span class="kw">use </span>sc_service::{Configuration, PartialComponents, TFullBackend, TFullClient, TaskManager};
@@ -1868,13 +1872,17 @@
 		})
 		.transpose()<span class="question-mark">?</span>;
 
-	<span class="kw">let </span>executor = sc_executor::WasmExecutor::&lt;HostFunctions&gt;::new(
-		config.wasm_method,
-		config.default_heap_pages,
-		config.max_runtime_instances,
-		<span class="prelude-val">None</span>,
-		config.runtime_cache_size,
-	);
+	<span class="kw">let </span>heap_pages = config
+		.default_heap_pages
+		.map_or(DEFAULT_HEAP_ALLOC_STRATEGY, |h| HeapAllocStrategy::Static { extra_pages: h <span class="kw">as _ </span>});
+
+	<span class="kw">let </span>executor = sc_executor::WasmExecutor::&lt;HostFunctions&gt;::builder()
+		.with_execution_method(config.wasm_method)
+		.with_max_runtime_instances(config.max_runtime_instances)
+		.with_runtime_cache_size(config.runtime_cache_size)
+		.with_onchain_heap_alloc_strategy(heap_pages)
+		.with_offchain_heap_alloc_strategy(heap_pages)
+		.build();
 
 	<span class="kw">let </span>(client, backend, keystore_container, task_manager) =
 		sc_service::new_full_parts::&lt;Block, RuntimeApi, <span class="kw">_</span>&gt;(

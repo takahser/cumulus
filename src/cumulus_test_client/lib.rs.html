@@ -200,6 +200,7 @@
 <a href="#200" id="200">200</a>
 <a href="#201" id="201">201</a>
 <a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -224,7 +225,7 @@
 	Balance, Block, BlockHashCount, GenesisConfig, Runtime, RuntimeCall, Signature, SignedExtra,
 	SignedPayload, UncheckedExtrinsic, VERSION,
 };
-<span class="kw">use </span>sc_executor::{WasmExecutionMethod, WasmExecutor};
+<span class="kw">use </span>sc_executor::{HeapAllocStrategy, WasmExecutionMethod, WasmExecutor};
 <span class="kw">use </span>sc_executor_common::runtime_blob::RuntimeBlob;
 <span class="kw">use </span>sc_service::client;
 <span class="kw">use </span>sp_blockchain::HeaderBackend;
@@ -383,13 +384,14 @@
 	<span class="kw">let </span><span class="kw-2">mut </span>ext = TestExternalities::default();
 	<span class="kw">let </span><span class="kw-2">mut </span>ext_ext = ext.ext();
 
-	<span class="kw">let </span>executor = WasmExecutor::&lt;sp_io::SubstrateHostFunctions&gt;::new(
-		WasmExecutionMethod::Interpreted,
-		<span class="prelude-val">Some</span>(<span class="number">1024</span>),
-		<span class="number">1</span>,
-		<span class="prelude-val">None</span>,
-		<span class="number">2</span>,
-	);
+	<span class="kw">let </span>heap_pages = HeapAllocStrategy::Static { extra_pages: <span class="number">1024 </span>};
+	<span class="kw">let </span>executor = WasmExecutor::&lt;sp_io::SubstrateHostFunctions&gt;::builder()
+		.with_execution_method(WasmExecutionMethod::Interpreted)
+		.with_max_runtime_instances(<span class="number">1</span>)
+		.with_runtime_cache_size(<span class="number">2</span>)
+		.with_onchain_heap_alloc_strategy(heap_pages)
+		.with_offchain_heap_alloc_strategy(heap_pages)
+		.build();
 
 	executor
 		.uncached_call(
