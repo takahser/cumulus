@@ -888,6 +888,8 @@
 <a href="#888" id="888">888</a>
 <a href="#889" id="889">889</a>
 <a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1323,6 +1325,7 @@
 			import_queue: import_queue_service,
 			relay_chain_slot_duration: Duration::from_secs(<span class="number">6</span>),
 			recovery_handle,
+			sync_service,
 		};
 
 		start_collator(params).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1336,6 +1339,7 @@
 			import_queue: import_queue_service,
 			relay_chain_slot_duration: Duration::from_secs(<span class="number">6</span>),
 			recovery_handle,
+			sync_service,
 		};
 
 		start_full_node(params)<span class="question-mark">?</span>;

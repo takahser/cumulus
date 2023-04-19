@@ -635,6 +635,25 @@
 <a href="#635" id="635">635</a>
 <a href="#636" id="636">636</a>
 <a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -684,7 +703,7 @@
 
 </span><span class="kw">use </span>sc_client_api::{BlockBackend, BlockchainEvents, UsageProvider};
 <span class="kw">use </span>sc_consensus::import_queue::{ImportQueueService, IncomingBlock};
-<span class="kw">use </span>sp_consensus::{BlockOrigin, BlockStatus};
+<span class="kw">use </span>sp_consensus::{BlockOrigin, BlockStatus, SyncOracle};
 <span class="kw">use </span>sp_runtime::traits::{Block <span class="kw">as </span>BlockT, Header <span class="kw">as </span>HeaderT, NumberFor};
 
 <span class="kw">use </span>polkadot_node_primitives::{AvailableData, POV_BOMB_LIMIT};
@@ -865,6 +884,7 @@
 	</span>recovery_chan_rx: Receiver&lt;RecoveryRequest&lt;Block&gt;&gt;,
 	<span class="doccomment">/// Blocks that we are retrying currently
 	</span>candidates_in_retry: HashSet&lt;Block::Hash&gt;,
+	parachain_sync_service: Arc&lt;<span class="kw">dyn </span>SyncOracle + Sync + Send&gt;,
 }
 
 <span class="kw">impl</span>&lt;Block: BlockT, PC, RCInterface&gt; PoVRecovery&lt;Block, PC, RCInterface&gt;
@@ -881,6 +901,7 @@
 		relay_chain_interface: RCInterface,
 		para_id: ParaId,
 		recovery_chan_rx: Receiver&lt;RecoveryRequest&lt;Block&gt;&gt;,
+		parachain_sync_service: Arc&lt;<span class="kw">dyn </span>SyncOracle + Sync + Send&gt;,
 	) -&gt; <span class="self">Self </span>{
 		<span class="self">Self </span>{
 			candidates: HashMap::new(),
@@ -893,6 +914,7 @@
 			para_id,
 			candidates_in_retry: HashSet::new(),
 			recovery_chan_rx,
+			parachain_sync_service,
 		}
 	}
 
@@ -1175,14 +1197,19 @@
 	</span><span class="kw">pub async fn </span>run(<span class="kw-2">mut </span><span class="self">self</span>) {
 		<span class="kw">let </span><span class="kw-2">mut </span>imported_blocks = <span class="self">self</span>.parachain_client.import_notification_stream().fuse();
 		<span class="kw">let </span><span class="kw-2">mut </span>finalized_blocks = <span class="self">self</span>.parachain_client.finality_notification_stream().fuse();
-		<span class="kw">let </span>pending_candidates =
-			<span class="kw">match </span>pending_candidates(<span class="self">self</span>.relay_chain_interface.clone(), <span class="self">self</span>.para_id).<span class="kw">await </span>{
-				<span class="prelude-val">Ok</span>(pending_candidate_stream) =&gt; pending_candidate_stream.fuse(),
-				<span class="prelude-val">Err</span>(err) =&gt; {
-					<span class="macro">tracing::error!</span>(target: LOG_TARGET, error = <span class="question-mark">?</span>err, <span class="string">&quot;Unable to retrieve pending candidate stream.&quot;</span>);
-					<span class="kw">return
-				</span>},
-			};
+		<span class="kw">let </span>pending_candidates = <span class="kw">match </span>pending_candidates(
+			<span class="self">self</span>.relay_chain_interface.clone(),
+			<span class="self">self</span>.para_id,
+			<span class="self">self</span>.parachain_sync_service.clone(),
+		)
+		.<span class="kw">await
+		</span>{
+			<span class="prelude-val">Ok</span>(pending_candidate_stream) =&gt; pending_candidate_stream.fuse(),
+			<span class="prelude-val">Err</span>(err) =&gt; {
+				<span class="macro">tracing::error!</span>(target: LOG_TARGET, error = <span class="question-mark">?</span>err, <span class="string">&quot;Unable to retrieve pending candidate stream.&quot;</span>);
+				<span class="kw">return
+			</span>},
+		};
 
 		<span class="macro">futures::pin_mut!</span>(pending_candidates);
 
@@ -1237,13 +1264,24 @@
 </span><span class="kw">async fn </span>pending_candidates(
 	relay_chain_client: <span class="kw">impl </span>RelayChainInterface + Clone,
 	para_id: ParaId,
+	sync_service: Arc&lt;<span class="kw">dyn </span>SyncOracle + Sync + Send&gt;,
 ) -&gt; RelayChainResult&lt;<span class="kw">impl </span>Stream&lt;Item = (CommittedCandidateReceipt, SessionIndex)&gt;&gt; {
 	<span class="kw">let </span>import_notification_stream = relay_chain_client.import_notification_stream().<span class="kw">await</span><span class="question-mark">?</span>;
 
 	<span class="kw">let </span>filtered_stream = import_notification_stream.filter_map(<span class="kw">move </span>|n| {
 		<span class="kw">let </span>client_for_closure = relay_chain_client.clone();
+		<span class="kw">let </span>sync_oracle = sync_service.clone();
 		<span class="kw">async move </span>{
 			<span class="kw">let </span>hash = n.hash();
+			<span class="kw">if </span>sync_oracle.is_major_syncing() {
+				<span class="macro">tracing::debug!</span>(
+					target: LOG_TARGET,
+					relay_hash = <span class="question-mark">?</span>hash,
+					<span class="string">&quot;Skipping candidate due to sync.&quot;</span>,
+				);
+				<span class="kw">return </span><span class="prelude-val">None
+			</span>}
+
 			<span class="kw">let </span>pending_availability_result = client_for_closure
 				.candidate_pending_availability(hash, para_id)
 				.<span class="kw">await
