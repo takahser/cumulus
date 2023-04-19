@@ -372,10 +372,6 @@
 <a href="#372" id="372">372</a>
 <a href="#373" id="373">373</a>
 <a href="#374" id="374">374</a>
-<a href="#375" id="375">375</a>
-<a href="#376" id="376">376</a>
-<a href="#377" id="377">377</a>
-<a href="#378" id="378">378</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -393,7 +389,7 @@
 // along with Cumulus.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use </span>sc_client_api::{blockchain::Backend <span class="kw">as _</span>, Backend, HeaderBackend <span class="kw">as _</span>};
-<span class="kw">use </span>sp_blockchain::{HashAndNumber, TreeRoute};
+<span class="kw">use </span>sp_blockchain::{HashAndNumber, HeaderMetadata, TreeRoute};
 <span class="kw">use </span>sp_runtime::traits::{Block <span class="kw">as </span>BlockT, NumberFor, One, Saturating, UniqueSaturatedInto, Zero};
 <span class="kw">use </span>std::{
 	collections::{HashMap, HashSet},
@@ -426,17 +422,17 @@
 
 <span class="doccomment">/// Support structure to constrain the number of leaves at each level.
 </span><span class="kw">pub struct </span>LevelMonitor&lt;Block: BlockT, BE&gt; {
-	<span class="comment">// Max number of leaves for each level.
+	<span class="doccomment">/// Max number of leaves for each level.
 	</span>level_limit: usize,
-	<span class="comment">// Monotonic counter used to keep track of block freshness.
+	<span class="doccomment">/// Monotonic counter used to keep track of block freshness.
 	</span><span class="kw">pub</span>(<span class="kw">crate</span>) import_counter: NumberFor&lt;Block&gt;,
-	<span class="comment">// Map between blocks hashes and freshness.
+	<span class="doccomment">/// Map between blocks hashes and freshness.
 	</span><span class="kw">pub</span>(<span class="kw">crate</span>) freshness: HashMap&lt;Block::Hash, NumberFor&lt;Block&gt;&gt;,
-	<span class="comment">// Blockchain levels cache.
+	<span class="doccomment">/// Blockchain levels cache.
 	</span><span class="kw">pub</span>(<span class="kw">crate</span>) levels: HashMap&lt;NumberFor&lt;Block&gt;, HashSet&lt;Block::Hash&gt;&gt;,
-	<span class="comment">// Lower level number stored by the levels map.
+	<span class="doccomment">/// Lower level number stored by the levels map.
 	</span>lowest_level: NumberFor&lt;Block&gt;,
-	<span class="comment">// Backend reference to remove blocks on level saturation.
+	<span class="doccomment">/// Backend reference to remove blocks on level saturation.
 	</span>backend: Arc&lt;BE&gt;,
 }
 
@@ -474,7 +470,9 @@
 	///
 	/// Level limits are not enforced during this phase.
 	</span><span class="kw">fn </span>restore(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+		<span class="kw">const </span>ERR_MSG: <span class="kw-2">&amp;</span>str = <span class="string">&quot;route from finalized to leaf should be available; qed&quot;</span>;
 		<span class="kw">let </span>info = <span class="self">self</span>.backend.blockchain().info();
+
 		<span class="macro">log::debug!</span>(
 			target: <span class="string">&quot;parachain&quot;</span>,
 			<span class="string">&quot;Restoring chain level monitor from last finalized block: {} {}&quot;</span>,
@@ -483,30 +481,24 @@
 
 		<span class="self">self</span>.lowest_level = info.finalized_number;
 		<span class="self">self</span>.import_counter = info.finalized_number;
-		<span class="self">self</span>.block_imported(info.finalized_number, info.finalized_hash);
-
-		<span class="kw">let </span><span class="kw-2">mut </span>counter_max = info.finalized_number;
 
 		<span class="kw">for </span>leaf <span class="kw">in </span><span class="self">self</span>.backend.blockchain().leaves().unwrap_or_default() {
-			<span class="kw">let </span>route =
-				sp_blockchain::tree_route(<span class="self">self</span>.backend.blockchain(), info.finalized_hash, leaf)
-					.expect(<span class="string">&quot;Route from finalized to leaf should be available; qed&quot;</span>);
-			<span class="kw">if </span>!route.retracted().is_empty() {
-				<span class="kw">continue
-			</span>}
-			route.enacted().iter().for_each(|elem| {
-				<span class="kw">if </span>!<span class="self">self</span>.freshness.contains_key(<span class="kw-2">&amp;</span>elem.hash) {
-					<span class="comment">// Use the block height value as the freshness.
-					</span><span class="self">self</span>.import_counter = elem.number;
-					<span class="self">self</span>.block_imported(elem.number, elem.hash);
-				}
-			});
-			counter_max = std::cmp::max(<span class="self">self</span>.import_counter, counter_max);
+			<span class="kw">let </span><span class="kw-2">mut </span>meta = <span class="self">self</span>.backend.blockchain().header_metadata(leaf).expect(ERR_MSG);
+
+			<span class="self">self</span>.import_counter = <span class="self">self</span>.import_counter.max(meta.number);
+
+			<span class="comment">// Populate the monitor until we don&#39;t hit an already imported branch
+			</span><span class="kw">while </span>!<span class="self">self</span>.freshness.contains_key(<span class="kw-2">&amp;</span>meta.hash) {
+				<span class="self">self</span>.freshness.insert(meta.hash, meta.number);
+				<span class="self">self</span>.levels.entry(meta.number).or_default().insert(meta.hash);
+				<span class="kw">if </span>meta.number &lt;= <span class="self">self</span>.lowest_level {
+					<span class="kw">break
+				</span>}
+				meta = <span class="self">self</span>.backend.blockchain().header_metadata(meta.parent).expect(ERR_MSG);
+			}
 		}
 
-		<span class="macro">log::debug!</span>(target: <span class="string">&quot;parachain&quot;</span>, <span class="string">&quot;Restored chain level monitor up to height {}&quot;</span>, counter_max);
-
-		<span class="self">self</span>.import_counter = counter_max;
+		<span class="macro">log::debug!</span>(target: <span class="string">&quot;parachain&quot;</span>, <span class="string">&quot;Restored chain level monitor up to height {}&quot;</span>, <span class="self">self</span>.import_counter);
 	}
 
 	<span class="doccomment">/// Check and enforce the limit bound at the given height.
@@ -733,9 +725,9 @@
 
 	<span class="doccomment">/// Add a new imported block information to the monitor.
 	</span><span class="kw">pub fn </span>block_imported(<span class="kw-2">&amp;mut </span><span class="self">self</span>, number: NumberFor&lt;Block&gt;, hash: Block::Hash) {
+		<span class="self">self</span>.import_counter += One::one();
 		<span class="self">self</span>.freshness.insert(hash, <span class="self">self</span>.import_counter);
 		<span class="self">self</span>.levels.entry(number).or_default().insert(hash);
-		<span class="self">self</span>.import_counter += One::one();
 
 		<span class="comment">// Do cleanup once in a while, we are allowed to have some obsolete information.
 		</span><span class="kw">let </span>finalized_num = <span class="self">self</span>.backend.blockchain().info().finalized_number;
