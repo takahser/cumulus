@@ -1333,6 +1333,9 @@
 <span class="kw">mod </span>weights;
 <span class="kw">pub mod </span>xcm_config;
 
+<span class="kw">use </span>assets_common::{
+	foreign_creators::ForeignCreators, matching::FromSiblingParachain, MultiLocationForAssetId,
+};
 <span class="kw">use </span>cumulus_pallet_parachain_system::RelayNumberStrictlyIncreases;
 <span class="kw">use </span>sp_api::impl_runtime_apis;
 <span class="kw">use </span>sp_core::{crypto::KeyTypeId, OpaqueMetadata};
@@ -1379,10 +1382,7 @@
 </span><span class="kw">pub use </span>sp_runtime::BuildStorage;
 
 <span class="comment">// Polkadot imports
-</span><span class="kw">use </span>assets_common::{
-	foreign_creators::ForeignCreators, matching::FromSiblingParachain, MultiLocationForAssetId,
-};
-<span class="kw">use </span>pallet_xcm::{EnsureXcm, IsVoiceOfBody};
+</span><span class="kw">use </span>pallet_xcm::{EnsureXcm, IsVoiceOfBody};
 <span class="kw">use </span>polkadot_runtime_common::{BlockHashCount, SlowAdjustingFeeUpdate};
 <span class="kw">use </span>xcm::latest::BodyId;
 <span class="kw">use </span>xcm_executor::XcmExecutor;

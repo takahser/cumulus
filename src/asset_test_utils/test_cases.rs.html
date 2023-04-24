@@ -1321,6 +1321,8 @@
 <a href="#1321" id="1321">1321</a>
 <a href="#1322" id="1322">1322</a>
 <a href="#1323" id="1323">1323</a>
+<a href="#1324" id="1324">1324</a>
+<a href="#1325" id="1325">1325</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2023 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -1401,6 +1403,7 @@
 	unwrap_xcmp_queue_event: Box&lt;
 		<span class="kw">dyn </span>Fn(Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;cumulus_pallet_xcmp_queue::Event&lt;Runtime&gt;&gt;,
 	&gt;,
+	runtime_para_id: u32,
 ) <span class="kw">where
 	</span>Runtime: frame_system::Config
 		+ pallet_balances::Config
@@ -1425,7 +1428,6 @@
 		Call = cumulus_pallet_parachain_system::Call&lt;Runtime&gt;,
 	&gt;,
 {
-	<span class="kw">let </span>runtime_para_id = <span class="number">1000</span>;
 	ExtBuilder::&lt;Runtime&gt;::default()
 		.with_collators(collator_session_keys.collators())
 		.with_session_keys(collator_session_keys.session_keys())
@@ -1596,14 +1598,15 @@
 		<span class="macro-nonterminal">$collator_session_key</span>:expr,
 		<span class="macro-nonterminal">$existential_deposit</span>:expr,
 		<span class="macro-nonterminal">$unwrap_pallet_xcm_event</span>:expr,
-		<span class="macro-nonterminal">$unwrap_xcmp_queue_event</span>:expr
+		<span class="macro-nonterminal">$unwrap_xcmp_queue_event</span>:expr,
+		<span class="macro-nonterminal">$runtime_para_id</span>:expr
 	) =&gt; {
 		<span class="attr">#[test]
 		</span><span class="kw">fn </span>teleports_for_native_asset_works() {
 			<span class="kw">const </span>BOB: [u8; <span class="number">32</span>] = [<span class="number">2u8</span>; <span class="number">32</span>];
 			<span class="kw">let </span>target_account = parachains_common::AccountId::from(BOB);
 
-			asset_test_utils::test_cases::teleports_for_native_asset_works::&lt;
+			<span class="macro-nonterminal">$crate::test_cases::teleports_for_native_asset_works</span>::&lt;
 				<span class="macro-nonterminal">$runtime</span>,
 				<span class="macro-nonterminal">$xcm_config</span>,
 				<span class="macro-nonterminal">$checking_account</span>,
@@ -1614,7 +1617,8 @@
 				<span class="macro-nonterminal">$existential_deposit</span>,
 				target_account,
 				<span class="macro-nonterminal">$unwrap_pallet_xcm_event</span>,
-				<span class="macro-nonterminal">$unwrap_xcmp_queue_event
+				<span class="macro-nonterminal">$unwrap_xcmp_queue_event</span>,
+				<span class="macro-nonterminal">$runtime_para_id
 			</span>)
 		}
 	}
@@ -1921,7 +1925,7 @@
 			<span class="kw">const </span>SOME_ASSET_OWNER: [u8; <span class="number">32</span>] = [<span class="number">5u8</span>; <span class="number">32</span>];
 			<span class="kw">let </span>asset_owner = parachains_common::AccountId::from(SOME_ASSET_OWNER);
 
-			asset_test_utils::test_cases::teleports_for_foreign_assets_works::&lt;
+			<span class="macro-nonterminal">$crate::test_cases::teleports_for_foreign_assets_works</span>::&lt;
 				<span class="macro-nonterminal">$runtime</span>,
 				<span class="macro-nonterminal">$xcm_config</span>,
 				<span class="macro-nonterminal">$checking_account</span>,
@@ -2038,7 +2042,7 @@
 			<span class="kw">const </span>BOB: [u8; <span class="number">32</span>] = [<span class="number">2u8</span>; <span class="number">32</span>];
 			<span class="kw">let </span>target_account = parachains_common::AccountId::from(BOB);
 
-			asset_test_utils::test_cases::asset_transactor_transfer_with_local_consensus_currency_works::&lt;
+			<span class="macro-nonterminal">$crate::test_cases::asset_transactor_transfer_with_local_consensus_currency_works</span>::&lt;
 				<span class="macro-nonterminal">$runtime</span>,
 				<span class="macro-nonterminal">$xcm_config
 			</span>&gt;(
@@ -2292,7 +2296,7 @@
 			<span class="kw">const </span>CHARLIE: [u8; <span class="number">32</span>] = [<span class="number">3u8</span>; <span class="number">32</span>];
 			<span class="kw">let </span>charlie_account = parachains_common::AccountId::from(CHARLIE);
 
-			asset_test_utils::test_cases::asset_transactor_transfer_with_pallet_assets_instance_works::&lt;
+			<span class="macro-nonterminal">$crate::test_cases::asset_transactor_transfer_with_pallet_assets_instance_works</span>::&lt;
 				<span class="macro-nonterminal">$runtime</span>,
 				<span class="macro-nonterminal">$xcm_config</span>,
 				<span class="macro-nonterminal">$assets_pallet_instance</span>,
@@ -2620,7 +2624,7 @@
 			<span class="kw">const </span>BOB: [u8; <span class="number">32</span>] = [<span class="number">2u8</span>; <span class="number">32</span>];
 			<span class="kw">let </span>bob_account = parachains_common::AccountId::from(BOB);
 
-			asset_test_utils::test_cases::create_and_manage_foreign_assets_for_local_consensus_parachain_assets_works::&lt;
+			<span class="macro-nonterminal">$crate::test_cases::create_and_manage_foreign_assets_for_local_consensus_parachain_assets_works</span>::&lt;
 				<span class="macro-nonterminal">$runtime</span>,
 				<span class="macro-nonterminal">$xcm_config</span>,
 				<span class="macro-nonterminal">$weight_to_fee</span>,

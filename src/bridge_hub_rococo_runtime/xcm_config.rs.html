@@ -292,11 +292,11 @@
 };
 <span class="kw">use </span>frame_system::EnsureRoot;
 <span class="kw">use </span>pallet_xcm::XcmPassthrough;
-<span class="kw">use </span>parachains_common::xcm_config::{
-	ConcreteNativeAssetFrom, DenyReserveTransferToRelayChain, DenyThenTry,
+<span class="kw">use </span>parachains_common::{
+	impls::ToStakingPot,
+	xcm_config::{ConcreteNativeAssetFrom, DenyReserveTransferToRelayChain, DenyThenTry},
 };
 <span class="kw">use </span>polkadot_parachain::primitives::Sibling;
-<span class="kw">use </span>polkadot_runtime_common::impls::ToAuthor;
 <span class="kw">use </span>xcm::latest::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>xcm_builder::{
 	AccountId32Aliases, AllowExplicitUnpaidExecutionFrom, AllowKnownQueryResponses,
@@ -362,16 +362,16 @@
 	// transaction from the Root origin.
 	</span>ParentAsSuperuser&lt;RuntimeOrigin&gt;,
 	<span class="comment">// Native signed account converter; this just converts an `AccountId32` origin into a normal
-	// `Origin::Signed` origin of the same 32-byte value.
+	// `RuntimeOrigin::Signed` origin of the same 32-byte value.
 	</span>SignedAccountId32AsNative&lt;RelayNetwork, RuntimeOrigin&gt;,
 	<span class="comment">// Xcm origins can be represented natively under the Xcm pallet&#39;s Xcm origin.
 	</span>XcmPassthrough&lt;RuntimeOrigin&gt;,
 );
 
 <span class="macro">match_types! </span>{
-	<span class="kw">pub type </span>ParentOrParentsExecutivePlurality: <span class="kw">impl </span>Contains&lt;MultiLocation&gt; = {
+	<span class="kw">pub type </span>ParentOrParentsPlurality: <span class="kw">impl </span>Contains&lt;MultiLocation&gt; = {
 		MultiLocation { parents: <span class="number">1</span>, interior: Here } |
-		MultiLocation { parents: <span class="number">1</span>, interior: X1(Plurality { id: BodyId::Executive, .. }) }
+		MultiLocation { parents: <span class="number">1</span>, interior: X1(Plurality { .. }) }
 	};
 	<span class="kw">pub type </span>ParentOrSiblings: <span class="kw">impl </span>Contains&lt;MultiLocation&gt; = {
 		MultiLocation { parents: <span class="number">1</span>, interior: Here } |
@@ -431,10 +431,10 @@
 		</span>AllowKnownQueryResponses&lt;PolkadotXcm&gt;,
 		WithComputedOrigin&lt;
 			(
-				<span class="comment">// Allow anything to pay for execution.
+				<span class="comment">// If the message is one that immediately attemps to pay for execution, then allow it.
 				</span>AllowTopLevelPaidExecutionFrom&lt;Everything&gt;,
-				<span class="comment">// Parent and its exec plurality get free execution.
-				</span>AllowExplicitUnpaidExecutionFrom&lt;ParentOrParentsExecutivePlurality&gt;,
+				<span class="comment">// Parent and its pluralities (i.e. governance bodies) get free execution.
+				</span>AllowExplicitUnpaidExecutionFrom&lt;ParentOrParentsPlurality&gt;,
 				<span class="comment">// Subscriptions for version tracking are OK.
 				</span>AllowSubscriptionsFrom&lt;ParentOrSiblings&gt;,
 			),
@@ -463,7 +463,7 @@
 		MaxInstructions,
 	&gt;;
 	<span class="kw">type </span>Trader =
-		UsingComponents&lt;WeightToFee, RelayLocation, AccountId, Balances, ToAuthor&lt;Runtime&gt;&gt;;
+		UsingComponents&lt;WeightToFee, RelayLocation, AccountId, Balances, ToStakingPot&lt;Runtime&gt;&gt;;
 	<span class="kw">type </span>ResponseHandler = PolkadotXcm;
 	<span class="kw">type </span>AssetTrap = PolkadotXcm;
 	<span class="kw">type </span>AssetClaims = PolkadotXcm;
