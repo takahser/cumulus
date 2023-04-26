@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["CandidacyBond","Fixed amount to deposit to become a collator."],["Candidates","The (community, limited) collation candidates."],["DesiredCandidates","Desired number of candidates."],["Invulnerables","The invulnerable, fixed collators."],["LastAuthoredBlock","Last block authored by collator."]]};
+window.SIDEBAR_ITEMS = {"struct":["CandidacyBond","Candidates","DesiredCandidates","Invulnerables","LastAuthoredBlock"]};

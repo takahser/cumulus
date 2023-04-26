@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["ForeignCreators",""]]};
+window.SIDEBAR_ITEMS = {"struct":["ForeignCreators"]};

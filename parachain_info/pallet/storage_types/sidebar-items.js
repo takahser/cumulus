@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["ParachainId",""]]};
+window.SIDEBAR_ITEMS = {"struct":["ParachainId"]};

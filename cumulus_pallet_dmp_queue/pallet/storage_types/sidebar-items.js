@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Configuration","The configuration."],["Overweight","The overweight messages."],["PageIndex","The page index."],["Pages","The queue pages."]]};
+window.SIDEBAR_ITEMS = {"struct":["Configuration","Overweight","PageIndex","Pages"]};
