@@ -134,15 +134,21 @@
 <a href="#134" id="134">134</a>
 <a href="#135" id="135">135</a>
 <a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::impls::AccountIdOf;
 <span class="kw">use </span>core::{marker::PhantomData, ops::ControlFlow};
 <span class="kw">use </span>frame_support::{
 	log,
-	traits::{fungibles::Inspect, tokens::ConversionToAssetBalance, ContainsPair},
+	traits::{
+		fungibles::Inspect, tokens::ConversionToAssetBalance, ContainsPair, ProcessMessageError,
+	},
 	weights::Weight,
 };
 <span class="kw">use </span>sp_runtime::traits::Get;
-<span class="kw">use </span>xcm::{latest::prelude::<span class="kw-2">*</span>, CreateMatcher, MatchXcm};
+<span class="kw">use </span>xcm::latest::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>xcm_builder::{CreateMatcher, MatchXcm};
 <span class="kw">use </span>xcm_executor::traits::ShouldExecute;
 
 <span class="comment">//TODO: move DenyThenTry to polkadot&#39;s xcm module.
@@ -163,7 +169,7 @@
 		message: <span class="kw-2">&amp;mut </span>[Instruction&lt;RuntimeCall&gt;],
 		max_weight: Weight,
 		weight_credit: <span class="kw-2">&amp;mut </span>Weight,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
+	) -&gt; <span class="prelude-ty">Result</span>&lt;(), ProcessMessageError&gt; {
 		Deny::should_execute(origin, message, max_weight, weight_credit)<span class="question-mark">?</span>;
 		Allow::should_execute(origin, message, max_weight, weight_credit)
 	}
@@ -177,7 +183,7 @@
 		message: <span class="kw-2">&amp;mut </span>[Instruction&lt;RuntimeCall&gt;],
 		_max_weight: Weight,
 		_weight_credit: <span class="kw-2">&amp;mut </span>Weight,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
+	) -&gt; <span class="prelude-ty">Result</span>&lt;(), ProcessMessageError&gt; {
 		message.matcher().match_next_inst_while(
 			|<span class="kw">_</span>| <span class="bool-val">true</span>,
 			|inst| <span class="kw">match </span>inst {
@@ -191,7 +197,7 @@
 				TransferReserveAsset {
 					dest: MultiLocation { parents: <span class="number">1</span>, interior: Here }, ..
 				} =&gt; {
-					<span class="prelude-val">Err</span>(()) <span class="comment">// Deny
+					<span class="prelude-val">Err</span>(ProcessMessageError::Unsupported) <span class="comment">// Deny
 				</span>},
 
 				<span class="comment">// An unexpected reserve transfer has arrived from the Relay Chain. Generally,
