@@ -372,6 +372,17 @@
 <a href="#372" id="372">372</a>
 <a href="#373" id="373">373</a>
 <a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -395,6 +406,8 @@
 	collections::{HashMap, HashSet},
 	sync::Arc,
 };
+
+<span class="kw">const </span>LOG_TARGET: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;level-monitor&quot;</span>;
 
 <span class="doccomment">/// Value good enough to be used with parachains using the current backend implementation
 /// that ships with Substrate. This value may change in the future.
@@ -474,9 +487,10 @@
 		<span class="kw">let </span>info = <span class="self">self</span>.backend.blockchain().info();
 
 		<span class="macro">log::debug!</span>(
-			target: <span class="string">&quot;parachain&quot;</span>,
+			target: LOG_TARGET,
 			<span class="string">&quot;Restoring chain level monitor from last finalized block: {} {}&quot;</span>,
-			info.finalized_number, info.finalized_hash
+			info.finalized_number,
+			info.finalized_hash
 		);
 
 		<span class="self">self</span>.lowest_level = info.finalized_number;
@@ -498,7 +512,11 @@
 			}
 		}
 
-		<span class="macro">log::debug!</span>(target: <span class="string">&quot;parachain&quot;</span>, <span class="string">&quot;Restored chain level monitor up to height {}&quot;</span>, <span class="self">self</span>.import_counter);
+		<span class="macro">log::debug!</span>(
+			target: LOG_TARGET,
+			<span class="string">&quot;Restored chain level monitor up to height {}&quot;</span>,
+			<span class="self">self</span>.import_counter
+		);
 	}
 
 	<span class="doccomment">/// Check and enforce the limit bound at the given height.
@@ -535,7 +553,7 @@
 		</span><span class="kw">let </span>remove_count = level_len - <span class="self">self</span>.level_limit + <span class="number">1</span>;
 
 		<span class="macro">log::debug!</span>(
-			target: <span class="string">&quot;parachain&quot;</span>,
+			target: LOG_TARGET,
 			<span class="string">&quot;Detected leaves overflow at height {number}, removing {remove_count} obsolete blocks&quot;</span>,
 		);
 
@@ -598,9 +616,11 @@
 							}),
 							<span class="prelude-val">Err</span>(err) =&gt; {
 								<span class="macro">log::warn!</span>(
-									target: <span class="string">&quot;parachain&quot;</span>,
+									target: LOG_TARGET,
 									<span class="string">&quot;(Lookup) Unable getting route from {:?} to {:?}: {}&quot;</span>,
-									blk_hash, leaf_hash, err,
+									blk_hash,
+									leaf_hash,
+									err,
 								);
 								<span class="prelude-val">None
 							</span>},
@@ -617,7 +637,7 @@
 				<span class="prelude-val">None </span>=&gt; {
 					<span class="comment">// This should never happen
 					</span><span class="macro">log::error!</span>(
-						target: <span class="string">&quot;parachain&quot;</span>,
+						target: LOG_TARGET,
 						<span class="string">&quot;Unable getting route to any leaf from {:?} (this is a bug)&quot;</span>,
 						blk_hash,
 					);
@@ -668,9 +688,9 @@
 		invalidated_leaves: <span class="kw-2">&amp;mut </span>HashSet&lt;usize&gt;,
 	) {
 		<span class="kw">let </span><span class="kw-2">mut </span>remove_leaf = |number, hash| {
-			<span class="macro">log::debug!</span>(target: <span class="string">&quot;parachain&quot;</span>, <span class="string">&quot;Removing block (@{}) {:?}&quot;</span>, number, hash);
+			<span class="macro">log::debug!</span>(target: LOG_TARGET, <span class="string">&quot;Removing block (@{}) {:?}&quot;</span>, number, hash);
 			<span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.backend.remove_leaf_block(hash) {
-				<span class="macro">log::debug!</span>(target: <span class="string">&quot;parachain&quot;</span>, <span class="string">&quot;Remove not possible for {}: {}&quot;</span>, hash, err);
+				<span class="macro">log::debug!</span>(target: LOG_TARGET, <span class="string">&quot;Remove not possible for {}: {}&quot;</span>, hash, err);
 				<span class="kw">return </span><span class="bool-val">false
 			</span>}
 			<span class="self">self</span>.levels.get_mut(<span class="kw-2">&amp;</span>number).map(|level| level.remove(<span class="kw-2">&amp;</span>hash));
@@ -711,9 +731,11 @@
 				},
 				<span class="prelude-val">Err</span>(err) =&gt; {
 					<span class="macro">log::warn!</span>(
-						target: <span class="string">&quot;parachain&quot;</span>,
+						target: LOG_TARGET,
 						<span class="string">&quot;(Removal) unable getting route from {:?} to {:?}: {}&quot;</span>,
-						target_hash, leaf_hash, err,
+						target_hash,
+						leaf_hash,
+						err,
 					);
 				},
 				<span class="kw">_ </span>=&gt; (),
