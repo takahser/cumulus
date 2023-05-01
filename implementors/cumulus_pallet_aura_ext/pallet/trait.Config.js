@@ -5,7 +5,7 @@
 "collectives_polkadot_runtime":[["impl Config for <a class=\"struct\" href=\"collectives_polkadot_runtime/struct.Runtime.html\" title=\"struct collectives_polkadot_runtime::Runtime\">Runtime</a>"]],
 "contracts_rococo_runtime":[["impl Config for <a class=\"struct\" href=\"contracts_rococo_runtime/struct.Runtime.html\" title=\"struct contracts_rococo_runtime::Runtime\">Runtime</a>"]],
 "parachain_template_runtime":[["impl Config for <a class=\"struct\" href=\"parachain_template_runtime/struct.Runtime.html\" title=\"struct parachain_template_runtime::Runtime\">Runtime</a>"]],
-"penpal_runtime":[["impl Config for <a class=\"struct\" href=\"penpal_runtime/struct.Runtime.html\" title=\"struct penpal_runtime::Runtime\">Runtime</a>"]],
+"penpal_runtime":[["impl <a class=\"trait\" href=\"cumulus_pallet_aura_ext/pallet/trait.Config.html\" title=\"trait cumulus_pallet_aura_ext::pallet::Config\">Config</a> for <a class=\"struct\" href=\"penpal_runtime/struct.Runtime.html\" title=\"struct penpal_runtime::Runtime\">Runtime</a>"]],
 "rococo_parachain_runtime":[["impl Config for <a class=\"struct\" href=\"rococo_parachain_runtime/struct.Runtime.html\" title=\"struct rococo_parachain_runtime::Runtime\">Runtime</a>"]],
 "statemine_runtime":[["impl Config for <a class=\"struct\" href=\"statemine_runtime/struct.Runtime.html\" title=\"struct statemine_runtime::Runtime\">Runtime</a>"]],
 "statemint_runtime":[["impl Config for <a class=\"struct\" href=\"statemint_runtime/struct.Runtime.html\" title=\"struct statemint_runtime::Runtime\">Runtime</a>"]],

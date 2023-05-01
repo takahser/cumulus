@@ -581,7 +581,7 @@
 
 	task_manager
 		.spawn_essential_handle()
-		.spawn(<span class="string">&quot;cumulus-consensus&quot;</span>, <span class="prelude-val">None</span>, consensus);
+		.spawn_blocking(<span class="string">&quot;cumulus-consensus&quot;</span>, <span class="prelude-val">None</span>, consensus);
 
 	<span class="kw">let </span>pov_recovery = PoVRecovery::new(
 		recovery_handle,
@@ -674,7 +674,7 @@
 
 	task_manager
 		.spawn_essential_handle()
-		.spawn(<span class="string">&quot;cumulus-consensus&quot;</span>, <span class="prelude-val">None</span>, consensus);
+		.spawn_blocking(<span class="string">&quot;cumulus-consensus&quot;</span>, <span class="prelude-val">None</span>, consensus);
 
 	<span class="kw">let </span>pov_recovery = PoVRecovery::new(
 		recovery_handle,
