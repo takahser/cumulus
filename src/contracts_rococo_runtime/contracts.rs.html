@@ -58,13 +58,13 @@
 	traits::{ConstBool, ConstU32, Nothing},
 };
 <span class="kw">use </span>pallet_contracts::{
-	weights::SubstrateWeight, Config, DefaultAddressGenerator, Frame, Schedule,
+	weights::SubstrateWeight, Config, DebugInfo, DefaultAddressGenerator, Frame, Schedule,
 };
 <span class="kw">pub use </span>parachains_common::AVERAGE_ON_INITIALIZE_RATIO;
 
 <span class="comment">// Prints debug output of the `contracts` pallet to stdout if the node is
 // started with `-lruntime::contracts=debug`.
-</span><span class="kw">pub const </span>CONTRACTS_DEBUG_OUTPUT: bool = <span class="bool-val">true</span>;
+</span><span class="kw">pub const </span>CONTRACTS_DEBUG_OUTPUT: DebugInfo = DebugInfo::UnsafeDebug;
 
 <span class="macro">parameter_types! </span>{
 	<span class="kw">pub const </span>DepositPerItem: Balance = deposit(<span class="number">1</span>, <span class="number">0</span>);
