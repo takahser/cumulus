@@ -886,6 +886,7 @@
 <a href="#886" id="886">886</a>
 <a href="#887" id="887">887</a>
 <a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1652,7 +1653,8 @@
 		tracing_receiver: Default::default(),
 		max_runtime_instances: <span class="number">8</span>,
 		announce_block: <span class="bool-val">true</span>,
-		base_path: <span class="prelude-val">Some</span>(base_path),
+		data_path: root,
+		base_path,
 		informant_output_format: Default::default(),
 		wasm_runtime_overrides: <span class="prelude-val">None</span>,
 		runtime_cache_size: <span class="number">2</span>,

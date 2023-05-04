@@ -126,6 +126,10 @@
 <a href="#126" id="126">126</a>
 <a href="#127" id="127">127</a>
 <a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -250,8 +254,12 @@
 	) -&gt; <span class="self">Self </span>{
 		<span class="kw">let </span>extension = <span class="kw">crate</span>::chain_spec::Extensions::try_get(<span class="kw-2">&amp;*</span>para_config.chain_spec);
 		<span class="kw">let </span>chain_id = extension.map(|e| e.relay_chain.clone());
-		<span class="kw">let </span>base_path = para_config.base_path.as_ref().map(|x| x.path().join(<span class="string">&quot;polkadot&quot;</span>));
-		<span class="self">Self </span>{ base_path, chain_id, base: clap::Parser::parse_from(relay_chain_args) }
+		<span class="kw">let </span>base_path = para_config.base_path.path().join(<span class="string">&quot;polkadot&quot;</span>);
+		<span class="self">Self </span>{
+			base_path: <span class="prelude-val">Some</span>(base_path),
+			chain_id,
+			base: clap::Parser::parse_from(relay_chain_args),
+		}
 	}
 }
 </code></pre></div>

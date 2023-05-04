@@ -338,6 +338,10 @@
 <a href="#338" id="338">338</a>
 <a href="#339" id="339">339</a>
 <a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -457,8 +461,12 @@
 		para_config: <span class="kw-2">&amp;</span>sc_service::Configuration,
 		relay_chain_args: <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>String&gt;,
 	) -&gt; <span class="self">Self </span>{
-		<span class="kw">let </span>base_path = para_config.base_path.as_ref().map(|x| x.path().join(<span class="string">&quot;polkadot&quot;</span>));
-		<span class="self">Self </span>{ base_path, chain_id: <span class="prelude-val">None</span>, base: clap::Parser::parse_from(relay_chain_args) }
+		<span class="kw">let </span>base_path = para_config.base_path.path().join(<span class="string">&quot;polkadot&quot;</span>);
+		<span class="self">Self </span>{
+			base_path: <span class="prelude-val">Some</span>(base_path),
+			chain_id: <span class="prelude-val">None</span>,
+			base: clap::Parser::parse_from(relay_chain_args),
+		}
 	}
 }
 
