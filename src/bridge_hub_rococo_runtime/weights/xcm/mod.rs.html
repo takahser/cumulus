@@ -249,6 +249,8 @@
 <a href="#249" id="249">249</a>
 <a href="#250" id="250">250</a>
 <a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -269,6 +271,7 @@
 <span class="kw">mod </span>pallet_xcm_benchmarks_generic;
 
 <span class="kw">use crate</span>::{xcm_config::MaxAssetsIntoHolding, Runtime};
+<span class="kw">use </span>codec::Encode;
 <span class="kw">use </span>frame_support::weights::Weight;
 <span class="kw">use </span>pallet_xcm_benchmarks_fungible::WeightInfo <span class="kw">as </span>XcmFungibleWeight;
 <span class="kw">use </span>pallet_xcm_benchmarks_generic::WeightInfo <span class="kw">as </span>XcmGeneric;
@@ -468,8 +471,9 @@
 	<span class="kw">fn </span>universal_origin(<span class="kw">_</span>: <span class="kw-2">&amp;</span>Junction) -&gt; Weight {
 		Weight::MAX
 	}
-	<span class="kw">fn </span>export_message(<span class="kw">_</span>: <span class="kw-2">&amp;</span>NetworkId, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Junctions, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Xcm&lt;()&gt;) -&gt; Weight {
-		Weight::MAX
+	<span class="kw">fn </span>export_message(<span class="kw">_</span>: <span class="kw-2">&amp;</span>NetworkId, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Junctions, inner: <span class="kw-2">&amp;</span>Xcm&lt;()&gt;) -&gt; Weight {
+		<span class="kw">let </span>inner_encoded_len = inner.encode().len() <span class="kw">as </span>u32;
+		XcmGeneric::&lt;Runtime&gt;::export_message(inner_encoded_len)
 	}
 	<span class="kw">fn </span>lock_asset(<span class="kw">_</span>: <span class="kw-2">&amp;</span>MultiAsset, <span class="kw">_</span>: <span class="kw-2">&amp;</span>MultiLocation) -&gt; Weight {
 		Weight::MAX

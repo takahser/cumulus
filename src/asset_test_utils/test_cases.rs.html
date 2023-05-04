@@ -2421,7 +2421,7 @@
 			additional_checks_before();
 
 			<span class="comment">// execute XCM with Transacts to create/manage foreign assets by foreign governance
-			// prepapre data for xcm::Transact(create)
+			// prepare data for xcm::Transact(create)
 			</span><span class="kw">let </span>foreign_asset_create = runtime_call_encode(pallet_assets::Call::&lt;
 				Runtime,
 				ForeignAssetsPalletInstance,
@@ -2431,7 +2431,7 @@
 				</span>admin: foreign_creator_as_account_id.clone().into(),
 				min_balance: <span class="number">1</span>.into(),
 			});
-			<span class="comment">// prepapre data for xcm::Transact(set_metadata)
+			<span class="comment">// prepare data for xcm::Transact(set_metadata)
 			</span><span class="kw">let </span>foreign_asset_set_metadata = runtime_call_encode(pallet_assets::Call::&lt;
 				Runtime,
 				ForeignAssetsPalletInstance,
@@ -2441,7 +2441,7 @@
 				symbol: Vec::from(ASSET_SYMBOL),
 				decimals: <span class="number">12</span>,
 			});
-			<span class="comment">// prepapre data for xcm::Transact(set_team - change just freezer to Bob)
+			<span class="comment">// prepare data for xcm::Transact(set_team - change just freezer to Bob)
 			</span><span class="kw">let </span>foreign_asset_set_team = runtime_call_encode(pallet_assets::Call::&lt;
 				Runtime,
 				ForeignAssetsPalletInstance,

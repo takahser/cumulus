@@ -104,6 +104,7 @@
 <a href="#104" id="104">104</a>
 <a href="#105" id="105">105</a>
 <a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -128,6 +129,7 @@
 
 	<span class="kw">pub const </span>UNITS: Balance = constants::currency::UNITS;
 	<span class="kw">pub const </span>CENTS: Balance = constants::currency::CENTS;
+	<span class="kw">pub const </span>MILLICENTS: Balance = constants::currency::MILLICENTS;
 
 	<span class="kw">pub const fn </span>deposit(items: u32, bytes: u32) -&gt; Balance {
 		<span class="comment">// map to 1/100 of what the rococo relay chain charges

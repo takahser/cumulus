@@ -595,7 +595,40 @@
 <a href="#595" id="595">595</a>
 <a href="#596" id="596">596</a>
 <a href="#597" id="597">597</a>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
 // Cumulus is free software: you can redistribute it and/or modify
@@ -611,10 +644,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Cumulus.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span>cumulus_primitives_core::ParaId;
+</span><span class="kw">use </span><span class="kw">crate</span>::chain_spec::{get_account_id_from_seed, get_collator_keys_from_seed};
+<span class="kw">use </span>cumulus_primitives_core::ParaId;
 <span class="kw">use </span>parachains_common::Balance <span class="kw">as </span>BridgeHubBalance;
 <span class="kw">use </span>sc_chain_spec::ChainSpec;
 <span class="kw">use </span>sc_cli::RuntimeVersion;
+<span class="kw">use </span>sp_core::sr25519;
 <span class="kw">use </span>std::{path::PathBuf, str::FromStr};
 
 <span class="doccomment">/// Collects all supported BridgeHub configurations
@@ -736,6 +771,7 @@
 				<span class="string">&quot;Rococo BridgeHub Local&quot;</span>,
 				<span class="string">&quot;rococo-local&quot;</span>,
 				ParaId::new(<span class="number">1013</span>),
+				<span class="prelude-val">Some</span>(<span class="string">&quot;Bob&quot;</span>.to_string()),
 				|<span class="kw">_</span>| (),
 			))),
 			BridgeHubRuntimeType::RococoDevelopment =&gt; <span class="prelude-val">Ok</span>(Box::new(rococo::local_config(
@@ -743,6 +779,7 @@
 				<span class="string">&quot;Rococo BridgeHub Development&quot;</span>,
 				<span class="string">&quot;rococo-dev&quot;</span>,
 				ParaId::new(<span class="number">1013</span>),
+				<span class="prelude-val">Some</span>(<span class="string">&quot;Bob&quot;</span>.to_string()),
 				|<span class="kw">_</span>| (),
 			))),
 			BridgeHubRuntimeType::Wococo =&gt;
@@ -754,6 +791,7 @@
 				<span class="string">&quot;Wococo BridgeHub Local&quot;</span>,
 				<span class="string">&quot;wococo-local&quot;</span>,
 				ParaId::new(<span class="number">1014</span>),
+				<span class="prelude-val">Some</span>(<span class="string">&quot;Bob&quot;</span>.to_string()),
 			))),
 		}
 	}
@@ -794,13 +832,12 @@
 
 <span class="doccomment">/// Sub-module for Rococo setup
 </span><span class="kw">pub mod </span>rococo {
-	<span class="kw">use super</span>::{BridgeHubBalance, ParaId};
-	<span class="kw">use </span><span class="kw">crate</span>::chain_spec::{
-		get_account_id_from_seed, get_collator_keys_from_seed, Extensions, SAFE_XCM_VERSION,
-	};
+	<span class="kw">use super</span>::{get_account_id_from_seed, get_collator_keys_from_seed, sr25519, ParaId};
+	<span class="kw">use </span><span class="kw">crate</span>::chain_spec::{Extensions, SAFE_XCM_VERSION};
 	<span class="kw">use </span>parachains_common::{AccountId, AuraId};
 	<span class="kw">use </span>sc_chain_spec::ChainType;
-	<span class="kw">use </span>sp_core::sr25519;
+
+	<span class="kw">use </span><span class="kw">super</span>::BridgeHubBalance;
 
 	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>BRIDGE_HUB_ROCOCO: <span class="kw-2">&amp;</span>str = <span class="string">&quot;bridge-hub-rococo&quot;</span>;
 	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>BRIDGE_HUB_ROCOCO_LOCAL: <span class="kw-2">&amp;</span>str = <span class="string">&quot;bridge-hub-rococo-local&quot;</span>;
@@ -819,6 +856,7 @@
 		chain_name: <span class="kw-2">&amp;</span>str,
 		relay_chain: <span class="kw-2">&amp;</span>str,
 		para_id: ParaId,
+		bridges_pallet_owner_seed: <span class="prelude-ty">Option</span>&lt;String&gt;,
 		modify_props: ModifyProperties,
 	) -&gt; BridgeHubChainSpec {
 		<span class="comment">// Rococo defaults
@@ -862,6 +900,9 @@
 						get_account_id_from_seed::&lt;sr25519::Public&gt;(<span class="string">&quot;Ferdie//stash&quot;</span>),
 					],
 					para_id,
+					bridges_pallet_owner_seed
+						.as_ref()
+						.map(|seed| get_account_id_from_seed::&lt;sr25519::Public&gt;(<span class="kw-2">&amp;</span>seed)),
 				)
 			},
 			Vec::new(),
@@ -877,6 +918,7 @@
 		invulnerables: Vec&lt;(AccountId, AuraId)&gt;,
 		endowed_accounts: Vec&lt;AccountId&gt;,
 		id: ParaId,
+		bridges_pallet_owner: <span class="prelude-ty">Option</span>&lt;AccountId&gt;,
 	) -&gt; bridge_hub_rococo_runtime::GenesisConfig {
 		bridge_hub_rococo_runtime::GenesisConfig {
 			system: bridge_hub_rococo_runtime::SystemConfig {
@@ -911,6 +953,22 @@
 			polkadot_xcm: bridge_hub_rococo_runtime::PolkadotXcmConfig {
 				safe_xcm_version: <span class="prelude-val">Some</span>(SAFE_XCM_VERSION),
 			},
+			bridge_wococo_grandpa: bridge_hub_rococo_runtime::BridgeWococoGrandpaConfig {
+				owner: bridges_pallet_owner.clone(),
+				..Default::default()
+			},
+			bridge_rococo_grandpa: bridge_hub_rococo_runtime::BridgeRococoGrandpaConfig {
+				owner: bridges_pallet_owner.clone(),
+				..Default::default()
+			},
+			bridge_rococo_messages: bridge_hub_rococo_runtime::BridgeRococoMessagesConfig {
+				owner: bridges_pallet_owner.clone(),
+				..Default::default()
+			},
+			bridge_wococo_messages: bridge_hub_rococo_runtime::BridgeWococoMessagesConfig {
+				owner: bridges_pallet_owner,
+				..Default::default()
+			},
 		}
 	}
 }
@@ -931,10 +989,18 @@
 		chain_name: <span class="kw-2">&amp;</span>str,
 		relay_chain: <span class="kw-2">&amp;</span>str,
 		para_id: ParaId,
+		bridges_pallet_owner_seed: <span class="prelude-ty">Option</span>&lt;String&gt;,
 	) -&gt; BridgeHubChainSpec {
-		rococo::local_config(id, chain_name, relay_chain, para_id, |properties| {
-			properties.insert(<span class="string">&quot;tokenSymbol&quot;</span>.into(), <span class="string">&quot;WOOK&quot;</span>.into());
-		})
+		rococo::local_config(
+			id,
+			chain_name,
+			relay_chain,
+			para_id,
+			bridges_pallet_owner_seed,
+			|properties| {
+				properties.insert(<span class="string">&quot;tokenSymbol&quot;</span>.into(), <span class="string">&quot;WOOK&quot;</span>.into());
+			},
+		)
 	}
 }
 

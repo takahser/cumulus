@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["include_teleports_for_native_asset_works"],"struct":["CollatorSessionKeys"]};
+window.SIDEBAR_ITEMS = {"enum":["XcmReceivedFrom"],"fn":["handle_export_message_from_system_parachain_to_outbound_queue_works","initialize_bridge_by_governance_works","message_dispatch_routing_works"],"macro":["include_teleports_for_native_asset_works"],"struct":["CollatorSessionKeys"]};

@@ -266,6 +266,87 @@
 <a href="#266" id="266">266</a>
 <a href="#267" id="267">267</a>
 <a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -283,8 +364,13 @@
 // along with Cumulus.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use super</span>::{
-	AccountId, AllPalletsWithSystem, Balances, ParachainInfo, ParachainSystem, PolkadotXcm,
-	Runtime, RuntimeCall, RuntimeEvent, RuntimeOrigin, WeightToFee, XcmpQueue,
+	AccountId, AllPalletsWithSystem, Balances, BridgeGrandpaRococoInstance,
+	BridgeGrandpaWococoInstance, ParachainInfo, ParachainSystem, PolkadotXcm, Runtime, RuntimeCall,
+	RuntimeEvent, RuntimeOrigin, WeightToFee, XcmpQueue,
+};
+<span class="kw">use crate</span>::{
+	bridge_hub_rococo_config::ToBridgeHubWococoHaulBlobExporter,
+	bridge_hub_wococo_config::ToBridgeHubRococoHaulBlobExporter,
 };
 <span class="kw">use </span>frame_support::{
 	match_types, parameter_types,
@@ -297,25 +383,44 @@
 	xcm_config::{ConcreteNativeAssetFrom, DenyReserveTransferToRelayChain, DenyThenTry},
 };
 <span class="kw">use </span>polkadot_parachain::primitives::Sibling;
+<span class="kw">use </span>sp_core::Get;
 <span class="kw">use </span>xcm::latest::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>xcm_builder::{
 	AccountId32Aliases, AllowExplicitUnpaidExecutionFrom, AllowKnownQueryResponses,
-	AllowSubscriptionsFrom, AllowTopLevelPaidExecutionFrom, CurrencyAdapter, EnsureXcmOrigin,
-	IsConcrete, ParentAsSuperuser, ParentIsPreset, RelayChainAsNative, SiblingParachainAsNative,
-	SiblingParachainConvertsVia, SignedAccountId32AsNative, SignedToAccountId32,
-	SovereignSignedViaLocation, TakeWeightCredit, UsingComponents, WeightInfoBounds,
-	WithComputedOrigin,
+	AllowSubscriptionsFrom, AllowTopLevelPaidExecutionFrom, AllowUnpaidExecutionFrom,
+	CurrencyAdapter, EnsureXcmOrigin, IsConcrete, ParentAsSuperuser, ParentIsPreset,
+	RelayChainAsNative, SiblingParachainAsNative, SiblingParachainConvertsVia,
+	SignedAccountId32AsNative, SignedToAccountId32, SovereignSignedViaLocation, TakeWeightCredit,
+	UsingComponents, WeightInfoBounds, WithComputedOrigin,
 };
-<span class="kw">use </span>xcm_executor::{traits::WithOriginFilter, XcmExecutor};
+<span class="kw">use </span>xcm_executor::{
+	traits::{ExportXcm, WithOriginFilter},
+	XcmExecutor,
+};
 
 <span class="macro">parameter_types! </span>{
 	<span class="kw">pub const </span>RelayLocation: MultiLocation = MultiLocation::parent();
-	<span class="kw">pub const </span>RelayNetwork: <span class="prelude-ty">Option</span>&lt;NetworkId&gt; = <span class="prelude-val">Some</span>(NetworkId::Rococo);
 	<span class="kw">pub </span>RelayChainOrigin: RuntimeOrigin = cumulus_pallet_xcm::Origin::Relay.into();
 	<span class="kw">pub </span>UniversalLocation: InteriorMultiLocation =
-		X2(GlobalConsensus(RelayNetwork::get().unwrap()), Parachain(ParachainInfo::parachain_id().into()));
+		X2(GlobalConsensus(RelayNetwork::get()), Parachain(ParachainInfo::parachain_id().into()));
 	<span class="kw">pub const </span>MaxInstructions: u32 = <span class="number">100</span>;
 	<span class="kw">pub const </span>MaxAssetsIntoHolding: u32 = <span class="number">64</span>;
+}
+
+<span class="kw">pub struct </span>RelayNetwork;
+<span class="kw">impl </span>Get&lt;<span class="prelude-ty">Option</span>&lt;NetworkId&gt;&gt; <span class="kw">for </span>RelayNetwork {
+	<span class="kw">fn </span>get() -&gt; <span class="prelude-ty">Option</span>&lt;NetworkId&gt; {
+		<span class="prelude-val">Some</span>(<span class="self">Self</span>::get())
+	}
+}
+<span class="kw">impl </span>Get&lt;NetworkId&gt; <span class="kw">for </span>RelayNetwork {
+	<span class="kw">fn </span>get() -&gt; NetworkId {
+		<span class="kw">match </span>u32::from(ParachainInfo::parachain_id()) {
+			bp_bridge_hub_rococo::BRIDGE_HUB_ROCOCO_PARACHAIN_ID =&gt; NetworkId::Rococo,
+			bp_bridge_hub_wococo::BRIDGE_HUB_WOCOCO_PARACHAIN_ID =&gt; NetworkId::Wococo,
+			para_id =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Not supported for para_id: {}&quot;</span>, para_id),
+		}
+	}
 }
 
 <span class="doccomment">/// Type for specifying how a `MultiLocation` can be converted into an `AccountId`. This is used
@@ -352,7 +457,7 @@
 	// using `LocationToAccountId` and then turn that into the usual `Signed` origin. Useful for
 	// foreign chains who want to have a local sovereign account on this chain which they control.
 	</span>SovereignSignedViaLocation&lt;LocationToAccountId, RuntimeOrigin&gt;,
-	<span class="comment">// Native converter for Relay-chain (Parent) location; will converts to a `Relay` origin when
+	<span class="comment">// Native converter for Relay-chain (Parent) location; will convert to a `Relay` origin when
 	// recognized.
 	</span>RelayChainAsNative&lt;RelayChainOrigin, RuntimeOrigin&gt;,
 	<span class="comment">// Native converter for sibling Parachains; will convert to a `SiblingPara` origin when
@@ -416,7 +521,19 @@
 			RuntimeCall::Session(pallet_session::Call::purge_keys { .. }) |
 			RuntimeCall::XcmpQueue(..) |
 			RuntimeCall::DmpQueue(..) |
-			RuntimeCall::Utility(pallet_utility::Call::as_derivative { .. }) =&gt; <span class="bool-val">true</span>,
+			RuntimeCall::Utility(pallet_utility::Call::as_derivative { .. }) |
+			RuntimeCall::BridgeRococoGrandpa(pallet_bridge_grandpa::Call::&lt;
+				Runtime,
+				BridgeGrandpaRococoInstance,
+			&gt;::initialize {
+				..
+			}) |
+			RuntimeCall::BridgeWococoGrandpa(pallet_bridge_grandpa::Call::&lt;
+				Runtime,
+				BridgeGrandpaWococoInstance,
+			&gt;::initialize {
+				..
+			}) =&gt; <span class="bool-val">true</span>,
 			<span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
 		}
 	}
@@ -441,6 +558,9 @@
 			UniversalLocation,
 			ConstU32&lt;<span class="number">8</span>&gt;,
 		&gt;,
+		<span class="comment">// TODO:check-parameter - (https://github.com/paritytech/parity-bridges-common/issues/2084)
+		// remove this and extend `AllowExplicitUnpaidExecutionFrom` with &quot;or SystemParachains&quot; once merged https://github.com/paritytech/polkadot/pull/7005
+		</span>AllowUnpaidExecutionFrom&lt;Everything&gt;,
 	),
 &gt;;
 
@@ -473,7 +593,7 @@
 	<span class="kw">type </span>AssetLocker = ();
 	<span class="kw">type </span>AssetExchanger = ();
 	<span class="kw">type </span>FeeManager = ();
-	<span class="kw">type </span>MessageExporter = ();
+	<span class="kw">type </span>MessageExporter = BridgeHubRococoOrBridgeHubWococoSwitchExporter;
 	<span class="kw">type </span>UniversalAliases = Nothing;
 	<span class="kw">type </span>CallDispatcher = WithOriginFilter&lt;SafeCallFilter&gt;;
 	<span class="kw">type </span>SafeCallFilter = SafeCallFilter;
@@ -499,13 +619,12 @@
 
 <span class="kw">impl </span>pallet_xcm::Config <span class="kw">for </span>Runtime {
 	<span class="kw">type </span>RuntimeEvent = RuntimeEvent;
+	<span class="kw">type </span>XcmRouter = XcmRouter;
 	<span class="comment">// We want to disallow users sending (arbitrary) XCMs from this chain.
 	</span><span class="kw">type </span>SendXcmOrigin = EnsureXcmOrigin&lt;RuntimeOrigin, ()&gt;;
-	<span class="kw">type </span>XcmRouter = XcmRouter;
 	<span class="comment">// We support local origins dispatching XCM executions in principle...
 	</span><span class="kw">type </span>ExecuteXcmOrigin = EnsureXcmOrigin&lt;RuntimeOrigin, LocalOriginToLocation&gt;;
-	<span class="comment">// ... but disallow generic XCM execution. As a result only teleports are allowed.
-	</span><span class="kw">type </span>XcmExecuteFilter = Nothing;
+	<span class="kw">type </span>XcmExecuteFilter = Nothing;
 	<span class="kw">type </span>XcmExecutor = XcmExecutor&lt;XcmConfig&gt;;
 	<span class="kw">type </span>XcmTeleportFilter = Everything;
 	<span class="kw">type </span>XcmReserveTransferFilter = Nothing; <span class="comment">// This parachain is not meant as a reserve location.
@@ -533,6 +652,49 @@
 <span class="kw">impl </span>cumulus_pallet_xcm::Config <span class="kw">for </span>Runtime {
 	<span class="kw">type </span>RuntimeEvent = RuntimeEvent;
 	<span class="kw">type </span>XcmExecutor = XcmExecutor&lt;XcmConfig&gt;;
+}
+
+<span class="doccomment">/// Hacky switch implementation, because we have just one runtime for Rococo and Wococo BridgeHub, so it means we have just one XcmConfig
+</span><span class="kw">pub struct </span>BridgeHubRococoOrBridgeHubWococoSwitchExporter;
+<span class="kw">impl </span>ExportXcm <span class="kw">for </span>BridgeHubRococoOrBridgeHubWococoSwitchExporter {
+	<span class="kw">type </span>Ticket = (NetworkId, (sp_std::prelude::Vec&lt;u8&gt;, XcmHash));
+
+	<span class="kw">fn </span>validate(
+		network: NetworkId,
+		channel: u32,
+		universal_source: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;InteriorMultiLocation&gt;,
+		destination: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;InteriorMultiLocation&gt;,
+		message: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;Xcm&lt;()&gt;&gt;,
+	) -&gt; SendResult&lt;<span class="self">Self</span>::Ticket&gt; {
+		<span class="kw">match </span>network {
+			Rococo =&gt; ToBridgeHubRococoHaulBlobExporter::validate(
+				network,
+				channel,
+				universal_source,
+				destination,
+				message,
+			)
+			.map(|result| ((Rococo, result.<span class="number">0</span>), result.<span class="number">1</span>)),
+			Wococo =&gt; ToBridgeHubWococoHaulBlobExporter::validate(
+				network,
+				channel,
+				universal_source,
+				destination,
+				message,
+			)
+			.map(|result| ((Wococo, result.<span class="number">0</span>), result.<span class="number">1</span>)),
+			<span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;Unsupported network: {:?}&quot;</span>, network),
+		}
+	}
+
+	<span class="kw">fn </span>deliver(ticket: <span class="self">Self</span>::Ticket) -&gt; <span class="prelude-ty">Result</span>&lt;XcmHash, SendError&gt; {
+		<span class="kw">let </span>(network, ticket) = ticket;
+		<span class="kw">match </span>network {
+			Rococo =&gt; ToBridgeHubRococoHaulBlobExporter::deliver(ticket),
+			Wococo =&gt; ToBridgeHubWococoHaulBlobExporter::deliver(ticket),
+			<span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;Unsupported network: {:?}&quot;</span>, network),
+		}
+	}
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="bridge_hub_rococo_runtime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0 (84c898d65 2023-04-16)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

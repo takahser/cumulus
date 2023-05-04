@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["test_cases"],"struct":["CollatorSessionKeys"]};
+window.SIDEBAR_ITEMS = {"fn":["test_header"],"macro":["include_handle_export_message_from_system_parachain_to_outbound_queue_works","include_initialize_bridge_by_governance_works","include_message_dispatch_routing_works"],"mod":["test_cases"],"struct":["CollatorSessionKeys"]};

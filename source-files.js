@@ -1,16 +1,21 @@
 var sourcesIndex = JSON.parse('{\
 "asset_test_utils":["",[],["lib.rs","test_cases.rs"]],\
 "assets_common":["",[],["foreign_creators.rs","fungible_conversion.rs","lib.rs","matching.rs","runtime_api.rs"]],\
+"bp_bridge_hub_cumulus":["",[],["lib.rs"]],\
+"bp_bridge_hub_rococo":["",[],["lib.rs"]],\
+"bp_bridge_hub_wococo":["",[],["lib.rs"]],\
 "bp_header_chain":["",[],["justification.rs","lib.rs","storage_keys.rs"]],\
 "bp_messages":["",[],["lib.rs","source_chain.rs","storage_keys.rs","target_chain.rs"]],\
 "bp_parachains":["",[],["lib.rs"]],\
 "bp_polkadot_core":["",[],["lib.rs","parachains.rs"]],\
 "bp_relayers":["",[],["lib.rs","registration.rs"]],\
+"bp_rococo":["",[],["lib.rs"]],\
 "bp_runtime":["",[],["chain.rs","extensions.rs","lib.rs","messages.rs","storage_proof.rs","storage_types.rs"]],\
 "bp_test_utils":["",[],["keyring.rs","lib.rs"]],\
+"bp_wococo":["",[],["lib.rs"]],\
 "bridge_hub_kusama_runtime":["",[["weights",[["xcm",[],["mod.rs","pallet_xcm_benchmarks_fungible.rs","pallet_xcm_benchmarks_generic.rs"]]],["block_weights.rs","cumulus_pallet_xcmp_queue.rs","extrinsic_weights.rs","frame_system.rs","mod.rs","pallet_balances.rs","pallet_collator_selection.rs","pallet_multisig.rs","pallet_session.rs","pallet_timestamp.rs","pallet_utility.rs","pallet_xcm.rs","paritydb_weights.rs","rocksdb_weights.rs"]]],["constants.rs","lib.rs","xcm_config.rs"]],\
 "bridge_hub_polkadot_runtime":["",[["weights",[["xcm",[],["mod.rs","pallet_xcm_benchmarks_fungible.rs","pallet_xcm_benchmarks_generic.rs"]]],["block_weights.rs","cumulus_pallet_xcmp_queue.rs","extrinsic_weights.rs","frame_system.rs","mod.rs","pallet_balances.rs","pallet_collator_selection.rs","pallet_multisig.rs","pallet_session.rs","pallet_timestamp.rs","pallet_utility.rs","pallet_xcm.rs","paritydb_weights.rs","rocksdb_weights.rs"]]],["constants.rs","lib.rs","xcm_config.rs"]],\
-"bridge_hub_rococo_runtime":["",[["weights",[["xcm",[],["mod.rs","pallet_xcm_benchmarks_fungible.rs","pallet_xcm_benchmarks_generic.rs"]]],["block_weights.rs","cumulus_pallet_xcmp_queue.rs","extrinsic_weights.rs","frame_system.rs","mod.rs","pallet_balances.rs","pallet_collator_selection.rs","pallet_multisig.rs","pallet_session.rs","pallet_timestamp.rs","pallet_utility.rs","pallet_xcm.rs","paritydb_weights.rs","rocksdb_weights.rs"]]],["constants.rs","lib.rs","xcm_config.rs"]],\
+"bridge_hub_rococo_runtime":["",[["weights",[["xcm",[],["mod.rs","pallet_xcm_benchmarks_fungible.rs","pallet_xcm_benchmarks_generic.rs"]]],["block_weights.rs","cumulus_pallet_xcmp_queue.rs","extrinsic_weights.rs","frame_system.rs","mod.rs","pallet_balances.rs","pallet_bridge_grandpa_bridge_rococo_grandpa.rs","pallet_bridge_grandpa_bridge_wococo_grandpa.rs","pallet_bridge_messages_bridge_messages_bench_runtime_with_bridge_hub_rococo_messages_instance.rs","pallet_bridge_messages_bridge_messages_bench_runtime_with_bridge_hub_wococo_messages_instance.rs","pallet_bridge_parachains_bridge_parachains_bench_runtime_bridge_parachain_rococo_instance.rs","pallet_bridge_parachains_bridge_parachains_bench_runtime_bridge_parachain_wococo_instance.rs","pallet_bridge_relayers.rs","pallet_collator_selection.rs","pallet_multisig.rs","pallet_session.rs","pallet_timestamp.rs","pallet_utility.rs","pallet_xcm.rs","paritydb_weights.rs","rocksdb_weights.rs"]]],["bridge_hub_rococo_config.rs","bridge_hub_wococo_config.rs","constants.rs","lib.rs","xcm_config.rs"]],\
 "bridge_hub_test_utils":["",[],["lib.rs","test_cases.rs"]],\
 "bridge_runtime_common":["",[],["lib.rs","messages.rs","messages_api.rs","messages_call_ext.rs","messages_xcm_extension.rs","priority_calculator.rs","refund_relayer_extension.rs"]],\
 "collectives_polkadot_runtime":["",[["fellowship",[],["migration.rs","mod.rs","origins.rs","tracks.rs"]],["weights",[],["block_weights.rs","cumulus_pallet_xcmp_queue.rs","extrinsic_weights.rs","frame_system.rs","mod.rs","pallet_alliance.rs","pallet_balances.rs","pallet_collator_selection.rs","pallet_collective.rs","pallet_multisig.rs","pallet_preimage.rs","pallet_proxy.rs","pallet_ranked_collective.rs","pallet_referenda.rs","pallet_scheduler.rs","pallet_session.rs","pallet_timestamp.rs","pallet_utility.rs","pallet_xcm.rs","paritydb_weights.rs","rocksdb_weights.rs"]]],["constants.rs","impls.rs","lib.rs","xcm_config.rs"]],\
