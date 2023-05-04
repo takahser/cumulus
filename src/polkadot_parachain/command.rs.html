@@ -1210,18 +1210,6 @@
 <a href="#1210" id="1210">1210</a>
 <a href="#1211" id="1211">1211</a>
 <a href="#1212" id="1212">1212</a>
-<a href="#1213" id="1213">1213</a>
-<a href="#1214" id="1214">1214</a>
-<a href="#1215" id="1215">1215</a>
-<a href="#1216" id="1216">1216</a>
-<a href="#1217" id="1217">1217</a>
-<a href="#1218" id="1218">1218</a>
-<a href="#1219" id="1219">1219</a>
-<a href="#1220" id="1220">1220</a>
-<a href="#1221" id="1221">1221</a>
-<a href="#1222" id="1222">1222</a>
-<a href="#1223" id="1223">1223</a>
-<a href="#1224" id="1224">1224</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -2200,12 +2188,8 @@
 		<span class="number">30334
 	</span>}
 
-	<span class="kw">fn </span>rpc_ws_listen_port() -&gt; u16 {
+	<span class="kw">fn </span>rpc_listen_port() -&gt; u16 {
 		<span class="number">9945
-	</span>}
-
-	<span class="kw">fn </span>rpc_http_listen_port() -&gt; u16 {
-		<span class="number">9934
 	</span>}
 
 	<span class="kw">fn </span>prometheus_listen_port() -&gt; u16 {
@@ -2237,16 +2221,8 @@
 			</span>.or_else(|| <span class="self">self</span>.base_path.clone().map(Into::into)))
 	}
 
-	<span class="kw">fn </span>rpc_http(<span class="kw-2">&amp;</span><span class="self">self</span>, default_listen_port: u16) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;SocketAddr&gt;&gt; {
-		<span class="self">self</span>.base.base.rpc_http(default_listen_port)
-	}
-
-	<span class="kw">fn </span>rpc_ipc(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;String&gt;&gt; {
-		<span class="self">self</span>.base.base.rpc_ipc()
-	}
-
-	<span class="kw">fn </span>rpc_ws(<span class="kw-2">&amp;</span><span class="self">self</span>, default_listen_port: u16) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;SocketAddr&gt;&gt; {
-		<span class="self">self</span>.base.base.rpc_ws(default_listen_port)
+	<span class="kw">fn </span>rpc_addr(<span class="kw-2">&amp;</span><span class="self">self</span>, default_listen_port: u16) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;SocketAddr&gt;&gt; {
+		<span class="self">self</span>.base.base.rpc_addr(default_listen_port)
 	}
 
 	<span class="kw">fn </span>prometheus_config(
@@ -2292,8 +2268,8 @@
 		<span class="self">self</span>.base.base.rpc_methods()
 	}
 
-	<span class="kw">fn </span>rpc_ws_max_connections(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;usize&gt;&gt; {
-		<span class="self">self</span>.base.base.rpc_ws_max_connections()
+	<span class="kw">fn </span>rpc_max_connections(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u32&gt; {
+		<span class="self">self</span>.base.base.rpc_max_connections()
 	}
 
 	<span class="kw">fn </span>rpc_cors(<span class="kw-2">&amp;</span><span class="self">self</span>, is_dev: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;String&gt;&gt;&gt; {

@@ -431,22 +431,6 @@
 <a href="#431" id="431">431</a>
 <a href="#432" id="432">432</a>
 <a href="#433" id="433">433</a>
-<a href="#434" id="434">434</a>
-<a href="#435" id="435">435</a>
-<a href="#436" id="436">436</a>
-<a href="#437" id="437">437</a>
-<a href="#438" id="438">438</a>
-<a href="#439" id="439">439</a>
-<a href="#440" id="440">440</a>
-<a href="#441" id="441">441</a>
-<a href="#442" id="442">442</a>
-<a href="#443" id="443">443</a>
-<a href="#444" id="444">444</a>
-<a href="#445" id="445">445</a>
-<a href="#446" id="446">446</a>
-<a href="#447" id="447">447</a>
-<a href="#448" id="448">448</a>
-<a href="#449" id="449">449</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -836,48 +820,32 @@
 		<span class="self">self</span>.base.disable_grandpa()
 	}
 
-	<span class="kw">fn </span>rpc_ws_max_connections(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; sc_cli::Result&lt;<span class="prelude-ty">Option</span>&lt;usize&gt;&gt; {
-		<span class="self">self</span>.base.rpc_ws_max_connections()
+	<span class="kw">fn </span>rpc_max_connections(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; sc_cli::Result&lt;u32&gt; {
+		<span class="self">self</span>.base.rpc_max_connections()
 	}
 
 	<span class="kw">fn </span>rpc_cors(<span class="kw-2">&amp;</span><span class="self">self</span>, is_dev: bool) -&gt; sc_cli::Result&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;String&gt;&gt;&gt; {
 		<span class="self">self</span>.base.rpc_cors(is_dev)
 	}
 
-	<span class="kw">fn </span>rpc_http(<span class="kw-2">&amp;</span><span class="self">self</span>, default_listen_port: u16) -&gt; sc_cli::Result&lt;<span class="prelude-ty">Option</span>&lt;SocketAddr&gt;&gt; {
-		<span class="self">self</span>.base.rpc_http(default_listen_port)
-	}
-
-	<span class="kw">fn </span>rpc_ipc(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; sc_cli::Result&lt;<span class="prelude-ty">Option</span>&lt;String&gt;&gt; {
-		<span class="self">self</span>.base.rpc_ipc()
-	}
-
-	<span class="kw">fn </span>rpc_ws(<span class="kw-2">&amp;</span><span class="self">self</span>, default_listen_port: u16) -&gt; sc_cli::Result&lt;<span class="prelude-ty">Option</span>&lt;SocketAddr&gt;&gt; {
-		<span class="self">self</span>.base.rpc_ws(default_listen_port)
+	<span class="kw">fn </span>rpc_addr(<span class="kw-2">&amp;</span><span class="self">self</span>, default_listen_port: u16) -&gt; sc_cli::Result&lt;<span class="prelude-ty">Option</span>&lt;SocketAddr&gt;&gt; {
+		<span class="self">self</span>.base.rpc_addr(default_listen_port)
 	}
 
 	<span class="kw">fn </span>rpc_methods(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; sc_cli::Result&lt;sc_service::config::RpcMethods&gt; {
 		<span class="self">self</span>.base.rpc_methods()
 	}
 
-	<span class="kw">fn </span>rpc_max_payload(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; sc_cli::Result&lt;<span class="prelude-ty">Option</span>&lt;usize&gt;&gt; {
-		<span class="self">self</span>.base.rpc_max_payload()
-	}
-
-	<span class="kw">fn </span>rpc_max_request_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; sc_cli::Result&lt;<span class="prelude-ty">Option</span>&lt;usize&gt;&gt; {
+	<span class="kw">fn </span>rpc_max_request_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; sc_cli::Result&lt;u32&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self</span>.base.rpc_max_request_size)
 	}
 
-	<span class="kw">fn </span>rpc_max_response_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; sc_cli::Result&lt;<span class="prelude-ty">Option</span>&lt;usize&gt;&gt; {
+	<span class="kw">fn </span>rpc_max_response_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; sc_cli::Result&lt;u32&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self</span>.base.rpc_max_response_size)
 	}
 
-	<span class="kw">fn </span>rpc_max_subscriptions_per_connection(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; sc_cli::Result&lt;<span class="prelude-ty">Option</span>&lt;usize&gt;&gt; {
+	<span class="kw">fn </span>rpc_max_subscriptions_per_connection(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; sc_cli::Result&lt;u32&gt; {
 		<span class="prelude-val">Ok</span>(<span class="self">self</span>.base.rpc_max_subscriptions_per_connection)
-	}
-
-	<span class="kw">fn </span>ws_max_out_buffer_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; sc_cli::Result&lt;<span class="prelude-ty">Option</span>&lt;usize&gt;&gt; {
-		<span class="self">self</span>.base.ws_max_out_buffer_capacity()
 	}
 
 	<span class="kw">fn </span>transaction_pool(<span class="kw-2">&amp;</span><span class="self">self</span>, is_dev: bool) -&gt; sc_cli::Result&lt;TransactionPoolOptions&gt; {
