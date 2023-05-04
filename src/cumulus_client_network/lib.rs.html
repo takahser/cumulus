@@ -758,9 +758,9 @@
 			<span class="prelude-val">Ok</span>(Validation::Success { is_new_best: <span class="bool-val">true </span>})
 		} <span class="kw">else if </span>block_number &gt;= known_best_number {
 			<span class="macro">tracing::debug!</span>(
-					target: LOG_TARGET,
-					<span class="string">&quot;Validation failed because a justification is needed if the block at the top of the chain.&quot;
-				</span>);
+				target: LOG_TARGET,
+				<span class="string">&quot;Validation failed because a justification is needed if the block at the top of the chain.&quot;
+			</span>);
 
 			<span class="prelude-val">Ok</span>(Validation::Failure { disconnect: <span class="bool-val">false </span>})
 		} <span class="kw">else </span>{

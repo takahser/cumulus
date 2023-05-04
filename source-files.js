@@ -1,10 +1,18 @@
 var sourcesIndex = JSON.parse('{\
 "asset_test_utils":["",[],["lib.rs","test_cases.rs"]],\
 "assets_common":["",[],["foreign_creators.rs","fungible_conversion.rs","lib.rs","matching.rs","runtime_api.rs"]],\
+"bp_header_chain":["",[],["justification.rs","lib.rs","storage_keys.rs"]],\
+"bp_messages":["",[],["lib.rs","source_chain.rs","storage_keys.rs","target_chain.rs"]],\
+"bp_parachains":["",[],["lib.rs"]],\
+"bp_polkadot_core":["",[],["lib.rs","parachains.rs"]],\
+"bp_relayers":["",[],["lib.rs","registration.rs"]],\
+"bp_runtime":["",[],["chain.rs","extensions.rs","lib.rs","messages.rs","storage_proof.rs","storage_types.rs"]],\
+"bp_test_utils":["",[],["keyring.rs","lib.rs"]],\
 "bridge_hub_kusama_runtime":["",[["weights",[["xcm",[],["mod.rs","pallet_xcm_benchmarks_fungible.rs","pallet_xcm_benchmarks_generic.rs"]]],["block_weights.rs","cumulus_pallet_xcmp_queue.rs","extrinsic_weights.rs","frame_system.rs","mod.rs","pallet_balances.rs","pallet_collator_selection.rs","pallet_multisig.rs","pallet_session.rs","pallet_timestamp.rs","pallet_utility.rs","pallet_xcm.rs","paritydb_weights.rs","rocksdb_weights.rs"]]],["constants.rs","lib.rs","xcm_config.rs"]],\
 "bridge_hub_polkadot_runtime":["",[["weights",[["xcm",[],["mod.rs","pallet_xcm_benchmarks_fungible.rs","pallet_xcm_benchmarks_generic.rs"]]],["block_weights.rs","cumulus_pallet_xcmp_queue.rs","extrinsic_weights.rs","frame_system.rs","mod.rs","pallet_balances.rs","pallet_collator_selection.rs","pallet_multisig.rs","pallet_session.rs","pallet_timestamp.rs","pallet_utility.rs","pallet_xcm.rs","paritydb_weights.rs","rocksdb_weights.rs"]]],["constants.rs","lib.rs","xcm_config.rs"]],\
 "bridge_hub_rococo_runtime":["",[["weights",[["xcm",[],["mod.rs","pallet_xcm_benchmarks_fungible.rs","pallet_xcm_benchmarks_generic.rs"]]],["block_weights.rs","cumulus_pallet_xcmp_queue.rs","extrinsic_weights.rs","frame_system.rs","mod.rs","pallet_balances.rs","pallet_collator_selection.rs","pallet_multisig.rs","pallet_session.rs","pallet_timestamp.rs","pallet_utility.rs","pallet_xcm.rs","paritydb_weights.rs","rocksdb_weights.rs"]]],["constants.rs","lib.rs","xcm_config.rs"]],\
 "bridge_hub_test_utils":["",[],["lib.rs","test_cases.rs"]],\
+"bridge_runtime_common":["",[],["lib.rs","messages.rs","messages_api.rs","messages_call_ext.rs","messages_xcm_extension.rs","priority_calculator.rs","refund_relayer_extension.rs"]],\
 "collectives_polkadot_runtime":["",[["fellowship",[],["migration.rs","mod.rs","origins.rs","tracks.rs"]],["weights",[],["block_weights.rs","cumulus_pallet_xcmp_queue.rs","extrinsic_weights.rs","frame_system.rs","mod.rs","pallet_alliance.rs","pallet_balances.rs","pallet_collator_selection.rs","pallet_collective.rs","pallet_multisig.rs","pallet_preimage.rs","pallet_proxy.rs","pallet_ranked_collective.rs","pallet_referenda.rs","pallet_scheduler.rs","pallet_session.rs","pallet_timestamp.rs","pallet_utility.rs","pallet_xcm.rs","paritydb_weights.rs","rocksdb_weights.rs"]]],["constants.rs","impls.rs","lib.rs","xcm_config.rs"]],\
 "contracts_rococo_runtime":["",[["weights",[],["block_weights.rs","extrinsic_weights.rs","mod.rs","paritydb_weights.rs","rocksdb_weights.rs"]]],["constants.rs","contracts.rs","lib.rs","xcm_config.rs"]],\
 "cumulus_client_cli":["",[],["lib.rs"]],\
@@ -37,6 +45,10 @@ var sourcesIndex = JSON.parse('{\
 "cumulus_test_relay_validation_worker_provider":["",[],["lib.rs"]],\
 "cumulus_test_runtime":["",[],["lib.rs","test_pallet.rs"]],\
 "cumulus_test_service":["",[],["chain_spec.rs","genesis.rs","lib.rs"]],\
+"pallet_bridge_grandpa":["",[],["call_ext.rs","lib.rs","storage_types.rs","weights.rs"]],\
+"pallet_bridge_messages":["",[],["inbound_lane.rs","lib.rs","outbound_lane.rs","weights.rs","weights_ext.rs"]],\
+"pallet_bridge_parachains":["",[],["call_ext.rs","lib.rs","weights.rs","weights_ext.rs"]],\
+"pallet_bridge_relayers":["",[],["lib.rs","payment_adapter.rs","stake_adapter.rs","weights.rs","weights_ext.rs"]],\
 "pallet_collator_selection":["",[],["lib.rs","weights.rs"]],\
 "pallet_template":["",[],["lib.rs"]],\
 "parachain_info":["",[],["lib.rs"]],\
