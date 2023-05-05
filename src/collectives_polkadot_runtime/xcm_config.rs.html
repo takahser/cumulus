@@ -300,6 +300,8 @@
 <a href="#300" id="300">300</a>
 <a href="#301" id="301">301</a>
 <a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -596,6 +598,8 @@
 	<span class="attr">#[cfg(feature = <span class="string">&quot;runtime-benchmarks&quot;</span>)]
 	</span><span class="kw">type </span>ReachableDest = ReachableDest;
 	<span class="kw">type </span>AdminOrigin = EnsureRoot&lt;AccountId&gt;;
+	<span class="kw">type </span>MaxRemoteLockConsumers = ConstU32&lt;<span class="number">0</span>&gt;;
+	<span class="kw">type </span>RemoteLockConsumerIdentifier = ();
 }
 
 <span class="kw">impl </span>cumulus_pallet_xcm::Config <span class="kw">for </span>Runtime {
