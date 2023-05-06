@@ -1429,13 +1429,13 @@
 			<span class="macro">list_benchmarks!</span>(list, extra);
 
 			<span class="kw">let </span>storage_info = AllPalletsWithSystem::storage_info();
-			<span class="kw">return </span>(list, storage_info)
+			(list, storage_info)
 		}
 
 		<span class="kw">fn </span>dispatch_benchmark(
 			config: frame_benchmarking::BenchmarkConfig
 		) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;frame_benchmarking::BenchmarkBatch&gt;, sp_runtime::RuntimeString&gt; {
-			<span class="kw">use </span>frame_benchmarking::{Benchmarking, BenchmarkBatch, TrackedStorageKey};
+			<span class="kw">use </span>frame_benchmarking::{Benchmarking, BenchmarkBatch};
 
 			<span class="kw">use </span>frame_system_benchmarking::Pallet <span class="kw">as </span>SystemBench;
 			<span class="kw">impl </span>frame_system_benchmarking::Config <span class="kw">for </span>Runtime {}

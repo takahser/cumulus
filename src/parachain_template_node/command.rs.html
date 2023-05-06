@@ -714,13 +714,13 @@
 			runner.run_node_until_exit(|config| <span class="kw">async move </span>{
 				<span class="kw">let </span>hwbench = (!cli.no_hardware_benchmarks).then_some(
 					config.database.path().map(|database_path| {
-						<span class="kw">let _ </span>= std::fs::create_dir_all(<span class="kw-2">&amp;</span>database_path);
+						<span class="kw">let _ </span>= std::fs::create_dir_all(database_path);
 						sc_sysinfo::gather_hwbench(<span class="prelude-val">Some</span>(database_path))
 					})).flatten();
 
 				<span class="kw">let </span>para_id = chain_spec::Extensions::try_get(<span class="kw-2">&amp;*</span>config.chain_spec)
 					.map(|e| e.para_id)
-					.ok_or_else(|| <span class="string">&quot;Could not find parachain ID in chain-spec.&quot;</span>)<span class="question-mark">?</span>;
+					.ok_or(<span class="string">&quot;Could not find parachain ID in chain-spec.&quot;</span>)<span class="question-mark">?</span>;
 
 				<span class="kw">let </span>polkadot_cli = RelayChainCli::new(
 					<span class="kw-2">&amp;</span>config,
@@ -747,7 +747,7 @@
 				<span class="macro">info!</span>(<span class="string">&quot;Parachain genesis state: {}&quot;</span>, genesis_state);
 				<span class="macro">info!</span>(<span class="string">&quot;Is collating: {}&quot;</span>, <span class="kw">if </span>config.role.is_authority() { <span class="string">&quot;yes&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;no&quot; </span>});
 
-				<span class="kw">if </span>!collator_options.relay_chain_rpc_urls.is_empty() &amp;&amp; cli.relay_chain_args.len() &gt; <span class="number">0 </span>{
+				<span class="kw">if </span>!collator_options.relay_chain_rpc_urls.is_empty() &amp;&amp; !cli.relay_chain_args.is_empty() {
 					<span class="macro">warn!</span>(<span class="string">&quot;Detected relay chain node arguments together with --relay-chain-rpc-url. This command starts a minimal Polkadot node that only uses a network-related subset of all relay chain CLI options.&quot;</span>);
 				}
 

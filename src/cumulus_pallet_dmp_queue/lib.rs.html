@@ -927,10 +927,6 @@
 <a href="#927" id="927">927</a>
 <a href="#928" id="928">928</a>
 <a href="#929" id="929">929</a>
-<a href="#930" id="930">930</a>
-<a href="#931" id="931">931</a>
-<a href="#932" id="932">932</a>
-<a href="#933" id="933">933</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2020-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1699,19 +1695,19 @@
 		new_test_ext().execute_with(|| {
 			<span class="kw">let </span>enqueued = <span class="macro">vec!</span>[msg(<span class="number">1000</span>), msg(<span class="number">1001</span>)];
 			enqueue(<span class="kw-2">&amp;</span>enqueued);
-			<span class="kw">let </span>weight_used = handle_messages(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[msg(<span class="number">1002</span>)], Weight::from_parts(<span class="number">1500</span>, <span class="number">1500</span>));
+			<span class="kw">let </span>weight_used = handle_messages(<span class="kw-2">&amp;</span>[msg(<span class="number">1002</span>)], Weight::from_parts(<span class="number">1500</span>, <span class="number">1500</span>));
 			<span class="macro">assert_eq!</span>(weight_used, Weight::from_parts(<span class="number">1000</span>, <span class="number">1000</span>));
 			<span class="macro">assert_eq!</span>(take_trace(), <span class="macro">vec!</span>[msg_complete(<span class="number">1000</span>), msg_limit_reached(<span class="number">1001</span>),]);
 			<span class="macro">assert_eq!</span>(pages_queued(), <span class="number">2</span>);
 			<span class="macro">assert_eq!</span>(PageIndex::&lt;Test&gt;::get().begin_used, <span class="number">0</span>);
 
-			<span class="kw">let </span>weight_used = handle_messages(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[msg(<span class="number">1003</span>)], Weight::from_parts(<span class="number">1500</span>, <span class="number">1500</span>));
+			<span class="kw">let </span>weight_used = handle_messages(<span class="kw-2">&amp;</span>[msg(<span class="number">1003</span>)], Weight::from_parts(<span class="number">1500</span>, <span class="number">1500</span>));
 			<span class="macro">assert_eq!</span>(weight_used, Weight::from_parts(<span class="number">1001</span>, <span class="number">1001</span>));
 			<span class="macro">assert_eq!</span>(take_trace(), <span class="macro">vec!</span>[msg_complete(<span class="number">1001</span>), msg_limit_reached(<span class="number">1002</span>),]);
 			<span class="macro">assert_eq!</span>(pages_queued(), <span class="number">2</span>);
 			<span class="macro">assert_eq!</span>(PageIndex::&lt;Test&gt;::get().begin_used, <span class="number">1</span>);
 
-			<span class="kw">let </span>weight_used = handle_messages(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[msg(<span class="number">1004</span>)], Weight::from_parts(<span class="number">1500</span>, <span class="number">1500</span>));
+			<span class="kw">let </span>weight_used = handle_messages(<span class="kw-2">&amp;</span>[msg(<span class="number">1004</span>)], Weight::from_parts(<span class="number">1500</span>, <span class="number">1500</span>));
 			<span class="macro">assert_eq!</span>(weight_used, Weight::from_parts(<span class="number">1002</span>, <span class="number">1002</span>));
 			<span class="macro">assert_eq!</span>(take_trace(), <span class="macro">vec!</span>[msg_complete(<span class="number">1002</span>), msg_limit_reached(<span class="number">1003</span>),]);
 			<span class="macro">assert_eq!</span>(pages_queued(), <span class="number">2</span>);
@@ -1810,9 +1806,9 @@
 	<span class="attr">#[test]
 	</span><span class="kw">fn </span>on_idle_should_service_queue() {
 		new_test_ext().execute_with(|| {
-			enqueue(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[msg(<span class="number">1000</span>), msg(<span class="number">1001</span>)]);
-			enqueue(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[msg(<span class="number">1002</span>), msg(<span class="number">1003</span>)]);
-			enqueue(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[msg(<span class="number">1004</span>), msg(<span class="number">1005</span>)]);
+			enqueue(<span class="kw-2">&amp;</span>[msg(<span class="number">1000</span>), msg(<span class="number">1001</span>)]);
+			enqueue(<span class="kw-2">&amp;</span>[msg(<span class="number">1002</span>), msg(<span class="number">1003</span>)]);
+			enqueue(<span class="kw-2">&amp;</span>[msg(<span class="number">1004</span>), msg(<span class="number">1005</span>)]);
 
 			<span class="kw">let </span>weight_used = DmpQueue::on_idle(<span class="number">1</span>, Weight::from_parts(<span class="number">6000</span>, <span class="number">6000</span>));
 			<span class="macro">assert_eq!</span>(weight_used, Weight::from_parts(<span class="number">5010</span>, <span class="number">5010</span>));
@@ -1834,20 +1830,17 @@
 	<span class="attr">#[test]
 	</span><span class="kw">fn </span>handle_max_messages_per_block() {
 		new_test_ext().execute_with(|| {
-			enqueue(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[msg(<span class="number">1000</span>), msg(<span class="number">1001</span>)]);
-			enqueue(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[msg(<span class="number">1002</span>), msg(<span class="number">1003</span>)]);
-			enqueue(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[msg(<span class="number">1004</span>), msg(<span class="number">1005</span>)]);
+			enqueue(<span class="kw-2">&amp;</span>[msg(<span class="number">1000</span>), msg(<span class="number">1001</span>)]);
+			enqueue(<span class="kw-2">&amp;</span>[msg(<span class="number">1002</span>), msg(<span class="number">1003</span>)]);
+			enqueue(<span class="kw-2">&amp;</span>[msg(<span class="number">1004</span>), msg(<span class="number">1005</span>)]);
 
-			<span class="kw">let </span>incoming = (<span class="number">0</span>..MAX_MESSAGES_PER_BLOCK)
-				.into_iter()
-				.map(|i| msg(<span class="number">1006 </span>+ i <span class="kw">as </span>u64))
-				.collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+			<span class="kw">let </span>incoming =
+				(<span class="number">0</span>..MAX_MESSAGES_PER_BLOCK).map(|i| msg(<span class="number">1006 </span>+ i <span class="kw">as </span>u64)).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 			handle_messages(<span class="kw-2">&amp;</span>incoming, Weight::from_parts(<span class="number">25000</span>, <span class="number">25000</span>));
 
 			<span class="macro">assert_eq!</span>(
 				take_trace(),
 				(<span class="number">0</span>..MAX_MESSAGES_PER_BLOCK)
-					.into_iter()
 					.map(|i| msg_complete(<span class="number">1000 </span>+ i <span class="kw">as </span>u64))
 					.collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
 			);
@@ -1857,7 +1850,6 @@
 			<span class="macro">assert_eq!</span>(
 				take_trace(),
 				(MAX_MESSAGES_PER_BLOCK..MAX_MESSAGES_PER_BLOCK + <span class="number">6</span>)
-					.into_iter()
 					.map(|i| msg_complete(<span class="number">1000 </span>+ i <span class="kw">as </span>u64))
 					.collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
 			);

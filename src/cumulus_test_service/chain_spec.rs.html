@@ -134,7 +134,6 @@
 <a href="#134" id="134">134</a>
 <a href="#135" id="135">135</a>
 <a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2020-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -176,7 +175,7 @@
 <span class="kw">impl </span>sp_runtime::BuildStorage <span class="kw">for </span>GenesisExt {
 	<span class="kw">fn </span>assimilate_storage(<span class="kw-2">&amp;</span><span class="self">self</span>, storage: <span class="kw-2">&amp;mut </span>sp_core::storage::Storage) -&gt; <span class="prelude-ty">Result</span>&lt;(), String&gt; {
 		sp_state_machine::BasicExternalities::execute_with_storage(storage, || {
-			sp_io::storage::set(cumulus_test_runtime::TEST_RUNTIME_UPGRADE_KEY, <span class="kw-2">&amp;</span><span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]);
+			sp_io::storage::set(cumulus_test_runtime::TEST_RUNTIME_UPGRADE_KEY, <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]);
 			cumulus_test_runtime::ParachainId::set(<span class="kw-2">&amp;</span><span class="self">self</span>.para_id);
 		});
 
@@ -262,7 +261,6 @@
 			code: cumulus_test_runtime::WASM_BINARY
 				.expect(<span class="string">&quot;WASM binary was not build, please build it!&quot;</span>)
 				.to_vec(),
-			..Default::default()
 		},
 		parachain_system: Default::default(),
 		balances: cumulus_test_runtime::BalancesConfig {

@@ -657,7 +657,7 @@
 			<span class="comment">// check queue before
 			</span><span class="macro">assert_eq!</span>(
 				pallet_bridge_messages::OutboundLanes::&lt;Runtime, MessagesPalletInstance&gt;::try_get(
-					<span class="kw-2">&amp;</span>expected_lane_id
+					expected_lane_id
 				),
 				<span class="prelude-val">Err</span>(())
 			);
@@ -681,7 +681,7 @@
 			<span class="comment">// check queue after
 			</span><span class="macro">assert_eq!</span>(
 				pallet_bridge_messages::OutboundLanes::&lt;Runtime, MessagesPalletInstance&gt;::try_get(
-					<span class="kw-2">&amp;</span>expected_lane_id
+					expected_lane_id
 				),
 				<span class="prelude-val">Ok</span>(OutboundLaneData {
 					oldest_unpruned_nonce: <span class="number">1</span>,
@@ -734,8 +734,8 @@
 <span class="doccomment">/// Test-case makes sure that Runtime can route XCM messages received in inbound queue,
 /// We just test here `MessageDispatch` configuration.
 /// We expect that runtime can route messages:
-/// 	1. to Parent (relay chain)
-/// 	2. to Sibling parachain
+///     1. to Parent (relay chain)
+///     2. to Sibling parachain
 </span><span class="kw">pub fn </span>message_dispatch_routing_works&lt;
 	Runtime,
 	XcmConfig,

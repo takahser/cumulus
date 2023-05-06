@@ -270,8 +270,6 @@
 <a href="#270" id="270">270</a>
 <a href="#271" id="271">271</a>
 <a href="#272" id="272">272</a>
-<a href="#273" id="273">273</a>
-<a href="#274" id="274">274</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2023 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -406,29 +404,27 @@
 			</span>}
 		}
 
-		<span class="kw">match </span>call {
+		<span class="macro">matches!</span>(
+			call,
 			RuntimeCall::PolkadotXcm(pallet_xcm::Call::force_xcm_version { .. }) |
-			RuntimeCall::System(
-				frame_system::Call::set_heap_pages { .. } |
-				frame_system::Call::set_code { .. } |
-				frame_system::Call::set_code_without_checks { .. } |
-				frame_system::Call::kill_prefix { .. },
-			) |
-			RuntimeCall::ParachainSystem(..) |
-			RuntimeCall::Timestamp(..) |
-			RuntimeCall::Balances(..) |
-			RuntimeCall::CollatorSelection(
-				pallet_collator_selection::Call::set_desired_candidates { .. } |
-				pallet_collator_selection::Call::set_candidacy_bond { .. } |
-				pallet_collator_selection::Call::register_as_candidate { .. } |
-				pallet_collator_selection::Call::leave_intent { .. },
-			) |
-			RuntimeCall::Session(pallet_session::Call::purge_keys { .. }) |
-			RuntimeCall::XcmpQueue(..) |
-			RuntimeCall::DmpQueue(..) |
-			RuntimeCall::Utility(pallet_utility::Call::as_derivative { .. }) =&gt; <span class="bool-val">true</span>,
-			<span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
-		}
+				RuntimeCall::System(
+					frame_system::Call::set_heap_pages { .. } |
+						frame_system::Call::set_code { .. } |
+						frame_system::Call::set_code_without_checks { .. } |
+						frame_system::Call::kill_prefix { .. },
+				) | RuntimeCall::ParachainSystem(..) |
+				RuntimeCall::Timestamp(..) |
+				RuntimeCall::Balances(..) |
+				RuntimeCall::CollatorSelection(
+					pallet_collator_selection::Call::set_desired_candidates { .. } |
+						pallet_collator_selection::Call::set_candidacy_bond { .. } |
+						pallet_collator_selection::Call::register_as_candidate { .. } |
+						pallet_collator_selection::Call::leave_intent { .. },
+				) | RuntimeCall::Session(pallet_session::Call::purge_keys { .. }) |
+				RuntimeCall::XcmpQueue(..) |
+				RuntimeCall::DmpQueue(..) |
+				RuntimeCall::Utility(pallet_utility::Call::as_derivative { .. })
+		)
 	}
 }
 

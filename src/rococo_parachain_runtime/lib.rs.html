@@ -1027,10 +1027,10 @@
 }
 
 <span class="macro">parameter_types! </span>{
-	<span class="kw">pub const </span>ExistentialDeposit: u128 = <span class="number">1 </span>* MILLIROC;
-	<span class="kw">pub const </span>TransferFee: u128 = <span class="number">1 </span>* MILLIROC;
-	<span class="kw">pub const </span>CreationFee: u128 = <span class="number">1 </span>* MILLIROC;
-	<span class="kw">pub const </span>TransactionByteFee: u128 = <span class="number">1 </span>* MICROROC;
+	<span class="kw">pub const </span>ExistentialDeposit: u128 = MILLIROC;
+	<span class="kw">pub const </span>TransferFee: u128 = MILLIROC;
+	<span class="kw">pub const </span>CreationFee: u128 = MILLIROC;
+	<span class="kw">pub const </span>TransactionByteFee: u128 = MICROROC;
 }
 
 <span class="kw">impl </span>pallet_balances::Config <span class="kw">for </span>Runtime {
@@ -1313,11 +1313,11 @@
 }
 
 <span class="macro">parameter_types! </span>{
-	<span class="kw">pub const </span>AssetDeposit: Balance = <span class="number">1 </span>* ROC;
-	<span class="kw">pub const </span>AssetAccountDeposit: Balance = <span class="number">1 </span>* ROC;
+	<span class="kw">pub const </span>AssetDeposit: Balance = ROC;
+	<span class="kw">pub const </span>AssetAccountDeposit: Balance = ROC;
 	<span class="kw">pub const </span>ApprovalDeposit: Balance = <span class="number">100 </span>* MILLIROC;
 	<span class="kw">pub const </span>AssetsStringLimit: u32 = <span class="number">50</span>;
-	<span class="kw">pub const </span>MetadataDepositBase: Balance = <span class="number">1 </span>* ROC;
+	<span class="kw">pub const </span>MetadataDepositBase: Balance = ROC;
 	<span class="kw">pub const </span>MetadataDepositPerByte: Balance = <span class="number">10 </span>* MILLIROC;
 	<span class="kw">pub const </span>UnitBody: BodyId = BodyId::Unit;
 }

@@ -1126,7 +1126,7 @@
 
 <span class="macro">parameter_types! </span>{
 	<span class="doccomment">/// Relay Chain `TransactionByteFee` / 10
-	</span><span class="kw">pub const </span>TransactionByteFee: Balance = <span class="number">1 </span>* MILLICENTS;
+	</span><span class="kw">pub const </span>TransactionByteFee: Balance = MILLICENTS;
 }
 
 <span class="kw">impl </span>pallet_transaction_payment::Config <span class="kw">for </span>Runtime {
@@ -1753,7 +1753,7 @@
 			<span class="macro">list_benchmarks!</span>(list, extra);
 
 			<span class="kw">let </span>storage_info = AllPalletsWithSystem::storage_info();
-			<span class="kw">return </span>(list, storage_info)
+			(list, storage_info)
 		}
 
 		<span class="kw">fn </span>dispatch_benchmark(
@@ -1809,7 +1809,7 @@
 			.create_inherent_data()
 			.expect(<span class="string">&quot;Could not create the timestamp inherent data&quot;</span>);
 
-		inherent_data.check_extrinsics(<span class="kw-2">&amp;</span>block)
+		inherent_data.check_extrinsics(block)
 	}
 }
 

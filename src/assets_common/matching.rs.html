@@ -82,13 +82,6 @@
 <a href="#82" id="82">82</a>
 <a href="#83" id="83">83</a>
 <a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2023 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -133,10 +126,7 @@
 	<span class="kw">for </span>StartsWithExplicitGlobalConsensus&lt;Network&gt;
 {
 	<span class="kw">fn </span>contains(t: <span class="kw-2">&amp;</span>MultiLocation) -&gt; bool {
-		<span class="kw">match </span>t.interior.global_consensus() {
-			<span class="prelude-val">Ok</span>(requested_network) <span class="kw">if </span>requested_network.eq(<span class="kw-2">&amp;</span>Network::get()) =&gt; <span class="bool-val">true</span>,
-			<span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
-		}
+		<span class="macro">matches!</span>(t.interior.global_consensus(), <span class="prelude-val">Ok</span>(requested_network) <span class="kw">if </span>requested_network.eq(<span class="kw-2">&amp;</span>Network::get()))
 	}
 }
 
@@ -152,7 +142,7 @@
 {
 	<span class="kw">fn </span>contains(asset: <span class="kw-2">&amp;</span>MultiAsset, origin: <span class="kw-2">&amp;</span>MultiLocation) -&gt; bool {
 		<span class="macro">log::trace!</span>(target: <span class="string">&quot;xcm::contains&quot;</span>, <span class="string">&quot;IsForeignConcreteAsset asset: {:?}, origin: {:?}&quot;</span>, asset, origin);
-		<span class="macro">matches!</span>(asset.id, Concrete(<span class="kw-2">ref </span>id) <span class="kw">if </span>IsForeign::contains(id, <span class="kw-2">&amp;</span>origin))
+		<span class="macro">matches!</span>(asset.id, Concrete(<span class="kw-2">ref </span>id) <span class="kw">if </span>IsForeign::contains(id, origin))
 	}
 }
 
@@ -164,18 +154,14 @@
 {
 	<span class="kw">fn </span>contains(<span class="kw-2">&amp;</span>a: <span class="kw-2">&amp;</span>MultiLocation, b: <span class="kw-2">&amp;</span>MultiLocation) -&gt; bool {
 		<span class="comment">// `a` needs to be from `b` at least
-		</span><span class="kw">if </span>!a.starts_with(<span class="kw-2">&amp;</span>b) {
+		</span><span class="kw">if </span>!a.starts_with(b) {
 			<span class="kw">return </span><span class="bool-val">false
 		</span>}
 
 		<span class="comment">// here we check if sibling
 		</span><span class="kw">match </span>a {
-			MultiLocation { parents: <span class="number">1</span>, interior } =&gt; <span class="kw">match </span>interior.first() {
-				<span class="prelude-val">Some</span>(Parachain(sibling_para_id))
-					<span class="kw">if </span>sibling_para_id.ne(<span class="kw-2">&amp;</span>u32::from(SelfParaId::get())) =&gt;
-					<span class="bool-val">true</span>,
-				<span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
-			},
+			MultiLocation { parents: <span class="number">1</span>, interior } =&gt;
+				<span class="macro">matches!</span>(interior.first(), <span class="prelude-val">Some</span>(Parachain(sibling_para_id)) <span class="kw">if </span>sibling_para_id.ne(<span class="kw-2">&amp;</span>u32::from(SelfParaId::get()))),
 			<span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
 		}
 	}

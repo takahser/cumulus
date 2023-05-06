@@ -1519,7 +1519,7 @@
 		<span class="kw">let </span>parachain_config = node_config(
 			<span class="self">self</span>.storage_update_func_parachain.unwrap_or_else(|| Box::new(|| ())),
 			<span class="self">self</span>.tokio_handle.clone(),
-			<span class="self">self</span>.key.clone(),
+			<span class="self">self</span>.key,
 			<span class="self">self</span>.parachain_nodes,
 			<span class="self">self</span>.parachain_nodes_exclusive,
 			<span class="self">self</span>.para_id,
@@ -1556,7 +1556,7 @@
 		.<span class="kw">await
 		</span>.expect(<span class="string">&quot;could not create Cumulus test service&quot;</span>);
 
-		<span class="kw">let </span>peer_id = network.local_peer_id().clone();
+		<span class="kw">let </span>peer_id = network.local_peer_id();
 		<span class="kw">let </span>addr = MultiaddrWithPeerId { multiaddr, peer_id };
 
 		TestNode { task_manager, client, network, addr, rpc_handlers, transaction_pool }
@@ -1579,7 +1579,7 @@
 	is_collator: bool,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Configuration, ServiceError&gt; {
 	<span class="kw">let </span>base_path = BasePath::new_temp_dir()<span class="question-mark">?</span>;
-	<span class="kw">let </span>root = base_path.path().join(<span class="macro">format!</span>(<span class="string">&quot;cumulus_test_service_{}&quot;</span>, key.to_string()));
+	<span class="kw">let </span>root = base_path.path().join(<span class="macro">format!</span>(<span class="string">&quot;cumulus_test_service_{}&quot;</span>, key));
 	<span class="kw">let </span>role = <span class="kw">if </span>is_collator { Role::Authority } <span class="kw">else </span>{ Role::Full };
 	<span class="kw">let </span>key_seed = key.to_seed();
 	<span class="kw">let </span><span class="kw-2">mut </span>spec = Box::new(chain_spec::get_chain_spec(para_id));
@@ -1675,7 +1675,7 @@
 		function: <span class="kw">impl </span>Into&lt;runtime::RuntimeCall&gt;,
 		caller: Sr25519Keyring,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;RpcTransactionOutput, RpcTransactionError&gt; {
-		<span class="kw">let </span>extrinsic = construct_extrinsic(<span class="kw-2">&amp;*</span><span class="self">self</span>.client, function, caller.pair(), <span class="prelude-val">Some</span>(<span class="number">0</span>));
+		<span class="kw">let </span>extrinsic = construct_extrinsic(<span class="kw-2">&amp;</span><span class="self">self</span>.client, function, caller.pair(), <span class="prelude-val">Some</span>(<span class="number">0</span>));
 
 		<span class="self">self</span>.rpc_handlers.send_transaction(extrinsic.into()).<span class="kw">await
 	</span>}

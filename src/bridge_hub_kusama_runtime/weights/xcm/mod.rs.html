@@ -248,7 +248,6 @@
 <a href="#248" id="248">248</a>
 <a href="#249" id="249">249</a>
 <a href="#250" id="250">250</a>
-<a href="#251" id="251">251</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -284,8 +283,7 @@
 <span class="kw">impl </span>WeighMultiAssets <span class="kw">for </span>MultiAssetFilter {
 	<span class="kw">fn </span>weigh_multi_assets(<span class="kw-2">&amp;</span><span class="self">self</span>, weight: Weight) -&gt; Weight {
 		<span class="kw">match </span><span class="self">self </span>{
-			<span class="self">Self</span>::Definite(assets) =&gt;
-				weight.saturating_mul(assets.inner().into_iter().count() <span class="kw">as </span>u64),
+			<span class="self">Self</span>::Definite(assets) =&gt; weight.saturating_mul(assets.inner().iter().count() <span class="kw">as </span>u64),
 			<span class="self">Self</span>::Wild(asset) =&gt; <span class="kw">match </span>asset {
 				All =&gt; weight.saturating_mul(MAX_ASSETS),
 				AllOf { fun, .. } =&gt; <span class="kw">match </span>fun {
@@ -304,7 +302,7 @@
 
 <span class="kw">impl </span>WeighMultiAssets <span class="kw">for </span>MultiAssets {
 	<span class="kw">fn </span>weigh_multi_assets(<span class="kw-2">&amp;</span><span class="self">self</span>, weight: Weight) -&gt; Weight {
-		weight.saturating_mul(<span class="self">self</span>.inner().into_iter().count() <span class="kw">as </span>u64)
+		weight.saturating_mul(<span class="self">self</span>.inner().iter().count() <span class="kw">as </span>u64)
 	}
 }
 
@@ -316,7 +314,7 @@
 	<span class="comment">// Currently there is no trusted reserve
 	</span><span class="kw">fn </span>reserve_asset_deposited(_assets: <span class="kw-2">&amp;</span>MultiAssets) -&gt; Weight {
 		<span class="comment">// TODO: hardcoded - fix https://github.com/paritytech/cumulus/issues/1974
-		</span>Weight::from_parts(<span class="number">1_000_000_000 </span><span class="kw">as </span>u64, <span class="number">0</span>)
+		</span>Weight::from_parts(<span class="number">1_000_000_000_u64</span>, <span class="number">0</span>)
 	}
 	<span class="kw">fn </span>receive_teleported_asset(assets: <span class="kw-2">&amp;</span>MultiAssets) -&gt; Weight {
 		assets.weigh_multi_assets(XcmFungibleWeight::&lt;Runtime&gt;::receive_teleported_asset())
@@ -374,7 +372,7 @@
 
 	<span class="kw">fn </span>deposit_asset(assets: <span class="kw-2">&amp;</span>MultiAssetFilter, _dest: <span class="kw-2">&amp;</span>MultiLocation) -&gt; Weight {
 		<span class="comment">// Hardcoded till the XCM pallet is fixed
-		</span><span class="kw">let </span>hardcoded_weight = Weight::from_parts(<span class="number">1_000_000_000 </span><span class="kw">as </span>u64, <span class="number">0</span>);
+		</span><span class="kw">let </span>hardcoded_weight = Weight::from_parts(<span class="number">1_000_000_000_u64</span>, <span class="number">0</span>);
 		<span class="kw">let </span>weight = assets.weigh_multi_assets(XcmFungibleWeight::&lt;Runtime&gt;::deposit_asset());
 		hardcoded_weight.min(weight)
 	}

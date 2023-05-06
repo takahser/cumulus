@@ -417,7 +417,7 @@
 		relay_parent: PHash,
 		validation_data: <span class="kw-2">&amp;</span>PersistedValidationData,
 	) -&gt; <span class="prelude-ty">Option</span>&lt;ParachainCandidate&lt;B&gt;&gt; {
-		<span class="kw">let </span>proposer_future = <span class="self">self</span>.proposer_factory.lock().init(<span class="kw-2">&amp;</span>parent);
+		<span class="kw">let </span>proposer_future = <span class="self">self</span>.proposer_factory.lock().init(parent);
 
 		<span class="kw">let </span>proposer = proposer_future
 			.<span class="kw">await
@@ -427,7 +427,7 @@
 			.ok()<span class="question-mark">?</span>;
 
 		<span class="kw">let </span>inherent_data =
-			<span class="self">self</span>.inherent_data(parent.hash(), <span class="kw-2">&amp;</span>validation_data, relay_parent).<span class="kw">await</span><span class="question-mark">?</span>;
+			<span class="self">self</span>.inherent_data(parent.hash(), validation_data, relay_parent).<span class="kw">await</span><span class="question-mark">?</span>;
 
 		<span class="kw">let </span>Proposal { block, storage_changes, proof } = proposer
 			.propose(

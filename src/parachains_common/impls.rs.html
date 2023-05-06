@@ -287,7 +287,6 @@
 <a href="#287" id="287">287</a>
 <a href="#288" id="288">288</a>
 <a href="#289" id="289">289</a>
-<a href="#290" id="290">290</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2021 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -568,7 +567,6 @@
 		}
 
 		<span class="kw">let </span>asset_location = SomeSiblingParachain::get()
-			.clone()
 			.pushed_with_interior(GeneralIndex(<span class="number">42</span>))
 			.expect(<span class="string">&quot;multilocation will only have 2 junctions; qed&quot;</span>);
 		<span class="kw">let </span>asset = MultiAsset { id: Concrete(asset_location), fun: <span class="number">1_000_000u128</span>.into() };

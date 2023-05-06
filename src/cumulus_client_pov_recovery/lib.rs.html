@@ -696,7 +696,7 @@
 //! 4a. After it is recovered, we restore the block and import it.
 //!
 //! 4b. Since we are trying to recover pending candidates, availability is not guaranteed. If the block
-//! 	PoV is not yet available, we retry.
+//!     PoV is not yet available, we retry.
 //!
 //! If we need to recover multiple PoV blocks (which should hopefully not happen in real life), we
 //! make sure that the blocks are imported in the correct order.
@@ -846,7 +846,7 @@
 	<span class="doccomment">/// Get the next hash for block recovery.
 	</span><span class="kw">pub async fn </span>next_recovery(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Block::Hash {
 		<span class="kw">loop </span>{
-			<span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw">_</span>) = <span class="self">self</span>.signaling_queue.next().<span class="kw">await </span>{
+			<span class="kw">if </span><span class="self">self</span>.signaling_queue.next().<span class="kw">await</span>.is_some() {
 				<span class="kw">if let </span><span class="prelude-val">Some</span>(hash) = <span class="self">self</span>.recovery_queue.pop_front() {
 					<span class="kw">return </span>hash
 				} <span class="kw">else </span>{
@@ -965,10 +965,10 @@
 
 	<span class="doccomment">/// Block is no longer waiting for recovery
 	</span><span class="kw">fn </span>clear_waiting_recovery(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block_hash: <span class="kw-2">&amp;</span>Block::Hash) {
-		<span class="self">self</span>.candidates.get_mut(block_hash).map(|candidate| {
+		<span class="kw">if let </span><span class="prelude-val">Some</span>(candidate) = <span class="self">self</span>.candidates.get_mut(block_hash) {
 			<span class="comment">// Prevents triggering an already enqueued recovery request
 			</span>candidate.waiting_recovery = <span class="bool-val">false</span>;
-		});
+		}
 	}
 
 	<span class="doccomment">/// Handle a finalized block with the given `block_number`.

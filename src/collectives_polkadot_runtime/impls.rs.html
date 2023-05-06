@@ -146,7 +146,6 @@
 <a href="#146" id="146">146</a>
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2021 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -208,7 +207,7 @@
 		<span class="kw">let </span>pallet_acc: AccountIdOf&lt;T&gt; = PalletAccount::get();
 		<span class="kw">let </span>treasury_acc: AccountIdOf&lt;T&gt; = TreasuryAccount::get();
 
-		&lt;pallet_balances::Pallet&lt;T&gt;&gt;::resolve_creating(<span class="kw-2">&amp;</span>pallet_acc.clone(), amount);
+		&lt;pallet_balances::Pallet&lt;T&gt;&gt;::resolve_creating(<span class="kw-2">&amp;</span>pallet_acc, amount);
 
 		<span class="kw">let </span>result = &lt;pallet_xcm::Pallet&lt;T&gt;&gt;::teleport_assets(
 			&lt;&lt;T <span class="kw">as </span>frame_system::Config&gt;::RuntimeOrigin&gt;::signed(pallet_acc.into()),
@@ -222,10 +221,9 @@
 			<span class="number">0</span>,
 		);
 
-		<span class="kw">match </span>result {
-			<span class="prelude-val">Err</span>(err) =&gt; <span class="macro">log::warn!</span>(<span class="string">&quot;Failed to teleport slashed assets: {:?}&quot;</span>, err),
-			<span class="kw">_ </span>=&gt; (),
-		};
+		<span class="kw">if let </span><span class="prelude-val">Err</span>(err) = result {
+			<span class="macro">log::warn!</span>(<span class="string">&quot;Failed to teleport slashed assets: {:?}&quot;</span>, err);
+		}
 	}
 }
 

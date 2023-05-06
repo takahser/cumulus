@@ -505,10 +505,6 @@
 <a href="#505" id="505">505</a>
 <a href="#506" id="506">506</a>
 <a href="#507" id="507">507</a>
-<a href="#508" id="508">508</a>
-<a href="#509" id="509">509</a>
-<a href="#510" id="510">510</a>
-<a href="#511" id="511">511</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -781,16 +777,14 @@
 
 		<span class="kw">let </span>(header, extrinsics) = candidate.block.deconstruct();
 
-		<span class="kw">let </span>compact_proof = <span class="kw">match </span>candidate
-			.proof
-			.into_compact_proof::&lt;HashFor&lt;Block&gt;&gt;(last_head.state_root().clone())
-		{
-			<span class="prelude-val">Ok</span>(proof) =&gt; proof,
-			<span class="prelude-val">Err</span>(e) =&gt; {
-				<span class="macro">tracing::error!</span>(target: <span class="string">&quot;cumulus-collator&quot;</span>, <span class="string">&quot;Failed to compact proof: {:?}&quot;</span>, e);
-				<span class="kw">return </span><span class="prelude-val">None
-			</span>},
-		};
+		<span class="kw">let </span>compact_proof =
+			<span class="kw">match </span>candidate.proof.into_compact_proof::&lt;HashFor&lt;Block&gt;&gt;(<span class="kw-2">*</span>last_head.state_root()) {
+				<span class="prelude-val">Ok</span>(proof) =&gt; proof,
+				<span class="prelude-val">Err</span>(e) =&gt; {
+					<span class="macro">tracing::error!</span>(target: <span class="string">&quot;cumulus-collator&quot;</span>, <span class="string">&quot;Failed to compact proof: {:?}&quot;</span>, e);
+					<span class="kw">return </span><span class="prelude-val">None
+				</span>},
+			};
 
 		<span class="comment">// Create the parachain block data for the validators.
 		</span><span class="kw">let </span>b = ParachainBlockData::&lt;Block&gt;::new(header, extrinsics, compact_proof);
@@ -962,7 +956,7 @@
 				.build()
 				.expect(<span class="string">&quot;Builds overseer&quot;</span>);
 
-		spawner.spawn(<span class="string">&quot;overseer&quot;</span>, <span class="prelude-val">None</span>, overseer.run().then(|<span class="kw">_</span>| <span class="kw">async </span>{ () }).boxed());
+		spawner.spawn(<span class="string">&quot;overseer&quot;</span>, <span class="prelude-val">None</span>, overseer.run().then(|<span class="kw">_</span>| <span class="kw">async </span>{}).boxed());
 
 		<span class="kw">let </span>collator_start = start_collator(StartCollatorParams {
 			runtime_api: client.clone(),
@@ -972,7 +966,7 @@
 			spawner,
 			para_id,
 			key: CollatorPair::generate().<span class="number">0</span>,
-			parachain_consensus: Box::new(DummyParachainConsensus { client: client.clone() }),
+			parachain_consensus: Box::new(DummyParachainConsensus { client }),
 		});
 		block_on(collator_start);
 
@@ -980,12 +974,10 @@
 			.<span class="number">0
 			</span>.expect(<span class="string">&quot;message should be send by `start_collator` above.&quot;</span>);
 
-		<span class="kw">let </span>config = <span class="kw">match </span>msg {
-			CollationGenerationMessage::Initialize(config) =&gt; config,
-		};
+		<span class="kw">let </span>CollationGenerationMessage::Initialize(config) = msg;
 
-		<span class="kw">let </span><span class="kw-2">mut </span>validation_data = PersistedValidationData::default();
-		validation_data.parent_head = header.encode().into();
+		<span class="kw">let </span>validation_data =
+			PersistedValidationData { parent_head: header.encode().into(), ..Default::default() };
 		<span class="kw">let </span>relay_parent = Default::default();
 
 		<span class="kw">let </span>collation = block_on((config.collator)(relay_parent, <span class="kw-2">&amp;</span>validation_data))

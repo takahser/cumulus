@@ -710,11 +710,11 @@
 	// Storage: BridgeWococoMessages OutboundMessages (r:0 w:1)
 	// Proof: BridgeWococoMessages OutboundMessages (max_values: None, max_size: Some(2621472), added: 2623947, mode: MaxEncodedLen)
 	</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>export_message(x: u32, ) -&gt; Weight {
-		Weight::from_parts(<span class="number">31_677_716 </span><span class="kw">as </span>u64, <span class="number">0</span>)
+		Weight::from_parts(<span class="number">31_677_716_u64</span>, <span class="number">0</span>)
 			<span class="comment">// Standard Error: 4_158
 			</span>.saturating_add(Weight::from_parts(<span class="number">123_901</span>, <span class="number">0</span>).saturating_mul(x <span class="kw">as </span>u64))
-			.saturating_add(T::DbWeight::get().reads(<span class="number">3 </span><span class="kw">as </span>u64))
-			.saturating_add(T::DbWeight::get().writes(<span class="number">2 </span><span class="kw">as </span>u64))
+			.saturating_add(T::DbWeight::get().reads(<span class="number">3_u64</span>))
+			.saturating_add(T::DbWeight::get().writes(<span class="number">2_u64</span>))
 	}
 	<span class="kw">pub fn </span>unpaid_execution() -&gt; Weight {
 		<span class="comment">// Proof Size summary in bytes:

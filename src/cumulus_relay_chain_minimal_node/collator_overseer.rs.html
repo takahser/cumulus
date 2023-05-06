@@ -331,7 +331,7 @@
 	</span><span class="kw">pub </span>peer_set_protocol_names: PeerSetProtocolNames,
 }
 
-<span class="kw">fn </span>build_overseer&lt;<span class="lifetime">&#39;a</span>&gt;(
+<span class="kw">fn </span>build_overseer(
 	connector: OverseerConnector,
 	CollatorOverseerGenArgs {
 		runtime_client,
@@ -345,7 +345,7 @@
 		collator_pair,
 		req_protocol_names,
 		peer_set_protocol_names,
-	}: CollatorOverseerGenArgs&lt;<span class="lifetime">&#39;a</span>&gt;,
+	}: CollatorOverseerGenArgs&lt;<span class="lifetime">&#39;_</span>&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;
 	(Overseer&lt;SpawnGlue&lt;sc_service::SpawnTaskHandle&gt;, Arc&lt;BlockChainRpcClient&gt;&gt;, OverseerHandle),
 	RelayChainError,

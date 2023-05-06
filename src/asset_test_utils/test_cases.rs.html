@@ -1459,7 +1459,7 @@
 				BuyExecution {
 					fees: MultiAsset {
 						id: Concrete(native_asset_id),
-						fun: Fungible(buy_execution_fee_amount_eta.into()),
+						fun: Fungible(buy_execution_fee_amount_eta),
 					},
 					weight_limit: Limited(Weight::from_parts(<span class="number">303531000</span>, <span class="number">65536</span>)),
 				},
@@ -1515,7 +1515,7 @@
 					RuntimeHelper::&lt;Runtime&gt;::origin_of(target_account.clone()),
 					dest,
 					dest_beneficiary,
-					(native_asset_id, native_asset_to_teleport_away.clone().into()),
+					(native_asset_id, native_asset_to_teleport_away.into()),
 					<span class="prelude-val">None</span>,
 				));
 				<span class="comment">// check balances
@@ -1560,7 +1560,7 @@
 					RuntimeHelper::&lt;Runtime&gt;::origin_of(target_account.clone()),
 					dest,
 					dest_beneficiary,
-					(native_asset_id, native_asset_to_teleport_away.clone().into()),
+					(native_asset_id, native_asset_to_teleport_away.into()),
 					<span class="prelude-val">Some</span>((runtime_para_id, other_para_id)),
 				));
 
@@ -1691,7 +1691,7 @@
 		WeightToFee::weight_to_fee(<span class="kw-2">&amp;</span>Weight::from_parts(<span class="number">90_000_000_000</span>, <span class="number">0</span>));
 	<span class="kw">let </span>buy_execution_fee = MultiAsset {
 		id: Concrete(MultiLocation::parent()),
-		fun: Fungible(buy_execution_fee_amount.into()),
+		fun: Fungible(buy_execution_fee_amount),
 	};
 
 	<span class="kw">let </span>teleported_foreign_asset_amount = <span class="number">10000000000000</span>;
@@ -1701,7 +1701,7 @@
 		.with_session_keys(collator_session_keys.session_keys())
 		.with_balances(<span class="macro">vec!</span>[
 			(
-				foreign_creator_as_account_id.clone(),
+				foreign_creator_as_account_id,
 				existential_deposit + (buy_execution_fee_amount * <span class="number">2</span>).into(),
 			),
 			(target_account.clone(), existential_deposit),
@@ -1766,7 +1766,7 @@
 				BuyExecution {
 					fees: MultiAsset {
 						id: Concrete(MultiLocation::parent()),
-						fun: Fungible(buy_execution_fee_amount.into()),
+						fun: Fungible(buy_execution_fee_amount),
 					},
 					weight_limit: Limited(Weight::from_parts(<span class="number">403531000</span>, <span class="number">65536</span>)),
 				},
@@ -1861,7 +1861,7 @@
 					RuntimeHelper::&lt;Runtime&gt;::origin_of(target_account.clone()),
 					dest,
 					dest_beneficiary,
-					(foreign_asset_id_multilocation, asset_to_teleport_away.clone().into()),
+					(foreign_asset_id_multilocation, asset_to_teleport_away),
 					<span class="prelude-val">Some</span>((runtime_para_id, foreign_para_id)),
 				));
 
@@ -2113,7 +2113,7 @@
 		.execute_with(|| {
 			<span class="comment">// create  some asset class
 			</span><span class="kw">let </span>asset_minimum_asset_balance = <span class="number">3333333_u128</span>;
-			<span class="kw">let </span>asset_id_as_multilocation = AssetIdConverter::reverse_ref(<span class="kw-2">&amp;</span>asset_id).unwrap();
+			<span class="kw">let </span>asset_id_as_multilocation = AssetIdConverter::reverse_ref(asset_id).unwrap();
 			<span class="macro">assert_ok!</span>(&lt;pallet_assets::Pallet&lt;Runtime, AssetsPalletInstance&gt;&gt;::force_create(
 				RuntimeHelper::&lt;Runtime&gt;::root_origin(),
 				asset_id.into(),
@@ -2194,7 +2194,7 @@
 							id: charlie_account.clone().into()
 						}),
 					},
-					(asset_id_as_multilocation, <span class="number">1 </span>* asset_minimum_asset_balance),
+					(asset_id_as_multilocation, asset_minimum_asset_balance),
 				),
 				XcmError::FailedToTransactAsset(Into::&lt;<span class="kw-2">&amp;</span>str&gt;::into(
 					sp_runtime::TokenError::CannotCreate
@@ -2215,7 +2215,7 @@
 						parents: <span class="number">0</span>,
 						interior: X1(AccountId32 { network: <span class="prelude-val">None</span>, id: bob_account.clone().into() }),
 					},
-					(asset_id_as_multilocation, <span class="number">1 </span>* asset_minimum_asset_balance),
+					(asset_id_as_multilocation, asset_minimum_asset_balance),
 				),
 				<span class="prelude-val">Ok</span>(<span class="kw">_</span>)
 			));
@@ -2233,7 +2233,7 @@
 					asset_id.into(),
 					<span class="kw-2">&amp;</span>bob_account
 				),
-				(<span class="number">1 </span>* asset_minimum_asset_balance).into()
+				asset_minimum_asset_balance.into()
 			);
 			<span class="macro">assert_eq!</span>(
 				&lt;pallet_assets::Pallet&lt;Runtime, AssetsPalletInstance&gt;&gt;::balance(
@@ -2455,7 +2455,7 @@
 			<span class="comment">// lets simulate this was triggered by relay chain from local consensus sibling parachain
 			</span><span class="kw">let </span>xcm = Xcm(<span class="macro">vec!</span>[
 				WithdrawAsset(buy_execution_fee.clone().into()),
-				BuyExecution { fees: buy_execution_fee.clone().into(), weight_limit: Unlimited },
+				BuyExecution { fees: buy_execution_fee.clone(), weight_limit: Unlimited },
 				Transact {
 					origin_kind: OriginKind::Xcm,
 					require_weight_at_most: Weight::from_parts(<span class="number">40_000_000_000</span>, <span class="number">8000</span>),
@@ -2572,7 +2572,7 @@
 			});
 			<span class="kw">let </span>xcm = Xcm(<span class="macro">vec!</span>[
 				WithdrawAsset(buy_execution_fee.clone().into()),
-				BuyExecution { fees: buy_execution_fee.clone().into(), weight_limit: Unlimited },
+				BuyExecution { fees: buy_execution_fee.clone(), weight_limit: Unlimited },
 				Transact {
 					origin_kind: OriginKind::Xcm,
 					require_weight_at_most: Weight::from_parts(<span class="number">20_000_000_000</span>, <span class="number">8000</span>),

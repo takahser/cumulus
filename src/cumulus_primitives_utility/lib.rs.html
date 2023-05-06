@@ -538,10 +538,6 @@
 <a href="#538" id="538">538</a>
 <a href="#539" id="539">539</a>
 <a href="#540" id="540">540</a>
-<a href="#541" id="541">541</a>
-<a href="#542" id="542">542</a>
-<a href="#543" id="543">543</a>
-<a href="#544" id="544">544</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2020-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -707,7 +703,7 @@
 
 		<span class="comment">// Get the local asset id in which we can pay for fees
 		</span><span class="kw">let </span>(local_asset_id, <span class="kw">_</span>) =
-			Matcher::matches_fungibles(<span class="kw-2">&amp;</span>first).map_err(|<span class="kw">_</span>| XcmError::AssetNotFound)<span class="question-mark">?</span>;
+			Matcher::matches_fungibles(first).map_err(|<span class="kw">_</span>| XcmError::AssetNotFound)<span class="question-mark">?</span>;
 
 		<span class="comment">// Calculate how much we should charge in the asset_id for such amount of weight
 		// Require at least a payment of minimum_balance
@@ -725,7 +721,7 @@
 			.map_err(|<span class="kw">_</span>| XcmError::Overflow)<span class="question-mark">?</span>;
 
 		<span class="comment">// Convert to the same kind of multiasset, with the required fungible balance
-		</span><span class="kw">let </span>required = first.id.clone().into_multiasset(asset_balance.into());
+		</span><span class="kw">let </span>required = first.id.into_multiasset(asset_balance.into());
 
 		<span class="comment">// Substract payment
 		</span><span class="kw">let </span>unused = payment.checked_sub(required.clone()).map_err(|<span class="kw">_</span>| XcmError::TooExpensive)<span class="question-mark">?</span>;
@@ -748,7 +744,7 @@
 		{
 			<span class="comment">// Get the local asset id in which we can refund fees
 			</span><span class="kw">let </span>(local_asset_id, outstanding_balance) =
-				Matcher::matches_fungibles(<span class="kw-2">&amp;</span>(id.clone(), fun).into()).ok()<span class="question-mark">?</span>;
+				Matcher::matches_fungibles(<span class="kw-2">&amp;</span>(id, fun).into()).ok()<span class="question-mark">?</span>;
 
 			<span class="kw">let </span>minimum_balance = ConcreteAssets::minimum_balance(local_asset_id);
 
@@ -777,8 +773,7 @@
 			<span class="kw">let </span>asset_balance: u128 = asset_balance.saturated_into();
 
 			<span class="comment">// Construct outstanding_concrete_asset with the same location id and substracted balance
-			</span><span class="kw">let </span>outstanding_concrete_asset: MultiAsset =
-				(id.clone(), outstanding_minus_substracted).into();
+			</span><span class="kw">let </span>outstanding_concrete_asset: MultiAsset = (id, outstanding_minus_substracted).into();
 
 			<span class="comment">// Substract from existing weight and balance
 			</span>weight_outstanding = weight_outstanding.saturating_sub(weight);
@@ -909,7 +904,7 @@
 
 		<span class="comment">// ParentAsUmp - check dest is really not applicable
 		</span><span class="kw">let </span>dest = (Parent, Parent, Parent);
-		<span class="kw">let </span><span class="kw-2">mut </span>dest_wrapper = <span class="prelude-val">Some</span>(dest.clone().into());
+		<span class="kw">let </span><span class="kw-2">mut </span>dest_wrapper = <span class="prelude-val">Some</span>(dest.into());
 		<span class="kw">let </span><span class="kw-2">mut </span>msg_wrapper = <span class="prelude-val">Some</span>(message.clone());
 		<span class="macro">assert_eq!</span>(
 			<span class="prelude-val">Err</span>(SendError::NotApplicable),
@@ -917,7 +912,7 @@
 		);
 
 		<span class="comment">// check wrapper were not consumed
-		</span><span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(dest.clone().into()), dest_wrapper.take());
+		</span><span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(dest.into()), dest_wrapper.take());
 		<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(message.clone()), msg_wrapper.take());
 
 		<span class="comment">// another try with router chain with asserting sender
@@ -937,7 +932,7 @@
 
 		<span class="comment">// ParentAsUmp - check dest/msg is valid
 		</span><span class="kw">let </span>dest = (Parent, Here);
-		<span class="kw">let </span><span class="kw-2">mut </span>dest_wrapper = <span class="prelude-val">Some</span>(dest.clone().into());
+		<span class="kw">let </span><span class="kw-2">mut </span>dest_wrapper = <span class="prelude-val">Some</span>(dest.into());
 		<span class="kw">let </span><span class="kw-2">mut </span>msg_wrapper = <span class="prelude-val">Some</span>(message.clone());
 		<span class="macro">assert!</span>(&lt;ParentAsUmp&lt;(), (), ()&gt; <span class="kw">as </span>SendXcm&gt;::validate(
 			<span class="kw-2">&amp;mut </span>dest_wrapper,
@@ -1073,17 +1068,14 @@
 
 		<span class="comment">// prepare test data
 		</span><span class="kw">let </span>asset: MultiAsset = (Here, AMOUNT).into();
-		<span class="kw">let </span>payment = Assets::from(asset.clone());
+		<span class="kw">let </span>payment = Assets::from(asset);
 		<span class="kw">let </span>weight_to_buy = Weight::from_parts(<span class="number">1_000</span>, <span class="number">1_000</span>);
 
 		<span class="comment">// lets do first call (success)
 		</span><span class="macro">assert_ok!</span>(trader.buy_weight(weight_to_buy, payment.clone()));
 
 		<span class="comment">// lets do second call (error)
-		</span><span class="macro">assert_eq!</span>(
-			trader.buy_weight(weight_to_buy, payment.clone()),
-			<span class="prelude-val">Err</span>(XcmError::NotWithdrawable)
-		);
+		</span><span class="macro">assert_eq!</span>(trader.buy_weight(weight_to_buy, payment), <span class="prelude-val">Err</span>(XcmError::NotWithdrawable));
 	}
 }
 </code></pre></div>

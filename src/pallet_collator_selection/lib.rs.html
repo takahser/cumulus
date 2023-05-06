@@ -766,8 +766,8 @@
 				<span class="string">&quot;genesis desired_candidates are more than T::MaxCandidates&quot;</span>,
 			);
 
-			&lt;DesiredCandidates&lt;T&gt;&gt;::put(<span class="kw-2">&amp;</span><span class="self">self</span>.desired_candidates);
-			&lt;CandidacyBond&lt;T&gt;&gt;::put(<span class="kw-2">&amp;</span><span class="self">self</span>.candidacy_bond);
+			&lt;DesiredCandidates&lt;T&gt;&gt;::put(<span class="self">self</span>.desired_candidates);
+			&lt;CandidacyBond&lt;T&gt;&gt;::put(<span class="self">self</span>.candidacy_bond);
 			&lt;Invulnerables&lt;T&gt;&gt;::put(bounded_invulnerables);
 		}
 	}
@@ -854,7 +854,7 @@
 			</span><span class="kw">if </span>max &gt; T::MaxCandidates::get() {
 				<span class="macro">log::warn!</span>(<span class="string">&quot;max &gt; T::MaxCandidates; you might need to run benchmarks again&quot;</span>);
 			}
-			&lt;DesiredCandidates&lt;T&gt;&gt;::put(<span class="kw-2">&amp;</span>max);
+			&lt;DesiredCandidates&lt;T&gt;&gt;::put(max);
 			<span class="self">Self</span>::deposit_event(Event::NewDesiredCandidates { desired_candidates: max });
 			<span class="prelude-val">Ok</span>(().into())
 		}
@@ -867,7 +867,7 @@
 			bond: BalanceOf&lt;T&gt;,
 		) -&gt; DispatchResultWithPostInfo {
 			T::UpdateOrigin::ensure_origin(origin)<span class="question-mark">?</span>;
-			&lt;CandidacyBond&lt;T&gt;&gt;::put(<span class="kw-2">&amp;</span>bond);
+			&lt;CandidacyBond&lt;T&gt;&gt;::put(bond);
 			<span class="self">Self</span>::deposit_event(Event::NewCandidacyBond { bond_amount: bond });
 			<span class="prelude-val">Ok</span>(().into())
 		}

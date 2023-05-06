@@ -1302,7 +1302,6 @@
 <a href="#1302" id="1302">1302</a>
 <a href="#1303" id="1303">1303</a>
 <a href="#1304" id="1304">1304</a>
-<a href="#1305" id="1305">1305</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2021-2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -1518,7 +1517,7 @@
 
 <span class="macro">parameter_types! </span>{
 	<span class="doccomment">/// Relay Chain `TransactionByteFee` / 10
-	</span><span class="kw">pub const </span>TransactionByteFee: Balance = <span class="number">1 </span>* MILLICENTS;
+	</span><span class="kw">pub const </span>TransactionByteFee: Balance = MILLICENTS;
 }
 
 <span class="kw">impl </span>pallet_transaction_payment::Config <span class="kw">for </span>Runtime {
@@ -2331,7 +2330,7 @@
 			<span class="macro">list_benchmarks!</span>(list, extra);
 
 			<span class="kw">let </span>storage_info = AllPalletsWithSystem::storage_info();
-			<span class="kw">return </span>(list, storage_info)
+			(list, storage_info)
 		}
 
 		<span class="kw">fn </span>dispatch_benchmark(
@@ -2367,7 +2366,6 @@
 								id: Concrete(GeneralIndex(i <span class="kw">as </span>u128).into()),
 								fun: Fungible(fungibles_amount * i <span class="kw">as </span>u128),
 							}
-							.into()
 						})
 						.chain(core::iter::once(MultiAsset { id: Concrete(Here.into()), fun: Fungible(u128::MAX) }))
 						.chain((<span class="number">0</span>..holding_non_fungibles).map(|i| MultiAsset {
@@ -2387,7 +2385,7 @@
 			<span class="macro">parameter_types! </span>{
 				<span class="kw">pub const </span>TrustedTeleporter: <span class="prelude-ty">Option</span>&lt;(MultiLocation, MultiAsset)&gt; = <span class="prelude-val">Some</span>((
 					KsmLocation::get(),
-					MultiAsset { fun: Fungible(<span class="number">1 </span>* UNITS), id: Concrete(KsmLocation::get()) },
+					MultiAsset { fun: Fungible(UNITS), id: Concrete(KsmLocation::get()) },
 				));
 				<span class="kw">pub const </span>CheckedAccount: <span class="prelude-ty">Option</span>&lt;(AccountId, xcm_builder::MintLocation)&gt; = <span class="prelude-val">None</span>;
 
@@ -2402,7 +2400,7 @@
 				<span class="kw">fn </span>get_multi_asset() -&gt; MultiAsset {
 					MultiAsset {
 						id: Concrete(KsmLocation::get()),
-						fun: Fungible(<span class="number">1 </span>* UNITS),
+						fun: Fungible(UNITS),
 					}
 				}
 			}
@@ -2506,7 +2504,7 @@
 <span class="attr">#[cfg(feature = <span class="string">&quot;state-trie-version-1&quot;</span>)]
 </span><span class="macro">parameter_types! </span>{
 	<span class="comment">// The deposit configuration for the singed migration. Specially if you want to allow any signed account to do the migration (see `SignedFilter`, these deposits should be high)
-	</span><span class="kw">pub const </span>MigrationSignedDepositPerItem: Balance = <span class="number">1 </span>* CENTS;
+	</span><span class="kw">pub const </span>MigrationSignedDepositPerItem: Balance = CENTS;
 	<span class="kw">pub const </span>MigrationSignedDepositBase: Balance = <span class="number">2_000 </span>* CENTS;
 	<span class="kw">pub const </span>MigrationMaxKeyLen: u32 = <span class="number">512</span>;
 }

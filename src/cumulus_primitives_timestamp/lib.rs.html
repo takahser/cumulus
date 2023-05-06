@@ -293,7 +293,7 @@
 				relay_parent_number: <span class="number">1</span>,
 				relay_parent_storage_root,
 			},
-			<span class="kw-2">&amp;</span>WASM_BINARY.expect(<span class="string">&quot;You need to build the WASM binaries to run the tests!&quot;</span>),
+			WASM_BINARY.expect(<span class="string">&quot;You need to build the WASM binaries to run the tests!&quot;</span>),
 		)
 		.map(|v| Header::decode(<span class="kw-2">&amp;mut &amp;</span>v.head_data.<span class="number">0</span>[..]).expect(<span class="string">&quot;Decodes `Header`.&quot;</span>))
 	}
@@ -369,7 +369,7 @@
 				(slot_timestamp * <span class="number">10</span>, <span class="bool-val">false</span>),
 			] {
 				<span class="kw">let </span>output = Command::new(env::current_exe().unwrap())
-					.args(<span class="kw-2">&amp;</span>[<span class="string">&quot;check_timestamp_inherent_works&quot;</span>, <span class="string">&quot;--&quot;</span>, <span class="string">&quot;--nocapture&quot;</span>])
+					.args([<span class="string">&quot;check_timestamp_inherent_works&quot;</span>, <span class="string">&quot;--&quot;</span>, <span class="string">&quot;--nocapture&quot;</span>])
 					.env(<span class="string">&quot;RUN_TEST&quot;</span>, <span class="string">&quot;1&quot;</span>)
 					.env(<span class="string">&quot;TIMESTAMP&quot;</span>, timestamp.to_string())
 					.output()

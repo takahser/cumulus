@@ -349,7 +349,7 @@
 			}
 		}
 
-		<span class="kw">let </span>root = backend.root().clone();
+		<span class="kw">let </span>root = <span class="kw-2">*</span>backend.root();
 		<span class="kw">let </span>proof = sp_state_machine::prove_read(backend, relevant_keys).expect(<span class="string">&quot;prove read&quot;</span>);
 		(root, proof)
 	}

@@ -590,7 +590,7 @@
 		info: <span class="kw-2">&amp;</span>DispatchInfoOf&lt;<span class="self">Self</span>::Call&gt;,
 		len: usize,
 	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Pre, TransactionValidityError&gt; {
-		<span class="prelude-val">Ok</span>(<span class="self">self</span>.validate(who, call, info, len).map(|<span class="kw">_</span>| ())<span class="question-mark">?</span>)
+		<span class="self">self</span>.validate(who, call, info, len).map(|<span class="kw">_</span>| ())
 	}
 	<span class="kw">fn </span>validate(
 		<span class="kw-2">&amp;</span><span class="self">self</span>,

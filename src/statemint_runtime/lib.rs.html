@@ -1153,7 +1153,6 @@
 <a href="#1153" id="1153">1153</a>
 <a href="#1154" id="1154">1154</a>
 <a href="#1155" id="1155">1155</a>
-<a href="#1156" id="1156">1156</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2021-2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -1379,7 +1378,7 @@
 
 <span class="macro">parameter_types! </span>{
 	<span class="doccomment">/// Relay Chain `TransactionByteFee` / 10
-	</span><span class="kw">pub const </span>TransactionByteFee: Balance = <span class="number">1 </span>* MILLICENTS;
+	</span><span class="kw">pub const </span>TransactionByteFee: Balance = MILLICENTS;
 }
 
 <span class="kw">impl </span>pallet_transaction_payment::Config <span class="kw">for </span>Runtime {
@@ -2081,7 +2080,7 @@
 			<span class="macro">list_benchmarks!</span>(list, extra);
 
 			<span class="kw">let </span>storage_info = AllPalletsWithSystem::storage_info();
-			<span class="kw">return </span>(list, storage_info)
+			(list, storage_info)
 		}
 
 		<span class="kw">fn </span>dispatch_benchmark(
@@ -2116,7 +2115,6 @@
 								id: Concrete(GeneralIndex(i <span class="kw">as </span>u128).into()),
 								fun: Fungible(fungibles_amount * i <span class="kw">as </span>u128),
 							}
-							.into()
 						})
 						.chain(core::iter::once(MultiAsset { id: Concrete(Here.into()), fun: Fungible(u128::MAX) }))
 						.chain((<span class="number">0</span>..holding_non_fungibles).map(|i| MultiAsset {
@@ -2136,7 +2134,7 @@
 			<span class="macro">parameter_types! </span>{
 				<span class="kw">pub const </span>TrustedTeleporter: <span class="prelude-ty">Option</span>&lt;(MultiLocation, MultiAsset)&gt; = <span class="prelude-val">Some</span>((
 					DotLocation::get(),
-					MultiAsset { fun: Fungible(<span class="number">1 </span>* UNITS), id: Concrete(DotLocation::get()) },
+					MultiAsset { fun: Fungible(UNITS), id: Concrete(DotLocation::get()) },
 				));
 				<span class="kw">pub const </span>CheckedAccount: <span class="prelude-ty">Option</span>&lt;(AccountId, xcm_builder::MintLocation)&gt; = <span class="prelude-val">None</span>;
 			}
@@ -2150,7 +2148,7 @@
 				<span class="kw">fn </span>get_multi_asset() -&gt; MultiAsset {
 					MultiAsset {
 						id: Concrete(DotLocation::get()),
-						fun: Fungible(<span class="number">1 </span>* UNITS),
+						fun: Fungible(UNITS),
 					}
 				}
 			}

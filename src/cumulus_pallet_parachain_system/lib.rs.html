@@ -1235,11 +1235,6 @@
 <a href="#1235" id="1235">1235</a>
 <a href="#1236" id="1236">1236</a>
 <a href="#1237" id="1237">1237</a>
-<a href="#1238" id="1238">1238</a>
-<a href="#1239" id="1239">1239</a>
-<a href="#1240" id="1240">1240</a>
-<a href="#1241" id="1241">1241</a>
-<a href="#1242" id="1242">1242</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2020 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1715,10 +1710,7 @@
 			check_version: bool,
 		) -&gt; DispatchResult {
 			ensure_root(origin)<span class="question-mark">?</span>;
-			AuthorizedUpgrade::&lt;T&gt;::put(CodeUpgradeAuthorization {
-				code_hash: code_hash.clone(),
-				check_version,
-			});
+			AuthorizedUpgrade::&lt;T&gt;::put(CodeUpgradeAuthorization { code_hash, check_version });
 
 			<span class="self">Self</span>::deposit_event(Event::UpgradeAuthorized { code_hash });
 			<span class="prelude-val">Ok</span>(())
@@ -1995,7 +1987,7 @@
 		<span class="kw">let </span>authorization = AuthorizedUpgrade::&lt;T&gt;::get().ok_or(Error::&lt;T&gt;::NothingAuthorized)<span class="question-mark">?</span>;
 
 		<span class="comment">// ensure that the actual hash matches the authorized hash
-		</span><span class="kw">let </span>actual_hash = T::Hashing::hash(<span class="kw-2">&amp;</span>code[..]);
+		</span><span class="kw">let </span>actual_hash = T::Hashing::hash(code);
 		<span class="macro">ensure!</span>(actual_hash == authorization.code_hash, Error::&lt;T&gt;::Unauthorized);
 
 		<span class="comment">// check versions if required as part of the authorization
@@ -2183,10 +2175,10 @@
 		// `running_mqc_heads`. Otherwise, in a block where no messages were sent in a channel
 		// it won&#39;t get into next block&#39;s `last_mqc_heads` and thus will be all zeros, which
 		// would corrupt the message queue chain.
-		</span><span class="kw">for </span><span class="kw-2">&amp;</span>(<span class="kw-2">ref </span>sender, <span class="kw-2">ref </span>channel) <span class="kw">in </span>ingress_channels {
+		</span><span class="kw">for </span>(sender, channel) <span class="kw">in </span>ingress_channels {
 			<span class="kw">let </span>cur_head = running_mqc_heads
 				.entry(sender)
-				.or_insert_with(|| last_mqc_heads.get(<span class="kw-2">&amp;</span>sender).cloned().unwrap_or_default())
+				.or_insert_with(|| last_mqc_heads.get(sender).cloned().unwrap_or_default())
 				.head();
 			<span class="kw">let </span>target_head = channel.mqc_head.unwrap_or_default();
 
@@ -2332,23 +2324,21 @@
 		// may change so that the message is no longer valid.
 		//
 		// However, changing this setting is expected to be rare.
-		</span><span class="kw">match </span><span class="self">Self</span>::host_configuration() {
-			<span class="prelude-val">Some</span>(cfg) =&gt;
-				<span class="kw">if </span>message.len() &gt; cfg.max_upward_message_size <span class="kw">as </span>usize {
-					<span class="kw">return </span><span class="prelude-val">Err</span>(MessageSendError::TooBig)
-				},
-			<span class="prelude-val">None </span>=&gt; {
-				<span class="comment">// This storage field should carry over from the previous block. So if it&#39;s None
-				// then it must be that this is an edge-case where a message is attempted to be
-				// sent at the first block.
-				//
-				// Let&#39;s pass this message through. I think it&#39;s not unreasonable to expect that
-				// the message is not huge and it comes through, but if it doesn&#39;t it can be
-				// returned back to the sender.
-				//
-				// Thus fall through here.
-			</span>},
-		};
+		</span><span class="kw">if let </span><span class="prelude-val">Some</span>(cfg) = <span class="self">Self</span>::host_configuration() {
+			<span class="kw">if </span>message.len() &gt; cfg.max_upward_message_size <span class="kw">as </span>usize {
+				<span class="kw">return </span><span class="prelude-val">Err</span>(MessageSendError::TooBig)
+			}
+		} <span class="kw">else </span>{
+			<span class="comment">// This storage field should carry over from the previous block. So if it&#39;s None
+			// then it must be that this is an edge-case where a message is attempted to be
+			// sent at the first block.
+			//
+			// Let&#39;s pass this message through. I think it&#39;s not unreasonable to expect that
+			// the message is not huge and it comes through, but if it doesn&#39;t it can be
+			// returned back to the sender.
+			//
+			// Thus fall through here.
+		</span>};
 		&lt;PendingUpwardMessages&lt;T&gt;&gt;::append(message.clone());
 
 		<span class="comment">// The relay ump does not use using_encoded

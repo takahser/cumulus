@@ -526,7 +526,7 @@
 			io::stdin().read_line(<span class="kw-2">&amp;mut </span>input)<span class="question-mark">?</span>;
 			<span class="kw">let </span>input = input.trim();
 
-			<span class="kw">match </span>input.chars().nth(<span class="number">0</span>) {
+			<span class="kw">match </span>input.chars().next() {
 				<span class="prelude-val">Some</span>(<span class="string">&#39;y&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">&#39;Y&#39;</span>) =&gt; {},
 				<span class="kw">_ </span>=&gt; {
 					<span class="macro">println!</span>(<span class="string">&quot;Aborted&quot;</span>);
@@ -536,7 +536,7 @@
 		}
 
 		<span class="kw">for </span>db_path <span class="kw">in </span><span class="kw-2">&amp;</span>db_paths {
-			<span class="kw">match </span>fs::remove_dir_all(<span class="kw-2">&amp;</span>db_path) {
+			<span class="kw">match </span>fs::remove_dir_all(db_path) {
 				<span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
 					<span class="macro">println!</span>(<span class="string">&quot;{:?} removed.&quot;</span>, <span class="kw-2">&amp;</span>db_path);
 				},

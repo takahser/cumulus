@@ -398,8 +398,8 @@
 			<span class="self">self</span>.relay_offset + <span class="self">self</span>.relay_blocks_per_para_block * <span class="self">self</span>.current_para_block;
 
 		<span class="comment">// Use the &quot;sproof&quot; (spoof proof) builder to build valid mock state root and proof.
-		</span><span class="kw">let </span><span class="kw-2">mut </span>sproof_builder = RelayStateSproofBuilder::default();
-		sproof_builder.para_id = <span class="self">self</span>.xcm_config.para_id;
+		</span><span class="kw">let </span><span class="kw-2">mut </span>sproof_builder =
+			RelayStateSproofBuilder { para_id: <span class="self">self</span>.xcm_config.para_id, ..Default::default() };
 
 		<span class="comment">// Process the downward messages and set up the correct head
 		</span><span class="kw">let </span><span class="kw-2">mut </span>downward_messages = Vec::new();

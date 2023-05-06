@@ -175,7 +175,7 @@
 }
 
 <span class="doccomment">/// Start an import queue for the Aura consensus algorithm.
-</span><span class="kw">pub fn </span>import_queue&lt;<span class="lifetime">&#39;a</span>, P, Block, I, C, S, CIDP&gt;(
+</span><span class="kw">pub fn </span>import_queue&lt;P, Block, I, C, S, CIDP&gt;(
 	ImportQueueParams {
 		block_import,
 		client,
@@ -183,7 +183,7 @@
 		spawner,
 		registry,
 		telemetry,
-	}: ImportQueueParams&lt;<span class="lifetime">&#39;a</span>, I, C, CIDP, S&gt;,
+	}: ImportQueueParams&lt;<span class="lifetime">&#39;_</span>, I, C, CIDP, S&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;DefaultImportQueue&lt;Block, C&gt;, sp_consensus::Error&gt;
 <span class="kw">where
 	</span>Block: BlockT,

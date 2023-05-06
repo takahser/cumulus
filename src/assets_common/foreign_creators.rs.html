@@ -99,7 +99,7 @@
 		asset_location: <span class="kw-2">&amp;</span>MultiLocation,
 	) -&gt; sp_std::result::Result&lt;<span class="self">Self</span>::Success, RuntimeOrigin&gt; {
 		<span class="kw">let </span>origin_location = EnsureXcm::&lt;Everything&gt;::try_origin(origin.clone())<span class="question-mark">?</span>;
-		<span class="kw">if </span>!IsForeign::contains(<span class="kw-2">&amp;</span>asset_location, <span class="kw-2">&amp;</span>origin_location) {
+		<span class="kw">if </span>!IsForeign::contains(asset_location, <span class="kw-2">&amp;</span>origin_location) {
 			<span class="kw">return </span><span class="prelude-val">Err</span>(origin)
 		}
 		AccountOf::convert(origin_location).map_err(|<span class="kw">_</span>| origin)
@@ -107,7 +107,7 @@
 
 	<span class="attr">#[cfg(feature = <span class="string">&quot;runtime-benchmarks&quot;</span>)]
 	</span><span class="kw">fn </span>try_successful_origin(a: <span class="kw-2">&amp;</span>MultiLocation) -&gt; <span class="prelude-ty">Result</span>&lt;RuntimeOrigin, ()&gt; {
-		<span class="prelude-val">Ok</span>(pallet_xcm::Origin::Xcm(a.clone()).into())
+		<span class="prelude-val">Ok</span>(pallet_xcm::Origin::Xcm(<span class="kw-2">*</span>a).into())
 	}
 }
 </code></pre></div>
