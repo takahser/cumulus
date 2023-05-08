@@ -12,5 +12,5 @@
 "pallet_bridge_parachains":[["impl&lt;T, I&gt; PalletError for <a class=\"enum\" href=\"pallet_bridge_parachains/pallet/enum.Error.html\" title=\"enum pallet_bridge_parachains::pallet::Error\">Error</a>&lt;T, I&gt;"]],
 "pallet_bridge_relayers":[["impl&lt;T&gt; PalletError for <a class=\"enum\" href=\"pallet_bridge_relayers/pallet/enum.Error.html\" title=\"enum pallet_bridge_relayers::pallet::Error\">Error</a>&lt;T&gt;"]],
 "pallet_collator_selection":[["impl&lt;T&gt; PalletError for <a class=\"enum\" href=\"pallet_collator_selection/pallet/enum.Error.html\" title=\"enum pallet_collator_selection::pallet::Error\">Error</a>&lt;T&gt;"]],
-"pallet_template":[["impl&lt;T&gt; PalletError for <a class=\"enum\" href=\"pallet_template/pallet/enum.Error.html\" title=\"enum pallet_template::pallet::Error\">Error</a>&lt;T&gt;"]]
+"pallet_parachain_template":[["impl&lt;T&gt; PalletError for <a class=\"enum\" href=\"pallet_parachain_template/pallet/enum.Error.html\" title=\"enum pallet_parachain_template::pallet::Error\">Error</a>&lt;T&gt;"]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

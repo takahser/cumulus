@@ -55,7 +55,7 @@ var sourcesIndex = JSON.parse('{\
 "pallet_bridge_parachains":["",[],["call_ext.rs","lib.rs","weights.rs","weights_ext.rs"]],\
 "pallet_bridge_relayers":["",[],["lib.rs","payment_adapter.rs","stake_adapter.rs","weights.rs","weights_ext.rs"]],\
 "pallet_collator_selection":["",[],["lib.rs","weights.rs"]],\
-"pallet_template":["",[],["lib.rs"]],\
+"pallet_parachain_template":["",[],["lib.rs"]],\
 "parachain_info":["",[],["lib.rs"]],\
 "parachain_template_node":["",[],["chain_spec.rs","cli.rs","command.rs","main.rs","rpc.rs","service.rs"]],\
 "parachain_template_runtime":["",[["weights",[],["block_weights.rs","extrinsic_weights.rs","mod.rs","paritydb_weights.rs","rocksdb_weights.rs"]]],["lib.rs","xcm_config.rs"]],\

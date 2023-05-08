@@ -801,7 +801,7 @@
 <span class="kw">use </span>xcm_executor::XcmExecutor;
 
 <span class="doccomment">/// Import the template pallet.
-</span><span class="kw">pub use </span>pallet_template;
+</span><span class="kw">pub use </span>pallet_parachain_template;
 
 <span class="doccomment">/// Alias to 512-bit hash when used in the context of a transaction signature on the chain.
 </span><span class="kw">pub type </span>Signature = MultiSignature;
@@ -1200,7 +1200,7 @@
 }
 
 <span class="doccomment">/// Configure the pallet template in pallets/template.
-</span><span class="kw">impl </span>pallet_template::Config <span class="kw">for </span>Runtime {
+</span><span class="kw">impl </span>pallet_parachain_template::Config <span class="kw">for </span>Runtime {
 	<span class="kw">type </span>RuntimeEvent = RuntimeEvent;
 }
 
@@ -1235,7 +1235,7 @@
 		DmpQueue: cumulus_pallet_dmp_queue = <span class="number">33</span>,
 
 		<span class="comment">// Template
-		</span>TemplatePallet: pallet_template = <span class="number">40</span>,
+		</span>TemplatePallet: pallet_parachain_template = <span class="number">40</span>,
 	}
 );
 
