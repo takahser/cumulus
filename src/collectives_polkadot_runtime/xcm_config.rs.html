@@ -299,6 +299,9 @@
 <a href="#299" id="299">299</a>
 <a href="#300" id="300">300</a>
 <a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2022 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -402,8 +405,11 @@
 );
 
 <span class="macro">parameter_types! </span>{
-	<span class="comment">// One XCM operation is 1_000_000_000 weight - almost certainly a conservative estimate.
-	</span><span class="kw">pub </span>UnitWeightCost: Weight = Weight::from_parts(<span class="number">1_000_000_000</span>, <span class="number">64 </span>* <span class="number">1024</span>);
+	<span class="doccomment">/// The amount of weight an XCM operation takes. This is a safe overestimate.
+	</span><span class="kw">pub const </span>BaseXcmWeight: Weight = Weight::from_parts(<span class="number">1_000_000_000</span>, <span class="number">1024</span>);
+	<span class="doccomment">/// A temporary weight value for each XCM instruction.
+	/// NOTE: This should be removed after we account for PoV weights.
+	</span><span class="kw">pub const </span>TempFixedXcmWeight: Weight = Weight::from_parts(<span class="number">1_000_000_000</span>, <span class="number">0</span>);
 	<span class="kw">pub const </span>MaxInstructions: u32 = <span class="number">100</span>;
 	<span class="kw">pub const </span>MaxAssetsIntoHolding: u32 = <span class="number">64</span>;
 	<span class="comment">// Fellows pluralistic body.
@@ -526,7 +532,7 @@
 	</span><span class="kw">type </span>IsTeleporter = ConcreteNativeAssetFrom&lt;DotLocation&gt;;
 	<span class="kw">type </span>UniversalLocation = UniversalLocation;
 	<span class="kw">type </span>Barrier = Barrier;
-	<span class="kw">type </span>Weigher = FixedWeightBounds&lt;UnitWeightCost, RuntimeCall, MaxInstructions&gt;;
+	<span class="kw">type </span>Weigher = FixedWeightBounds&lt;TempFixedXcmWeight, RuntimeCall, MaxInstructions&gt;;
 	<span class="kw">type </span>Trader =
 		UsingComponents&lt;WeightToFee, DotLocation, AccountId, Balances, ToStakingPot&lt;Runtime&gt;&gt;;
 	<span class="kw">type </span>ResponseHandler = PolkadotXcm;
@@ -577,7 +583,7 @@
 	<span class="kw">type </span>XcmExecutor = XcmExecutor&lt;XcmConfig&gt;;
 	<span class="kw">type </span>XcmTeleportFilter = Everything;
 	<span class="kw">type </span>XcmReserveTransferFilter = Nothing; <span class="comment">// This parachain is not meant as a reserve location.
-	</span><span class="kw">type </span>Weigher = FixedWeightBounds&lt;UnitWeightCost, RuntimeCall, MaxInstructions&gt;;
+	</span><span class="kw">type </span>Weigher = FixedWeightBounds&lt;BaseXcmWeight, RuntimeCall, MaxInstructions&gt;;
 	<span class="kw">type </span>UniversalLocation = UniversalLocation;
 	<span class="kw">type </span>RuntimeOrigin = RuntimeOrigin;
 	<span class="kw">type </span>RuntimeCall = RuntimeCall;
