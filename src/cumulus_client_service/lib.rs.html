@@ -454,6 +454,9 @@
 <a href="#454" id="454">454</a>
 <a href="#455" id="455">455</a>
 <a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2020-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -757,6 +760,7 @@
 	</span>Client::Api: sp_transaction_pool::runtime_api::TaggedTransactionQueue&lt;Block&gt;,
 {
 	<span class="kw">pub </span>parachain_config: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Configuration,
+	<span class="kw">pub </span>net_config: sc_network::config::FullNetworkConfiguration,
 	<span class="kw">pub </span>client: Arc&lt;Client&gt;,
 	<span class="kw">pub </span>transaction_pool: Arc&lt;sc_transaction_pool::FullPool&lt;Block, Client&gt;&gt;,
 	<span class="kw">pub </span>para_id: ParaId,
@@ -769,6 +773,7 @@
 </span><span class="kw">pub async fn </span>build_network&lt;<span class="lifetime">&#39;a</span>, Block, Client, RCInterface, IQ&gt;(
 	BuildNetworkParams {
 		parachain_config,
+		net_config,
 		client,
 		transaction_pool,
 		para_id,
@@ -820,6 +825,7 @@
 
 	sc_service::build_network(sc_service::BuildNetworkParams {
 		config: parachain_config,
+		net_config,
 		client,
 		transaction_pool,
 		spawn_handle,

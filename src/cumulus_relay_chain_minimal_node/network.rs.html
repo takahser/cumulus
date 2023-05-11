@@ -150,6 +150,7 @@
 <a href="#150" id="150">150</a>
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -176,6 +177,7 @@
 	NetworkService,
 };
 
+<span class="kw">use </span>sc_network::config::FullNetworkConfiguration;
 <span class="kw">use </span>sc_network_common::{role::Roles, sync::message::BlockAnnouncesHandshake};
 <span class="kw">use </span>sc_service::{error::Error, Configuration, NetworkStarter, SpawnTaskHandle};
 <span class="kw">use </span>sc_utils::mpsc::tracing_unbounded;
@@ -185,6 +187,7 @@
 <span class="doccomment">/// Build the network service, the network status sinks and an RPC sender.
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>build_collator_network(
 	config: <span class="kw-2">&amp;</span>Configuration,
+	network_config: FullNetworkConfiguration,
 	spawn_handle: SpawnTaskHandle,
 	genesis_hash: Hash,
 	best_header: Header,
@@ -213,12 +216,11 @@
 			})
 		},
 		fork_id: <span class="prelude-val">None</span>,
-		network_config: config.network.clone(),
+		network_config,
 		genesis_hash,
 		protocol_id,
 		metrics_registry: config.prometheus_config.as_ref().map(|config| config.registry.clone()),
 		block_announce_config,
-		request_response_protocol_configs: Vec::new(),
 		tx,
 	};
 

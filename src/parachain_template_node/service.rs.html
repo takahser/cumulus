@@ -433,6 +433,8 @@
 <a href="#433" id="433">433</a>
 <a href="#434" id="434">434</a>
 <a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Service and ServiceFactory implementation. Specialized wrapper over substrate service.
 
 </span><span class="comment">// std
@@ -592,6 +594,7 @@
 
 	<span class="kw">let </span>params = new_partial(<span class="kw-2">&amp;</span>parachain_config)<span class="question-mark">?</span>;
 	<span class="kw">let </span>(block_import, <span class="kw-2">mut </span>telemetry, telemetry_worker_handle) = params.other;
+	<span class="kw">let </span>net_config = sc_network::config::FullNetworkConfiguration::new(<span class="kw-2">&amp;</span>parachain_config.network);
 
 	<span class="kw">let </span>client = params.client.clone();
 	<span class="kw">let </span>backend = params.backend.clone();
@@ -617,6 +620,7 @@
 	<span class="kw">let </span>(network, system_rpc_tx, tx_handler_controller, start_network, sync_service) =
 		build_network(BuildNetworkParams {
 			parachain_config: <span class="kw-2">&amp;</span>parachain_config,
+			net_config,
 			client: client.clone(),
 			transaction_pool: transaction_pool.clone(),
 			para_id,

@@ -888,6 +888,10 @@
 <a href="#888" id="888">888</a>
 <a href="#889" id="889">889</a>
 <a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -944,7 +948,8 @@
 <span class="kw">use </span>sc_client_api::execution_extensions::ExecutionStrategies;
 <span class="kw">use </span>sc_consensus::ImportQueue;
 <span class="kw">use </span>sc_network::{
-	config::TransportConfig, multiaddr, NetworkBlock, NetworkService, NetworkStateInfo,
+	config::{FullNetworkConfiguration, TransportConfig},
+	multiaddr, NetworkBlock, NetworkService, NetworkStateInfo,
 };
 <span class="kw">use </span>sc_service::{
 	config::{
@@ -1213,9 +1218,12 @@
 	</span>.map_err(|e| sc_service::Error::Application(Box::new(e) <span class="kw">as </span>Box&lt;<span class="kw">_</span>&gt;))<span class="question-mark">?</span>;
 
 	<span class="kw">let </span>import_queue_service = params.import_queue.service();
+	<span class="kw">let </span>net_config = FullNetworkConfiguration::new(<span class="kw-2">&amp;</span>parachain_config.network);
+
 	<span class="kw">let </span>(network, system_rpc_tx, tx_handler_controller, start_network, sync_service) =
 		build_network(BuildNetworkParams {
 			parachain_config: <span class="kw-2">&amp;</span>parachain_config,
+			net_config,
 			client: client.clone(),
 			transaction_pool: transaction_pool.clone(),
 			para_id,
