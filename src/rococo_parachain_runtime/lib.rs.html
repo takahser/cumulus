@@ -806,6 +806,7 @@
 <a href="#806" id="806">806</a>
 <a href="#807" id="807">807</a>
 <a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1063,6 +1064,7 @@
 <span class="kw">impl </span>pallet_sudo::Config <span class="kw">for </span>Runtime {
 	<span class="kw">type </span>RuntimeCall = RuntimeCall;
 	<span class="kw">type </span>RuntimeEvent = RuntimeEvent;
+	<span class="kw">type </span>WeightInfo = pallet_sudo::weights::SubstrateWeight&lt;Runtime&gt;;
 }
 
 <span class="macro">parameter_types! </span>{
