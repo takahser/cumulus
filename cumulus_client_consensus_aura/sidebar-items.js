@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["build_verifier","import_queue","slot_duration"],"struct":["AuraConsensus","AuraVerifier","BuildAuraConsensusParams","BuildAuraWorkerParams","BuildVerifierParams","ImportQueueParams","SlotProportion"],"trait":["InherentDataProviderExt"]};
+window.SIDEBAR_ITEMS = {"fn":["build_verifier","import_queue","slot_duration"],"mod":["unstable_reimpl"],"struct":["AuraConsensus","AuraVerifier","BuildAuraConsensusParams","BuildAuraWorkerParams","BuildVerifierParams","ImportQueueParams","SlotProportion"],"trait":["InherentDataProviderExt"]};

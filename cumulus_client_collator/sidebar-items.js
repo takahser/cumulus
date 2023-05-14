@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["start_collator"],"struct":["Collator","StartCollatorParams"]};
+window.SIDEBAR_ITEMS = {"fn":["start_collator"],"mod":["relay_chain_driven","service"],"struct":["Collator","StartCollatorParams"]};

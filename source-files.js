@@ -21,9 +21,10 @@ var sourcesIndex = JSON.parse('{\
 "collectives_polkadot_runtime":["",[["fellowship",[],["migration.rs","mod.rs","origins.rs","tracks.rs"]],["weights",[],["block_weights.rs","cumulus_pallet_xcmp_queue.rs","extrinsic_weights.rs","frame_system.rs","mod.rs","pallet_alliance.rs","pallet_balances.rs","pallet_collator_selection.rs","pallet_collective.rs","pallet_multisig.rs","pallet_preimage.rs","pallet_proxy.rs","pallet_ranked_collective.rs","pallet_referenda.rs","pallet_scheduler.rs","pallet_session.rs","pallet_timestamp.rs","pallet_utility.rs","pallet_xcm.rs","paritydb_weights.rs","rocksdb_weights.rs"]]],["constants.rs","impls.rs","lib.rs","xcm_config.rs"]],\
 "contracts_rococo_runtime":["",[["weights",[],["block_weights.rs","extrinsic_weights.rs","mod.rs","paritydb_weights.rs","rocksdb_weights.rs"]]],["constants.rs","contracts.rs","lib.rs","xcm_config.rs"]],\
 "cumulus_client_cli":["",[],["lib.rs"]],\
-"cumulus_client_collator":["",[],["lib.rs"]],\
-"cumulus_client_consensus_aura":["",[],["import_queue.rs","lib.rs"]],\
-"cumulus_client_consensus_common":["",[],["level_monitor.rs","lib.rs","parachain_consensus.rs"]],\
+"cumulus_client_collator":["",[],["lib.rs","service.rs"]],\
+"cumulus_client_consensus_aura":["",[],["import_queue.rs","lib.rs","unstable_reimpl.rs"]],\
+"cumulus_client_consensus_common":["",[],["import_queue.rs","level_monitor.rs","lib.rs","parachain_consensus.rs"]],\
+"cumulus_client_consensus_proposer":["",[],["lib.rs"]],\
 "cumulus_client_consensus_relay_chain":["",[],["import_queue.rs","lib.rs"]],\
 "cumulus_client_network":["",[],["lib.rs"]],\
 "cumulus_client_pov_recovery":["",[],["active_candidate_recovery.rs","lib.rs"]],\
