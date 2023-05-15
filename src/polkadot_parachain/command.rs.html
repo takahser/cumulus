@@ -1287,7 +1287,7 @@
 
 		<span class="kw">let </span>file = std::fs::File::open(<span class="self">self</span>).expect(<span class="string">&quot;Failed to open file&quot;</span>);
 		<span class="kw">let </span>reader = std::io::BufReader::new(file);
-		<span class="kw">let </span>chain_spec: EmptyChainSpecWithId = sp_serializer::from_reader(reader)
+		<span class="kw">let </span>chain_spec: EmptyChainSpecWithId = serde_json::from_reader(reader)
 			.expect(<span class="string">&quot;Failed to read &#39;json&#39; file with ChainSpec configuration&quot;</span>);
 
 		runtime(<span class="kw-2">&amp;</span>chain_spec.id)
