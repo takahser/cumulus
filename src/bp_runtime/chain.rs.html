@@ -373,6 +373,14 @@
 <a href="#373" id="373">373</a>
 <a href="#374" id="374">374</a>
 <a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Parity Bridges Common.
 
@@ -605,6 +613,14 @@
 	&lt;T <span class="kw">as </span>UnderlyingChainProvider&gt;::Chain: Parachain,
 {
 	<span class="kw">const </span>PARACHAIN_ID: u32 = &lt;&lt;T <span class="kw">as </span>UnderlyingChainProvider&gt;::Chain <span class="kw">as </span>Parachain&gt;::PARACHAIN_ID;
+}
+
+<span class="doccomment">/// Adapter for `Get&lt;u32&gt;` to access `PARACHAIN_ID` from `trait Parachain`
+</span><span class="kw">pub struct </span>ParachainIdOf&lt;Para&gt;(sp_std::marker::PhantomData&lt;Para&gt;);
+<span class="kw">impl</span>&lt;Para: Parachain&gt; frame_support::traits::Get&lt;u32&gt; <span class="kw">for </span>ParachainIdOf&lt;Para&gt; {
+	<span class="kw">fn </span>get() -&gt; u32 {
+		Para::PARACHAIN_ID
+	}
 }
 
 <span class="doccomment">/// Underlying chain type.

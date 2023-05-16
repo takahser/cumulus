@@ -1728,6 +1728,17 @@
 <a href="#1728" id="1728">1728</a>
 <a href="#1729" id="1729">1729</a>
 <a href="#1730" id="1730">1730</a>
+<a href="#1731" id="1731">1731</a>
+<a href="#1732" id="1732">1732</a>
+<a href="#1733" id="1733">1733</a>
+<a href="#1734" id="1734">1734</a>
+<a href="#1735" id="1735">1735</a>
+<a href="#1736" id="1736">1736</a>
+<a href="#1737" id="1737">1737</a>
+<a href="#1738" id="1738">1738</a>
+<a href="#1739" id="1739">1739</a>
+<a href="#1740" id="1740">1740</a>
+<a href="#1741" id="1741">1741</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2021 Parity Technologies (UK) Ltd.
 // This file is part of Parity Bridges Common.
 
@@ -1754,7 +1765,7 @@
 };
 <span class="kw">use </span>bp_messages::{LaneId, MessageNonce};
 <span class="kw">use </span>bp_relayers::{RewardsAccountOwner, RewardsAccountParams};
-<span class="kw">use </span>bp_runtime::{RangeInclusiveExt, StaticStrProvider};
+<span class="kw">use </span>bp_runtime::{Parachain, ParachainIdOf, RangeInclusiveExt, StaticStrProvider};
 <span class="kw">use </span>codec::{Decode, Encode};
 <span class="kw">use </span>frame_support::{
 	dispatch::{CallableCallFor, DispatchInfo, Dispatchable, PostDispatchInfo},
@@ -1801,14 +1812,25 @@
 }
 
 <span class="doccomment">/// Default implementation of `RefundableParachainId`.
-</span><span class="kw">pub struct </span>RefundableParachain&lt;Instance, Id&gt;(PhantomData&lt;(Instance, Id)&gt;);
+</span><span class="kw">pub struct </span>DefaultRefundableParachainId&lt;Instance, Id&gt;(PhantomData&lt;(Instance, Id)&gt;);
 
-<span class="kw">impl</span>&lt;Instance, Id&gt; RefundableParachainId <span class="kw">for </span>RefundableParachain&lt;Instance, Id&gt;
+<span class="kw">impl</span>&lt;Instance, Id&gt; RefundableParachainId <span class="kw">for </span>DefaultRefundableParachainId&lt;Instance, Id&gt;
 <span class="kw">where
 	</span>Id: Get&lt;u32&gt;,
 {
 	<span class="kw">type </span>Instance = Instance;
 	<span class="kw">type </span>Id = Id;
+}
+
+<span class="doccomment">/// Implementation of `RefundableParachainId` for `trait Parachain`.
+</span><span class="kw">pub struct </span>RefundableParachain&lt;Instance, Para&gt;(PhantomData&lt;(Instance, Para)&gt;);
+
+<span class="kw">impl</span>&lt;Instance, Para&gt; RefundableParachainId <span class="kw">for </span>RefundableParachain&lt;Instance, Para&gt;
+<span class="kw">where
+	</span>Para: Parachain,
+{
+	<span class="kw">type </span>Instance = Instance;
+	<span class="kw">type </span>Id = ParachainIdOf&lt;Para&gt;;
 }
 
 <span class="doccomment">/// Trait identifying a bridged messages lane. A relayer might be refunded for delivering messages
@@ -2412,7 +2434,7 @@
 	<span class="macro">bp_runtime::generate_static_str_provider!</span>(TestExtension);
 	<span class="kw">type </span>TestExtension = RefundBridgedParachainMessages&lt;
 		TestRuntime,
-		RefundableParachain&lt;(), TestParachain&gt;,
+		DefaultRefundableParachainId&lt;(), TestParachain&gt;,
 		RefundableMessagesLane&lt;(), TestLaneId&gt;,
 		ActualFeeRefund&lt;TestRuntime&gt;,
 		ConstU64&lt;<span class="number">1</span>&gt;,

@@ -429,8 +429,6 @@
 <a href="#429" id="429">429</a>
 <a href="#430" id="430">430</a>
 <a href="#431" id="431">431</a>
-<a href="#432" id="432">432</a>
-<a href="#433" id="433">433</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Parity Bridges Common.
 
@@ -449,16 +447,19 @@
 
 </span><span class="doccomment">//! Everything about outgoing messages sending.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::Config;
+</span><span class="kw">use crate</span>::{Config, LOG_TARGET};
 
 <span class="kw">use </span>bp_messages::{
 	DeliveredMessages, LaneId, MessageNonce, MessagePayload, OutboundLaneData, UnrewardedRelayer,
+	VerificationError,
 };
+<span class="kw">use </span>codec::{Decode, Encode};
 <span class="kw">use </span>frame_support::{
 	weights::{RuntimeDbWeight, Weight},
-	BoundedVec, RuntimeDebug,
+	BoundedVec, PalletError, RuntimeDebug,
 };
 <span class="kw">use </span>num_traits::Zero;
+<span class="kw">use </span>scale_info::TypeInfo;
 <span class="kw">use </span>sp_std::collections::vec_deque::VecDeque;
 
 <span class="doccomment">/// Outbound lane storage.
@@ -473,7 +474,11 @@
 	</span><span class="attr">#[cfg(test)]
 	</span><span class="kw">fn </span>message(<span class="kw-2">&amp;</span><span class="self">self</span>, nonce: <span class="kw-2">&amp;</span>MessageNonce) -&gt; <span class="prelude-ty">Option</span>&lt;MessagePayload&gt;;
 	<span class="doccomment">/// Save outbound message in the storage.
-	</span><span class="kw">fn </span>save_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, nonce: MessageNonce, message_payload: MessagePayload);
+	</span><span class="kw">fn </span>save_message(
+		<span class="kw-2">&amp;mut </span><span class="self">self</span>,
+		nonce: MessageNonce,
+		message_payload: MessagePayload,
+	) -&gt; <span class="prelude-ty">Result</span>&lt;(), VerificationError&gt;;
 	<span class="doccomment">/// Remove outbound message from the storage.
 	</span><span class="kw">fn </span>remove_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, nonce: <span class="kw-2">&amp;</span>MessageNonce);
 }
@@ -482,13 +487,8 @@
 </span><span class="kw">pub type </span>StoredMessagePayload&lt;T, I&gt; = BoundedVec&lt;u8, &lt;T <span class="kw">as </span>Config&lt;I&gt;&gt;::MaximalOutboundPayloadSize&gt;;
 
 <span class="doccomment">/// Result of messages receival confirmation.
-</span><span class="attr">#[derive(RuntimeDebug, PartialEq, Eq)]
-</span><span class="kw">pub enum </span>ReceivalConfirmationResult {
-	<span class="doccomment">/// New messages have been confirmed by the confirmation transaction.
-	</span>ConfirmedMessages(DeliveredMessages),
-	<span class="doccomment">/// Confirmation transaction brings no new confirmation. This may be a result of relayer
-	/// error or several relayers running.
-	</span>NoNewConfirmations,
+</span><span class="attr">#[derive(Encode, Decode, RuntimeDebug, PartialEq, Eq, PalletError, TypeInfo)]
+</span><span class="kw">pub enum </span>ReceivalConfirmationError {
 	<span class="doccomment">/// Bridged chain is trying to confirm more messages than we have generated. May be a result
 	/// of invalid bridged chain storage.
 	</span>FailedToConfirmFutureMessages,
@@ -499,7 +499,7 @@
 	/// bridged chain storage.
 	</span>NonConsecutiveUnrewardedRelayerEntries,
 	<span class="doccomment">/// The chain has more messages that need to be confirmed than there is in the proof.
-	</span>TryingToConfirmMoreMessagesThanExpected(MessageNonce),
+	</span>TryingToConfirmMoreMessagesThanExpected,
 }
 
 <span class="doccomment">/// Outbound messages lane.
@@ -521,15 +521,18 @@
 	<span class="doccomment">/// Send message over lane.
 	///
 	/// Returns new message nonce.
-	</span><span class="kw">pub fn </span>send_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, message_payload: MessagePayload) -&gt; MessageNonce {
+	</span><span class="kw">pub fn </span>send_message(
+		<span class="kw-2">&amp;mut </span><span class="self">self</span>,
+		message_payload: MessagePayload,
+	) -&gt; <span class="prelude-ty">Result</span>&lt;MessageNonce, VerificationError&gt; {
 		<span class="kw">let </span><span class="kw-2">mut </span>data = <span class="self">self</span>.storage.data();
 		<span class="kw">let </span>nonce = data.latest_generated_nonce + <span class="number">1</span>;
 		data.latest_generated_nonce = nonce;
 
-		<span class="self">self</span>.storage.save_message(nonce, message_payload);
+		<span class="self">self</span>.storage.save_message(nonce, message_payload)<span class="question-mark">?</span>;
 		<span class="self">self</span>.storage.set_data(data);
 
-		nonce
+		<span class="prelude-val">Ok</span>(nonce)
 	}
 
 	<span class="doccomment">/// Confirm messages delivery.
@@ -538,37 +541,39 @@
 		max_allowed_messages: MessageNonce,
 		latest_delivered_nonce: MessageNonce,
 		relayers: <span class="kw-2">&amp;</span>VecDeque&lt;UnrewardedRelayer&lt;RelayerId&gt;&gt;,
-	) -&gt; ReceivalConfirmationResult {
+	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;DeliveredMessages&gt;, ReceivalConfirmationError&gt; {
 		<span class="kw">let </span><span class="kw-2">mut </span>data = <span class="self">self</span>.storage.data();
-		<span class="kw">if </span>latest_delivered_nonce &lt;= data.latest_received_nonce {
-			<span class="kw">return </span>ReceivalConfirmationResult::NoNewConfirmations
+		<span class="kw">let </span>confirmed_messages = DeliveredMessages {
+			begin: data.latest_received_nonce.saturating_add(<span class="number">1</span>),
+			end: latest_delivered_nonce,
+		};
+		<span class="kw">if </span>confirmed_messages.total_messages() == <span class="number">0 </span>{
+			<span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
 		}
-		<span class="kw">if </span>latest_delivered_nonce &gt; data.latest_generated_nonce {
-			<span class="kw">return </span>ReceivalConfirmationResult::FailedToConfirmFutureMessages
+		<span class="kw">if </span>confirmed_messages.end &gt; data.latest_generated_nonce {
+			<span class="kw">return </span><span class="prelude-val">Err</span>(ReceivalConfirmationError::FailedToConfirmFutureMessages)
 		}
-		<span class="kw">if </span>latest_delivered_nonce - data.latest_received_nonce &gt; max_allowed_messages {
+		<span class="kw">if </span>confirmed_messages.total_messages() &gt; max_allowed_messages {
 			<span class="comment">// that the relayer has declared correct number of messages that the proof contains (it
 			// is checked outside of the function). But it may happen (but only if this/bridged
 			// chain storage is corrupted, though) that the actual number of confirmed messages if
 			// larger than declared. This would mean that &#39;reward loop&#39; will take more time than the
 			// weight formula accounts, so we can&#39;t allow that.
-			</span><span class="kw">return </span>ReceivalConfirmationResult::TryingToConfirmMoreMessagesThanExpected(
-				latest_delivered_nonce - data.latest_received_nonce,
-			)
+			</span><span class="macro">log::trace!</span>(
+				target: LOG_TARGET,
+				<span class="string">&quot;Messages delivery proof contains too many messages to confirm: {} vs declared {}&quot;</span>,
+				confirmed_messages.total_messages(),
+				max_allowed_messages,
+			);
+			<span class="kw">return </span><span class="prelude-val">Err</span>(ReceivalConfirmationError::TryingToConfirmMoreMessagesThanExpected)
 		}
 
-		<span class="kw">if let </span><span class="prelude-val">Err</span>(e) = ensure_unrewarded_relayers_are_correct(latest_delivered_nonce, relayers) {
-			<span class="kw">return </span>e
-		}
+		ensure_unrewarded_relayers_are_correct(confirmed_messages.end, relayers)<span class="question-mark">?</span>;
 
-		<span class="kw">let </span>prev_latest_received_nonce = data.latest_received_nonce;
-		data.latest_received_nonce = latest_delivered_nonce;
+		data.latest_received_nonce = confirmed_messages.end;
 		<span class="self">self</span>.storage.set_data(data);
 
-		ReceivalConfirmationResult::ConfirmedMessages(DeliveredMessages {
-			begin: prev_latest_received_nonce + <span class="number">1</span>,
-			end: latest_delivered_nonce,
-		})
+		<span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(confirmed_messages))
 	}
 
 	<span class="doccomment">/// Prune at most `max_messages_to_prune` already received messages.
@@ -609,27 +614,24 @@
 </span><span class="kw">fn </span>ensure_unrewarded_relayers_are_correct&lt;RelayerId&gt;(
 	latest_received_nonce: MessageNonce,
 	relayers: <span class="kw-2">&amp;</span>VecDeque&lt;UnrewardedRelayer&lt;RelayerId&gt;&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), ReceivalConfirmationResult&gt; {
-	<span class="kw">let </span><span class="kw-2">mut </span>last_entry_end: <span class="prelude-ty">Option</span>&lt;MessageNonce&gt; = <span class="prelude-val">None</span>;
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), ReceivalConfirmationError&gt; {
+	<span class="kw">let </span><span class="kw-2">mut </span>expected_entry_begin = relayers.front().map(|entry| entry.messages.begin);
 	<span class="kw">for </span>entry <span class="kw">in </span>relayers {
 		<span class="comment">// unrewarded relayer entry must have at least 1 unconfirmed message
 		// (guaranteed by the `InboundLane::receive_message()`)
 		</span><span class="kw">if </span>entry.messages.end &lt; entry.messages.begin {
-			<span class="kw">return </span><span class="prelude-val">Err</span>(ReceivalConfirmationResult::EmptyUnrewardedRelayerEntry)
+			<span class="kw">return </span><span class="prelude-val">Err</span>(ReceivalConfirmationError::EmptyUnrewardedRelayerEntry)
 		}
 		<span class="comment">// every entry must confirm range of messages that follows previous entry range
 		// (guaranteed by the `InboundLane::receive_message()`)
-		</span><span class="kw">if let </span><span class="prelude-val">Some</span>(last_entry_end) = last_entry_end {
-			<span class="kw">let </span>expected_entry_begin = last_entry_end.checked_add(<span class="number">1</span>);
-			<span class="kw">if </span>expected_entry_begin != <span class="prelude-val">Some</span>(entry.messages.begin) {
-				<span class="kw">return </span><span class="prelude-val">Err</span>(ReceivalConfirmationResult::NonConsecutiveUnrewardedRelayerEntries)
-			}
+		</span><span class="kw">if </span>expected_entry_begin != <span class="prelude-val">Some</span>(entry.messages.begin) {
+			<span class="kw">return </span><span class="prelude-val">Err</span>(ReceivalConfirmationError::NonConsecutiveUnrewardedRelayerEntries)
 		}
-		last_entry_end = <span class="prelude-val">Some</span>(entry.messages.end);
+		expected_entry_begin = entry.messages.end.checked_add(<span class="number">1</span>);
 		<span class="comment">// entry can&#39;t confirm messages larger than `inbound_lane_data.latest_received_nonce()`
 		// (guaranteed by the `InboundLane::receive_message()`)
 		</span><span class="kw">if </span>entry.messages.end &gt; latest_received_nonce {
-			<span class="kw">return </span><span class="prelude-val">Err</span>(ReceivalConfirmationResult::FailedToConfirmFutureMessages)
+			<span class="kw">return </span><span class="prelude-val">Err</span>(ReceivalConfirmationError::FailedToConfirmFutureMessages)
 		}
 	}
 
@@ -646,7 +648,7 @@
 		},
 		outbound_lane,
 	};
-	<span class="kw">use </span>frame_support::weights::constants::RocksDbWeight;
+	<span class="kw">use </span>frame_support::{assert_ok, weights::constants::RocksDbWeight};
 	<span class="kw">use </span>sp_std::ops::RangeInclusive;
 
 	<span class="kw">fn </span>unrewarded_relayers(
@@ -664,12 +666,12 @@
 	<span class="kw">fn </span>assert_3_messages_confirmation_fails(
 		latest_received_nonce: MessageNonce,
 		relayers: <span class="kw-2">&amp;</span>VecDeque&lt;UnrewardedRelayer&lt;TestRelayer&gt;&gt;,
-	) -&gt; ReceivalConfirmationResult {
+	) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;DeliveredMessages&gt;, ReceivalConfirmationError&gt; {
 		run_test(|| {
 			<span class="kw">let </span><span class="kw-2">mut </span>lane = outbound_lane::&lt;TestRuntime, <span class="kw">_</span>&gt;(TEST_LANE_ID);
-			lane.send_message(outbound_message_data(REGULAR_PAYLOAD));
-			lane.send_message(outbound_message_data(REGULAR_PAYLOAD));
-			lane.send_message(outbound_message_data(REGULAR_PAYLOAD));
+			<span class="macro">assert_ok!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)));
+			<span class="macro">assert_ok!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)));
+			<span class="macro">assert_ok!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)));
 			<span class="macro">assert_eq!</span>(lane.storage.data().latest_generated_nonce, <span class="number">3</span>);
 			<span class="macro">assert_eq!</span>(lane.storage.data().latest_received_nonce, <span class="number">0</span>);
 			<span class="kw">let </span>result = lane.confirm_delivery(<span class="number">3</span>, latest_received_nonce, relayers);
@@ -684,7 +686,7 @@
 		run_test(|| {
 			<span class="kw">let </span><span class="kw-2">mut </span>lane = outbound_lane::&lt;TestRuntime, <span class="kw">_</span>&gt;(TEST_LANE_ID);
 			<span class="macro">assert_eq!</span>(lane.storage.data().latest_generated_nonce, <span class="number">0</span>);
-			<span class="macro">assert_eq!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)), <span class="number">1</span>);
+			<span class="macro">assert_eq!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)), <span class="prelude-val">Ok</span>(<span class="number">1</span>));
 			<span class="macro">assert!</span>(lane.storage.message(<span class="kw-2">&amp;</span><span class="number">1</span>).is_some());
 			<span class="macro">assert_eq!</span>(lane.storage.data().latest_generated_nonce, <span class="number">1</span>);
 		});
@@ -694,14 +696,14 @@
 	</span><span class="kw">fn </span>confirm_delivery_works() {
 		run_test(|| {
 			<span class="kw">let </span><span class="kw-2">mut </span>lane = outbound_lane::&lt;TestRuntime, <span class="kw">_</span>&gt;(TEST_LANE_ID);
-			<span class="macro">assert_eq!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)), <span class="number">1</span>);
-			<span class="macro">assert_eq!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)), <span class="number">2</span>);
-			<span class="macro">assert_eq!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)), <span class="number">3</span>);
+			<span class="macro">assert_eq!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)), <span class="prelude-val">Ok</span>(<span class="number">1</span>));
+			<span class="macro">assert_eq!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)), <span class="prelude-val">Ok</span>(<span class="number">2</span>));
+			<span class="macro">assert_eq!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)), <span class="prelude-val">Ok</span>(<span class="number">3</span>));
 			<span class="macro">assert_eq!</span>(lane.storage.data().latest_generated_nonce, <span class="number">3</span>);
 			<span class="macro">assert_eq!</span>(lane.storage.data().latest_received_nonce, <span class="number">0</span>);
 			<span class="macro">assert_eq!</span>(
 				lane.confirm_delivery(<span class="number">3</span>, <span class="number">3</span>, <span class="kw-2">&amp;</span>unrewarded_relayers(<span class="number">1</span>..=<span class="number">3</span>)),
-				ReceivalConfirmationResult::ConfirmedMessages(delivered_messages(<span class="number">1</span>..=<span class="number">3</span>)),
+				<span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(delivered_messages(<span class="number">1</span>..=<span class="number">3</span>))),
 			);
 			<span class="macro">assert_eq!</span>(lane.storage.data().latest_generated_nonce, <span class="number">3</span>);
 			<span class="macro">assert_eq!</span>(lane.storage.data().latest_received_nonce, <span class="number">3</span>);
@@ -712,26 +714,20 @@
 	</span><span class="kw">fn </span>confirm_delivery_rejects_nonce_lesser_than_latest_received() {
 		run_test(|| {
 			<span class="kw">let </span><span class="kw-2">mut </span>lane = outbound_lane::&lt;TestRuntime, <span class="kw">_</span>&gt;(TEST_LANE_ID);
-			lane.send_message(outbound_message_data(REGULAR_PAYLOAD));
-			lane.send_message(outbound_message_data(REGULAR_PAYLOAD));
-			lane.send_message(outbound_message_data(REGULAR_PAYLOAD));
+			<span class="macro">assert_ok!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)));
+			<span class="macro">assert_ok!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)));
+			<span class="macro">assert_ok!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)));
 			<span class="macro">assert_eq!</span>(lane.storage.data().latest_generated_nonce, <span class="number">3</span>);
 			<span class="macro">assert_eq!</span>(lane.storage.data().latest_received_nonce, <span class="number">0</span>);
 			<span class="macro">assert_eq!</span>(
 				lane.confirm_delivery(<span class="number">3</span>, <span class="number">3</span>, <span class="kw-2">&amp;</span>unrewarded_relayers(<span class="number">1</span>..=<span class="number">3</span>)),
-				ReceivalConfirmationResult::ConfirmedMessages(delivered_messages(<span class="number">1</span>..=<span class="number">3</span>)),
+				<span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(delivered_messages(<span class="number">1</span>..=<span class="number">3</span>))),
 			);
-			<span class="macro">assert_eq!</span>(
-				lane.confirm_delivery(<span class="number">3</span>, <span class="number">3</span>, <span class="kw-2">&amp;</span>unrewarded_relayers(<span class="number">1</span>..=<span class="number">3</span>)),
-				ReceivalConfirmationResult::NoNewConfirmations,
-			);
+			<span class="macro">assert_eq!</span>(lane.confirm_delivery(<span class="number">3</span>, <span class="number">3</span>, <span class="kw-2">&amp;</span>unrewarded_relayers(<span class="number">1</span>..=<span class="number">3</span>)), <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),);
 			<span class="macro">assert_eq!</span>(lane.storage.data().latest_generated_nonce, <span class="number">3</span>);
 			<span class="macro">assert_eq!</span>(lane.storage.data().latest_received_nonce, <span class="number">3</span>);
 
-			<span class="macro">assert_eq!</span>(
-				lane.confirm_delivery(<span class="number">1</span>, <span class="number">2</span>, <span class="kw-2">&amp;</span>unrewarded_relayers(<span class="number">1</span>..=<span class="number">1</span>)),
-				ReceivalConfirmationResult::NoNewConfirmations,
-			);
+			<span class="macro">assert_eq!</span>(lane.confirm_delivery(<span class="number">1</span>, <span class="number">2</span>, <span class="kw-2">&amp;</span>unrewarded_relayers(<span class="number">1</span>..=<span class="number">1</span>)), <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),);
 			<span class="macro">assert_eq!</span>(lane.storage.data().latest_generated_nonce, <span class="number">3</span>);
 			<span class="macro">assert_eq!</span>(lane.storage.data().latest_received_nonce, <span class="number">3</span>);
 		});
@@ -741,7 +737,7 @@
 	</span><span class="kw">fn </span>confirm_delivery_rejects_nonce_larger_than_last_generated() {
 		<span class="macro">assert_eq!</span>(
 			assert_3_messages_confirmation_fails(<span class="number">10</span>, <span class="kw-2">&amp;</span>unrewarded_relayers(<span class="number">1</span>..=<span class="number">10</span>),),
-			ReceivalConfirmationResult::FailedToConfirmFutureMessages,
+			<span class="prelude-val">Err</span>(ReceivalConfirmationError::FailedToConfirmFutureMessages),
 		);
 	}
 
@@ -756,7 +752,7 @@
 					.chain(unrewarded_relayers(<span class="number">3</span>..=<span class="number">3</span>).into_iter())
 					.collect(),
 			),
-			ReceivalConfirmationResult::FailedToConfirmFutureMessages,
+			<span class="prelude-val">Err</span>(ReceivalConfirmationError::FailedToConfirmFutureMessages),
 		);
 	}
 
@@ -772,7 +768,7 @@
 					.chain(unrewarded_relayers(<span class="number">2</span>..=<span class="number">3</span>).into_iter())
 					.collect(),
 			),
-			ReceivalConfirmationResult::EmptyUnrewardedRelayerEntry,
+			<span class="prelude-val">Err</span>(ReceivalConfirmationError::EmptyUnrewardedRelayerEntry),
 		);
 	}
 
@@ -787,7 +783,7 @@
 					.chain(unrewarded_relayers(<span class="number">2</span>..=<span class="number">2</span>).into_iter())
 					.collect(),
 			),
-			ReceivalConfirmationResult::NonConsecutiveUnrewardedRelayerEntries,
+			<span class="prelude-val">Err</span>(ReceivalConfirmationError::NonConsecutiveUnrewardedRelayerEntries),
 		);
 	}
 
@@ -802,9 +798,9 @@
 			);
 			<span class="macro">assert_eq!</span>(lane.storage.data().oldest_unpruned_nonce, <span class="number">1</span>);
 			<span class="comment">// when nothing is confirmed, nothing is pruned
-			</span>lane.send_message(outbound_message_data(REGULAR_PAYLOAD));
-			lane.send_message(outbound_message_data(REGULAR_PAYLOAD));
-			lane.send_message(outbound_message_data(REGULAR_PAYLOAD));
+			</span><span class="macro">assert_ok!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)));
+			<span class="macro">assert_ok!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)));
+			<span class="macro">assert_ok!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)));
 			<span class="macro">assert!</span>(lane.storage.message(<span class="kw-2">&amp;</span><span class="number">1</span>).is_some());
 			<span class="macro">assert!</span>(lane.storage.message(<span class="kw-2">&amp;</span><span class="number">2</span>).is_some());
 			<span class="macro">assert!</span>(lane.storage.message(<span class="kw-2">&amp;</span><span class="number">3</span>).is_some());
@@ -816,7 +812,7 @@
 			<span class="comment">// after confirmation, some messages are received
 			</span><span class="macro">assert_eq!</span>(
 				lane.confirm_delivery(<span class="number">2</span>, <span class="number">2</span>, <span class="kw-2">&amp;</span>unrewarded_relayers(<span class="number">1</span>..=<span class="number">2</span>)),
-				ReceivalConfirmationResult::ConfirmedMessages(delivered_messages(<span class="number">1</span>..=<span class="number">2</span>)),
+				<span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(delivered_messages(<span class="number">1</span>..=<span class="number">2</span>))),
 			);
 			<span class="macro">assert_eq!</span>(
 				lane.prune_messages(RocksDbWeight::get(), RocksDbWeight::get().writes(<span class="number">101</span>)),
@@ -829,7 +825,7 @@
 			<span class="comment">// after last message is confirmed, everything is pruned
 			</span><span class="macro">assert_eq!</span>(
 				lane.confirm_delivery(<span class="number">1</span>, <span class="number">3</span>, <span class="kw-2">&amp;</span>unrewarded_relayers(<span class="number">3</span>..=<span class="number">3</span>)),
-				ReceivalConfirmationResult::ConfirmedMessages(delivered_messages(<span class="number">3</span>..=<span class="number">3</span>)),
+				<span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(delivered_messages(<span class="number">3</span>..=<span class="number">3</span>))),
 			);
 			<span class="macro">assert_eq!</span>(
 				lane.prune_messages(RocksDbWeight::get(), RocksDbWeight::get().writes(<span class="number">101</span>)),
@@ -846,20 +842,20 @@
 	</span><span class="kw">fn </span>confirm_delivery_detects_when_more_than_expected_messages_are_confirmed() {
 		run_test(|| {
 			<span class="kw">let </span><span class="kw-2">mut </span>lane = outbound_lane::&lt;TestRuntime, <span class="kw">_</span>&gt;(TEST_LANE_ID);
-			lane.send_message(outbound_message_data(REGULAR_PAYLOAD));
-			lane.send_message(outbound_message_data(REGULAR_PAYLOAD));
-			lane.send_message(outbound_message_data(REGULAR_PAYLOAD));
+			<span class="macro">assert_ok!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)));
+			<span class="macro">assert_ok!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)));
+			<span class="macro">assert_ok!</span>(lane.send_message(outbound_message_data(REGULAR_PAYLOAD)));
 			<span class="macro">assert_eq!</span>(
 				lane.confirm_delivery(<span class="number">0</span>, <span class="number">3</span>, <span class="kw-2">&amp;</span>unrewarded_relayers(<span class="number">1</span>..=<span class="number">3</span>)),
-				ReceivalConfirmationResult::TryingToConfirmMoreMessagesThanExpected(<span class="number">3</span>),
+				<span class="prelude-val">Err</span>(ReceivalConfirmationError::TryingToConfirmMoreMessagesThanExpected),
 			);
 			<span class="macro">assert_eq!</span>(
 				lane.confirm_delivery(<span class="number">2</span>, <span class="number">3</span>, <span class="kw-2">&amp;</span>unrewarded_relayers(<span class="number">1</span>..=<span class="number">3</span>)),
-				ReceivalConfirmationResult::TryingToConfirmMoreMessagesThanExpected(<span class="number">3</span>),
+				<span class="prelude-val">Err</span>(ReceivalConfirmationError::TryingToConfirmMoreMessagesThanExpected),
 			);
 			<span class="macro">assert_eq!</span>(
 				lane.confirm_delivery(<span class="number">3</span>, <span class="number">3</span>, <span class="kw-2">&amp;</span>unrewarded_relayers(<span class="number">1</span>..=<span class="number">3</span>)),
-				ReceivalConfirmationResult::ConfirmedMessages(delivered_messages(<span class="number">1</span>..=<span class="number">3</span>)),
+				<span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(delivered_messages(<span class="number">1</span>..=<span class="number">3</span>))),
 			);
 		});
 	}

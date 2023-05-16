@@ -1421,10 +1421,6 @@
 <a href="#1421" id="1421">1421</a>
 <a href="#1422" id="1422">1422</a>
 <a href="#1423" id="1423">1423</a>
-<a href="#1424" id="1424">1424</a>
-<a href="#1425" id="1425">1425</a>
-<a href="#1426" id="1426">1426</a>
-<a href="#1427" id="1427">1427</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2021 Parity Technologies (UK) Ltd.
 // This file is part of Parity Bridges Common.
 
@@ -2639,11 +2635,8 @@
 	</span><span class="kw">fn </span>parse_finalized_storage_proof_rejects_proof_on_unknown_header() {
 		run_test(|| {
 			<span class="macro">assert_noop!</span>(
-				Pallet::&lt;TestRuntime&gt;::parse_finalized_storage_proof(
-					Default::default(),
-					<span class="macro">vec!</span>[],
-					|<span class="kw">_</span>| (),
-				),
+				Pallet::&lt;TestRuntime&gt;::storage_proof_checker(Default::default(), <span class="macro">vec!</span>[],)
+					.map(|<span class="kw">_</span>| ()),
 				bp_header_chain::HeaderChainError::UnknownHeader,
 			);
 		});
@@ -2662,8 +2655,7 @@
 			&lt;ImportedHeaders&lt;TestRuntime&gt;&gt;::insert(hash, header.build());
 
 			<span class="macro">assert_ok!</span>(
-				Pallet::&lt;TestRuntime&gt;::parse_finalized_storage_proof(hash, storage_proof, |<span class="kw">_</span>| (),),
-				(),
+				Pallet::&lt;TestRuntime&gt;::storage_proof_checker(hash, storage_proof).map(|<span class="kw">_</span>| ())
 			);
 		});
 	}

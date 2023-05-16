@@ -199,16 +199,6 @@
 <a href="#199" id="199">199</a>
 <a href="#200" id="200">200</a>
 <a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
-<a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a>
-<a href="#205" id="205">205</a>
-<a href="#206" id="206">206</a>
-<a href="#207" id="207">207</a>
-<a href="#208" id="208">208</a>
-<a href="#209" id="209">209</a>
-<a href="#210" id="210">210</a>
-<a href="#211" id="211">211</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Parity Bridges Common.
 
@@ -227,7 +217,7 @@
 
 </span><span class="doccomment">//! Primitives of messages module, that are used on the source chain.
 
-</span><span class="kw">use crate</span>::{InboundLaneData, LaneId, MessageNonce, OutboundLaneData};
+</span><span class="kw">use crate</span>::{InboundLaneData, LaneId, MessageNonce, OutboundLaneData, VerificationError};
 
 <span class="kw">use </span><span class="kw">crate</span>::UnrewardedRelayer;
 <span class="kw">use </span>bp_runtime::Size;
@@ -251,9 +241,6 @@
 /// source chain to the target chain. The `AccountId` type here means the account
 /// type used by the source chain.
 </span><span class="kw">pub trait </span>TargetHeaderChain&lt;Payload, AccountId&gt; {
-	<span class="doccomment">/// Error type.
-	</span><span class="kw">type </span>Error: Debug;
-
 	<span class="doccomment">/// Proof that messages have been received by target chain.
 	</span><span class="kw">type </span>MessagesDeliveryProof: Parameter + Size;
 
@@ -269,12 +256,12 @@
 	/// 1MB. BTC nodes aren&#39;t accepting transactions that are larger than 1MB, so relayer
 	/// will be unable to craft valid transaction =&gt; this (and all subsequent) messages will
 	/// never be delivered.
-	</span><span class="kw">fn </span>verify_message(payload: <span class="kw-2">&amp;</span>Payload) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;;
+	</span><span class="kw">fn </span>verify_message(payload: <span class="kw-2">&amp;</span>Payload) -&gt; <span class="prelude-ty">Result</span>&lt;(), VerificationError&gt;;
 
 	<span class="doccomment">/// Verify messages delivery proof and return lane &amp;&amp; nonce of the latest received message.
 	</span><span class="kw">fn </span>verify_messages_delivery_proof(
 		proof: <span class="self">Self</span>::MessagesDeliveryProof,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;(LaneId, InboundLaneData&lt;AccountId&gt;), <span class="self">Self</span>::Error&gt;;
+	) -&gt; <span class="prelude-ty">Result</span>&lt;(LaneId, InboundLaneData&lt;AccountId&gt;), VerificationError&gt;;
 }
 
 <span class="doccomment">/// Lane message verifier.
@@ -286,9 +273,6 @@
 ///
 /// Any fee requirements should also be enforced here.
 </span><span class="kw">pub trait </span>LaneMessageVerifier&lt;SenderOrigin, Payload&gt; {
-	<span class="doccomment">/// Error type.
-	</span><span class="kw">type </span>Error: Debug + Into&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;;
-
 	<span class="doccomment">/// Verify message payload and return Ok(()) if message is valid and allowed to be sent over the
 	/// lane.
 	</span><span class="kw">fn </span>verify_message(
@@ -296,7 +280,7 @@
 		lane: <span class="kw-2">&amp;</span>LaneId,
 		outbound_data: <span class="kw-2">&amp;</span>OutboundLaneData,
 		payload: <span class="kw-2">&amp;</span>Payload,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;;
+	) -&gt; <span class="prelude-ty">Result</span>&lt;(), VerificationError&gt;;
 }
 
 <span class="doccomment">/// Manages payments that are happening at the source chain during delivery confirmation
@@ -380,31 +364,27 @@
 	<span class="string">&quot;This chain is configured to reject all outbound messages&quot;</span>;
 
 <span class="kw">impl</span>&lt;Payload, AccountId&gt; TargetHeaderChain&lt;Payload, AccountId&gt; <span class="kw">for </span>ForbidOutboundMessages {
-	<span class="kw">type </span>Error = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
-
 	<span class="kw">type </span>MessagesDeliveryProof = ();
 
-	<span class="kw">fn </span>verify_message(_payload: <span class="kw-2">&amp;</span>Payload) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
-		<span class="prelude-val">Err</span>(ALL_OUTBOUND_MESSAGES_REJECTED)
+	<span class="kw">fn </span>verify_message(_payload: <span class="kw-2">&amp;</span>Payload) -&gt; <span class="prelude-ty">Result</span>&lt;(), VerificationError&gt; {
+		<span class="prelude-val">Err</span>(VerificationError::Other(ALL_OUTBOUND_MESSAGES_REJECTED))
 	}
 
 	<span class="kw">fn </span>verify_messages_delivery_proof(
 		_proof: <span class="self">Self</span>::MessagesDeliveryProof,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;(LaneId, InboundLaneData&lt;AccountId&gt;), <span class="self">Self</span>::Error&gt; {
-		<span class="prelude-val">Err</span>(ALL_OUTBOUND_MESSAGES_REJECTED)
+	) -&gt; <span class="prelude-ty">Result</span>&lt;(LaneId, InboundLaneData&lt;AccountId&gt;), VerificationError&gt; {
+		<span class="prelude-val">Err</span>(VerificationError::Other(ALL_OUTBOUND_MESSAGES_REJECTED))
 	}
 }
 
 <span class="kw">impl</span>&lt;SenderOrigin, Payload&gt; LaneMessageVerifier&lt;SenderOrigin, Payload&gt; <span class="kw">for </span>ForbidOutboundMessages {
-	<span class="kw">type </span>Error = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
-
 	<span class="kw">fn </span>verify_message(
 		_submitter: <span class="kw-2">&amp;</span>SenderOrigin,
 		_lane: <span class="kw-2">&amp;</span>LaneId,
 		_outbound_data: <span class="kw-2">&amp;</span>OutboundLaneData,
 		_payload: <span class="kw-2">&amp;</span>Payload,
-	) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
-		<span class="prelude-val">Err</span>(ALL_OUTBOUND_MESSAGES_REJECTED)
+	) -&gt; <span class="prelude-ty">Result</span>&lt;(), VerificationError&gt; {
+		<span class="prelude-val">Err</span>(VerificationError::Other(ALL_OUTBOUND_MESSAGES_REJECTED))
 	}
 }
 

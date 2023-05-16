@@ -691,8 +691,8 @@
 <span class="kw">impl </span>BaseMessagesProofInfo {
 	<span class="doccomment">/// Returns true if `bundled_range` continues the `0..=best_stored_nonce` range.
 	</span><span class="kw">fn </span>appends_to_stored_nonce(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-		<span class="kw-2">*</span><span class="self">self</span>.bundled_range.start() == <span class="self">self</span>.best_stored_nonce + <span class="number">1
-	</span>}
+		<span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="self">self</span>.bundled_range.start()) == <span class="self">self</span>.best_stored_nonce.checked_add(<span class="number">1</span>)
+	}
 }
 
 <span class="doccomment">/// Occupation state of the unrewarded relayers vector.

@@ -406,6 +406,7 @@
 <a href="#406" id="406">406</a>
 <a href="#407" id="407">407</a>
 <a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Parity Bridges Common.
 
@@ -457,7 +458,8 @@
 	</span><span class="kw">pub </span>votes_ancestries: Vec&lt;Header&gt;,
 }
 
-<span class="kw">impl</span>&lt;Header: HeaderT&gt; sp_std::fmt::Debug <span class="kw">for </span>GrandpaJustification&lt;Header&gt; {
+<span class="comment">// TODO: remove and use `RuntimeDebug` (https://github.com/paritytech/parity-bridges-common/issues/2136)
+</span><span class="kw">impl</span>&lt;Header: HeaderT&gt; sp_std::fmt::Debug <span class="kw">for </span>GrandpaJustification&lt;Header&gt; {
 	<span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>sp_std::fmt::Formatter) -&gt; sp_std::fmt::Result {
 		<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
 		</span>{

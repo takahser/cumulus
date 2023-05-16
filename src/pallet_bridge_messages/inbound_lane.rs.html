@@ -553,7 +553,6 @@
 <a href="#553" id="553">553</a>
 <a href="#554" id="554">554</a>
 <a href="#555" id="555">555</a>
-<a href="#556" id="556">556</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Parity Bridges Common.
 
@@ -596,7 +595,7 @@
 	<span class="doccomment">/// Return maximal number of unconfirmed messages in inbound lane.
 	</span><span class="kw">fn </span>max_unconfirmed_messages(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MessageNonce;
 	<span class="doccomment">/// Get lane data from the storage.
-	</span><span class="kw">fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; InboundLaneData&lt;<span class="self">Self</span>::Relayer&gt;;
+	</span><span class="kw">fn </span>get_or_init_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; InboundLaneData&lt;<span class="self">Self</span>::Relayer&gt;;
 	<span class="doccomment">/// Update lane data in the storage.
 	</span><span class="kw">fn </span>set_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: InboundLaneData&lt;<span class="self">Self</span>::Relayer&gt;);
 }
@@ -673,9 +672,9 @@
 		InboundLane { storage }
 	}
 
-	<span class="doccomment">/// Returns storage reference.
-	</span><span class="kw">pub fn </span>storage(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>S {
-		<span class="kw-2">&amp;</span><span class="self">self</span>.storage
+	<span class="doccomment">/// Returns `mut` storage reference.
+	</span><span class="kw">pub fn </span>storage_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>S {
+		<span class="kw-2">&amp;mut </span><span class="self">self</span>.storage
 	}
 
 	<span class="doccomment">/// Receive state of the corresponding outbound lane.
@@ -683,7 +682,7 @@
 		<span class="kw-2">&amp;mut </span><span class="self">self</span>,
 		outbound_lane_data: OutboundLaneData,
 	) -&gt; <span class="prelude-ty">Option</span>&lt;MessageNonce&gt; {
-		<span class="kw">let </span><span class="kw-2">mut </span>data = <span class="self">self</span>.storage.data();
+		<span class="kw">let </span><span class="kw-2">mut </span>data = <span class="self">self</span>.storage.get_or_init_data();
 		<span class="kw">let </span>last_delivered_nonce = data.last_delivered_nonce();
 
 		<span class="kw">if </span>outbound_lane_data.latest_received_nonce &gt; last_delivered_nonce {
@@ -726,9 +725,8 @@
 		nonce: MessageNonce,
 		message_data: DispatchMessageData&lt;Dispatch::DispatchPayload&gt;,
 	) -&gt; ReceivalResult&lt;Dispatch::DispatchLevelResult&gt; {
-		<span class="kw">let </span><span class="kw-2">mut </span>data = <span class="self">self</span>.storage.data();
-		<span class="kw">let </span>is_correct_message = nonce == data.last_delivered_nonce() + <span class="number">1</span>;
-		<span class="kw">if </span>!is_correct_message {
+		<span class="kw">let </span><span class="kw-2">mut </span>data = <span class="self">self</span>.storage.get_or_init_data();
+		<span class="kw">if </span><span class="prelude-val">Some</span>(nonce) != data.last_delivered_nonce().checked_add(<span class="number">1</span>) {
 			<span class="kw">return </span>ReceivalResult::InvalidNonce
 		}
 
@@ -808,7 +806,7 @@
 				<span class="prelude-val">None</span>,
 			);
 
-			<span class="macro">assert_eq!</span>(lane.storage.data().last_confirmed_nonce, <span class="number">0</span>);
+			<span class="macro">assert_eq!</span>(lane.storage.get_or_init_data().last_confirmed_nonce, <span class="number">0</span>);
 		});
 	}
 
@@ -826,7 +824,7 @@
 				}),
 				<span class="prelude-val">Some</span>(<span class="number">3</span>),
 			);
-			<span class="macro">assert_eq!</span>(lane.storage.data().last_confirmed_nonce, <span class="number">3</span>);
+			<span class="macro">assert_eq!</span>(lane.storage.get_or_init_data().last_confirmed_nonce, <span class="number">3</span>);
 
 			<span class="macro">assert_eq!</span>(
 				lane.receive_state_update(OutboundLaneData {
@@ -835,7 +833,7 @@
 				}),
 				<span class="prelude-val">None</span>,
 			);
-			<span class="macro">assert_eq!</span>(lane.storage.data().last_confirmed_nonce, <span class="number">3</span>);
+			<span class="macro">assert_eq!</span>(lane.storage.get_or_init_data().last_confirmed_nonce, <span class="number">3</span>);
 		});
 	}
 
@@ -846,9 +844,9 @@
 			receive_regular_message(<span class="kw-2">&amp;mut </span>lane, <span class="number">1</span>);
 			receive_regular_message(<span class="kw-2">&amp;mut </span>lane, <span class="number">2</span>);
 			receive_regular_message(<span class="kw-2">&amp;mut </span>lane, <span class="number">3</span>);
-			<span class="macro">assert_eq!</span>(lane.storage.data().last_confirmed_nonce, <span class="number">0</span>);
+			<span class="macro">assert_eq!</span>(lane.storage.get_or_init_data().last_confirmed_nonce, <span class="number">0</span>);
 			<span class="macro">assert_eq!</span>(
-				lane.storage.data().relayers,
+				lane.storage.get_or_init_data().relayers,
 				<span class="macro">vec!</span>[unrewarded_relayer(<span class="number">1</span>, <span class="number">3</span>, TEST_RELAYER_A)]
 			);
 
@@ -859,9 +857,9 @@
 				}),
 				<span class="prelude-val">Some</span>(<span class="number">2</span>),
 			);
-			<span class="macro">assert_eq!</span>(lane.storage.data().last_confirmed_nonce, <span class="number">2</span>);
+			<span class="macro">assert_eq!</span>(lane.storage.get_or_init_data().last_confirmed_nonce, <span class="number">2</span>);
 			<span class="macro">assert_eq!</span>(
-				lane.storage.data().relayers,
+				lane.storage.get_or_init_data().relayers,
 				<span class="macro">vec!</span>[unrewarded_relayer(<span class="number">3</span>, <span class="number">3</span>, TEST_RELAYER_A)]
 			);
 
@@ -872,8 +870,8 @@
 				}),
 				<span class="prelude-val">Some</span>(<span class="number">3</span>),
 			);
-			<span class="macro">assert_eq!</span>(lane.storage.data().last_confirmed_nonce, <span class="number">3</span>);
-			<span class="macro">assert_eq!</span>(lane.storage.data().relayers, <span class="macro">vec!</span>[]);
+			<span class="macro">assert_eq!</span>(lane.storage.get_or_init_data().last_confirmed_nonce, <span class="number">3</span>);
+			<span class="macro">assert_eq!</span>(lane.storage.get_or_init_data().relayers, <span class="macro">vec!</span>[]);
 		});
 	}
 
@@ -881,7 +879,7 @@
 	</span><span class="kw">fn </span>receive_status_update_works_with_batches_from_relayers() {
 		run_test(|| {
 			<span class="kw">let </span><span class="kw-2">mut </span>lane = inbound_lane::&lt;TestRuntime, <span class="kw">_</span>&gt;(TEST_LANE_ID);
-			<span class="kw">let </span><span class="kw-2">mut </span>seed_storage_data = lane.storage.data();
+			<span class="kw">let </span><span class="kw-2">mut </span>seed_storage_data = lane.storage.get_or_init_data();
 			<span class="comment">// Prepare data
 			</span>seed_storage_data.last_confirmed_nonce = <span class="number">0</span>;
 			seed_storage_data.relayers.push_back(unrewarded_relayer(<span class="number">1</span>, <span class="number">1</span>, TEST_RELAYER_A));
@@ -897,9 +895,9 @@
 				}),
 				<span class="prelude-val">Some</span>(<span class="number">3</span>),
 			);
-			<span class="macro">assert_eq!</span>(lane.storage.data().last_confirmed_nonce, <span class="number">3</span>);
+			<span class="macro">assert_eq!</span>(lane.storage.get_or_init_data().last_confirmed_nonce, <span class="number">3</span>);
 			<span class="macro">assert_eq!</span>(
-				lane.storage.data().relayers,
+				lane.storage.get_or_init_data().relayers,
 				<span class="macro">vec!</span>[
 					unrewarded_relayer(<span class="number">4</span>, <span class="number">4</span>, TEST_RELAYER_B),
 					unrewarded_relayer(<span class="number">5</span>, <span class="number">5</span>, TEST_RELAYER_C)
@@ -920,7 +918,7 @@
 				),
 				ReceivalResult::InvalidNonce
 			);
-			<span class="macro">assert_eq!</span>(lane.storage.data().last_delivered_nonce(), <span class="number">0</span>);
+			<span class="macro">assert_eq!</span>(lane.storage.get_or_init_data().last_delivered_nonce(), <span class="number">0</span>);
 		});
 	}
 
@@ -1026,7 +1024,7 @@
 				ReceivalResult::Dispatched(dispatch_result(<span class="number">0</span>))
 			);
 			<span class="macro">assert_eq!</span>(
-				lane.storage.data().relayers,
+				lane.storage.get_or_init_data().relayers,
 				<span class="macro">vec!</span>[
 					unrewarded_relayer(<span class="number">1</span>, <span class="number">1</span>, TEST_RELAYER_A),
 					unrewarded_relayer(<span class="number">2</span>, <span class="number">2</span>, TEST_RELAYER_B),
@@ -1064,7 +1062,7 @@
 		run_test(|| {
 			<span class="kw">let </span><span class="kw-2">mut </span>lane = inbound_lane::&lt;TestRuntime, <span class="kw">_</span>&gt;(TEST_LANE_ID);
 			receive_regular_message(<span class="kw-2">&amp;mut </span>lane, <span class="number">1</span>);
-			<span class="macro">assert_eq!</span>(lane.storage.data().last_delivered_nonce(), <span class="number">1</span>);
+			<span class="macro">assert_eq!</span>(lane.storage.get_or_init_data().last_delivered_nonce(), <span class="number">1</span>);
 		});
 	}
 

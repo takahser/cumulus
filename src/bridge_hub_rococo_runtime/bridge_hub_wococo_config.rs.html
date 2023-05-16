@@ -211,10 +211,6 @@
 <a href="#211" id="211">211</a>
 <a href="#212" id="212">212</a>
 <a href="#213" id="213">213</a>
-<a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a>
-<a href="#217" id="217">217</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2022 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -351,7 +347,7 @@
 <span class="doccomment">/// Signed extension that refunds relayers that are delivering messages from the Rococo parachain.
 </span><span class="kw">pub type </span>BridgeRefundBridgeHubRococoMessages = RefundBridgedParachainMessages&lt;
 	Runtime,
-	RefundableParachain&lt;BridgeParachainRococoInstance, BridgeHubRococoParachainId&gt;,
+	RefundableParachain&lt;BridgeParachainRococoInstance, bp_bridge_hub_rococo::BridgeHubRococo&gt;,
 	RefundableMessagesLane&lt;WithBridgeHubRococoMessagesInstance, BridgeHubRococoMessagesLane&gt;,
 	ActualFeeRefund&lt;Runtime&gt;,
 	PriorityBoostPerMessage,
@@ -361,10 +357,6 @@
 
 <span class="macro">parameter_types! </span>{
 	<span class="kw">pub const </span>BridgeHubRococoMessagesLane: bp_messages::LaneId = DEFAULT_XCM_LANE_TO_BRIDGE_HUB_ROCOCO;
-	<span class="kw">pub const </span>BridgeHubRococoParachainId: u32 = {
-		<span class="kw">use </span>bp_runtime::Parachain;
-		BridgeHubRococo::PARACHAIN_ID
-	};
 }
 
 <span class="attr">#[cfg(test)]
