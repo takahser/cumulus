@@ -4,7 +4,7 @@
     key: <a class="enum" href="enum.Keyring.html" title="enum cumulus_test_service::Keyring">Sr25519Keyring</a>,
     nodes: <a class="struct" href="https://doc.rust-lang.org/1.69.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;MultiaddrWithPeerId&gt;,
     nodes_exlusive: <a class="primitive" href="https://doc.rust-lang.org/1.69.0/std/primitive.bool.html">bool</a>,
-    para_id: <a class="struct" href="../polkadot_parachain/primitives/struct.Id.html" title="struct polkadot_parachain::primitives::Id">ParaId</a>,
+    para_id: ParaId,
     is_collator: <a class="primitive" href="https://doc.rust-lang.org/1.69.0/std/primitive.bool.html">bool</a>
 ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.69.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;Configuration, ServiceError&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Create a Cumulus <code>Configuration</code>.</p>
 <p>By default an in-memory socket will be used, therefore you need to provide nodes if you want the
