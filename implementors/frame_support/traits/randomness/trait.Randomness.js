@@ -1,4 +1,5 @@
 (function() {var implementors = {
+"glutton_runtime":[],
 "rococo_parachain_runtime":[],
 "seedling_runtime":[],
 "shell_runtime":[]

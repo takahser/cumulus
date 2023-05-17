@@ -5,6 +5,7 @@
 "collectives_polkadot_runtime":[["impl OriginTrait for <a class=\"struct\" href=\"collectives_polkadot_runtime/struct.RuntimeOrigin.html\" title=\"struct collectives_polkadot_runtime::RuntimeOrigin\">RuntimeOrigin</a>"]],
 "contracts_rococo_runtime":[["impl OriginTrait for <a class=\"struct\" href=\"contracts_rococo_runtime/struct.RuntimeOrigin.html\" title=\"struct contracts_rococo_runtime::RuntimeOrigin\">RuntimeOrigin</a>"]],
 "cumulus_test_runtime":[["impl OriginTrait for <a class=\"struct\" href=\"cumulus_test_runtime/struct.RuntimeOrigin.html\" title=\"struct cumulus_test_runtime::RuntimeOrigin\">RuntimeOrigin</a>"]],
+"glutton_runtime":[["impl OriginTrait for <a class=\"struct\" href=\"glutton_runtime/struct.RuntimeOrigin.html\" title=\"struct glutton_runtime::RuntimeOrigin\">RuntimeOrigin</a>"]],
 "parachain_template_runtime":[["impl OriginTrait for <a class=\"struct\" href=\"parachain_template_runtime/struct.RuntimeOrigin.html\" title=\"struct parachain_template_runtime::RuntimeOrigin\">RuntimeOrigin</a>"]],
 "penpal_runtime":[["impl OriginTrait for <a class=\"struct\" href=\"penpal_runtime/struct.RuntimeOrigin.html\" title=\"struct penpal_runtime::RuntimeOrigin\">RuntimeOrigin</a>"]],
 "rococo_parachain_runtime":[["impl OriginTrait for <a class=\"struct\" href=\"rococo_parachain_runtime/struct.RuntimeOrigin.html\" title=\"struct rococo_parachain_runtime::RuntimeOrigin\">RuntimeOrigin</a>"]],

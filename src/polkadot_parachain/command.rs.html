@@ -1208,6 +1208,66 @@
 <a href="#1208" id="1208">1208</a>
 <a href="#1209" id="1209">1209</a>
 <a href="#1210" id="1210">1210</a>
+<a href="#1211" id="1211">1211</a>
+<a href="#1212" id="1212">1212</a>
+<a href="#1213" id="1213">1213</a>
+<a href="#1214" id="1214">1214</a>
+<a href="#1215" id="1215">1215</a>
+<a href="#1216" id="1216">1216</a>
+<a href="#1217" id="1217">1217</a>
+<a href="#1218" id="1218">1218</a>
+<a href="#1219" id="1219">1219</a>
+<a href="#1220" id="1220">1220</a>
+<a href="#1221" id="1221">1221</a>
+<a href="#1222" id="1222">1222</a>
+<a href="#1223" id="1223">1223</a>
+<a href="#1224" id="1224">1224</a>
+<a href="#1225" id="1225">1225</a>
+<a href="#1226" id="1226">1226</a>
+<a href="#1227" id="1227">1227</a>
+<a href="#1228" id="1228">1228</a>
+<a href="#1229" id="1229">1229</a>
+<a href="#1230" id="1230">1230</a>
+<a href="#1231" id="1231">1231</a>
+<a href="#1232" id="1232">1232</a>
+<a href="#1233" id="1233">1233</a>
+<a href="#1234" id="1234">1234</a>
+<a href="#1235" id="1235">1235</a>
+<a href="#1236" id="1236">1236</a>
+<a href="#1237" id="1237">1237</a>
+<a href="#1238" id="1238">1238</a>
+<a href="#1239" id="1239">1239</a>
+<a href="#1240" id="1240">1240</a>
+<a href="#1241" id="1241">1241</a>
+<a href="#1242" id="1242">1242</a>
+<a href="#1243" id="1243">1243</a>
+<a href="#1244" id="1244">1244</a>
+<a href="#1245" id="1245">1245</a>
+<a href="#1246" id="1246">1246</a>
+<a href="#1247" id="1247">1247</a>
+<a href="#1248" id="1248">1248</a>
+<a href="#1249" id="1249">1249</a>
+<a href="#1250" id="1250">1250</a>
+<a href="#1251" id="1251">1251</a>
+<a href="#1252" id="1252">1252</a>
+<a href="#1253" id="1253">1253</a>
+<a href="#1254" id="1254">1254</a>
+<a href="#1255" id="1255">1255</a>
+<a href="#1256" id="1256">1256</a>
+<a href="#1257" id="1257">1257</a>
+<a href="#1258" id="1258">1258</a>
+<a href="#1259" id="1259">1259</a>
+<a href="#1260" id="1260">1260</a>
+<a href="#1261" id="1261">1261</a>
+<a href="#1262" id="1262">1262</a>
+<a href="#1263" id="1263">1263</a>
+<a href="#1264" id="1264">1264</a>
+<a href="#1265" id="1265">1265</a>
+<a href="#1266" id="1266">1266</a>
+<a href="#1267" id="1267">1267</a>
+<a href="#1268" id="1268">1268</a>
+<a href="#1269" id="1269">1269</a>
+<a href="#1270" id="1270">1270</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.
 // This file is part of Cumulus.
 
@@ -1229,7 +1289,7 @@
 	cli::{Cli, RelayChainCli, Subcommand},
 	service::{
 		new_partial, Block, BridgeHubKusamaRuntimeExecutor, BridgeHubPolkadotRuntimeExecutor,
-		BridgeHubRococoRuntimeExecutor, CollectivesPolkadotRuntimeExecutor,
+		BridgeHubRococoRuntimeExecutor, CollectivesPolkadotRuntimeExecutor, GluttonRuntimeExecutor,
 		StatemineRuntimeExecutor, StatemintRuntimeExecutor, WestmintRuntimeExecutor,
 	},
 };
@@ -1264,6 +1324,7 @@
 	ContractsRococo,
 	CollectivesPolkadot,
 	CollectivesWestend,
+	Glutton,
 	BridgeHub(chain_spec::bridge_hubs::BridgeHubRuntimeType),
 }
 
@@ -1321,6 +1382,8 @@
 			id.parse::&lt;chain_spec::bridge_hubs::BridgeHubRuntimeType&gt;()
 				.expect(<span class="string">&quot;Invalid value&quot;</span>),
 		)
+	} <span class="kw">else if </span>id.starts_with(<span class="string">&quot;glutton&quot;</span>) {
+		Runtime::Glutton
 	} <span class="kw">else </span>{
 		<span class="macro">log::warn!</span>(<span class="string">&quot;No specific runtime was recognized for ChainSpec&#39;s id: &#39;{}&#39;, so Runtime::default() will be used&quot;</span>, id);
 		Runtime::default()
@@ -1424,6 +1487,18 @@
 			<span class="string">&quot;polkadot-local&quot;</span>,
 		)),
 
+		<span class="comment">// -- Glutton
+		</span><span class="string">&quot;glutton-kusama-dev&quot; </span>=&gt; Box::new(chain_spec::glutton::glutton_development_config(
+			para_id.expect(<span class="string">&quot;Must specify parachain id&quot;</span>),
+		)),
+		<span class="string">&quot;glutton-kusama-local&quot; </span>=&gt; Box::new(chain_spec::glutton::glutton_local_config(
+			para_id.expect(<span class="string">&quot;Must specify parachain id&quot;</span>),
+		)),
+		<span class="comment">// the chain spec as used for generating the upgrade genesis values
+		</span><span class="string">&quot;glutton-kusama-genesis&quot; </span>=&gt; Box::new(chain_spec::glutton::glutton_config(
+			para_id.expect(<span class="string">&quot;Must specify parachain id&quot;</span>),
+		)),
+
 		<span class="comment">// -- Fallback (generic chainspec)
 		</span><span class="string">&quot;&quot; </span>=&gt; {
 			<span class="macro">log::warn!</span>(<span class="string">&quot;No ChainSpec.id specified, so using default one, based on rococo-parachain runtime&quot;</span>);
@@ -1453,6 +1528,8 @@
 					bridge_hub_runtime_type.chain_spec_from_json_file(path)<span class="question-mark">?</span>,
 				Runtime::Penpal(_para_id) =&gt;
 					Box::new(chain_spec::penpal::PenpalChainSpec::from_json_file(path)<span class="question-mark">?</span>),
+				Runtime::Glutton =&gt;
+					Box::new(chain_spec::glutton::GluttonChainSpec::from_json_file(path)<span class="question-mark">?</span>),
 				Runtime::Default =&gt; Box::new(
 					chain_spec::rococo_parachain::RococoParachainChainSpec::from_json_file(path)<span class="question-mark">?</span>,
 				),
@@ -1468,12 +1545,25 @@
 	<span class="kw">const </span>KUSAMA_TEST_PARA_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">&quot;penpal-kusama-&quot;</span>;
 	<span class="kw">const </span>POLKADOT_TEST_PARA_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">&quot;penpal-polkadot-&quot;</span>;
 
+	<span class="kw">const </span>GLUTTON_PARA_DEV_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">&quot;glutton-kusama-dev-&quot;</span>;
+	<span class="kw">const </span>GLUTTON_PARA_LOCAL_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">&quot;glutton-kusama-local-&quot;</span>;
+	<span class="kw">const </span>GLUTTON_PARA_GENESIS_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">&quot;glutton-kusama-genesis-&quot;</span>;
+
 	<span class="kw">let </span>(norm_id, orig_id, para) = <span class="kw">if let </span><span class="prelude-val">Some</span>(suffix) = id.strip_prefix(KUSAMA_TEST_PARA_PREFIX) {
 		<span class="kw">let </span>para_id: u32 = suffix.parse().expect(<span class="string">&quot;Invalid parachain-id suffix&quot;</span>);
 		(<span class="kw-2">&amp;</span>id[..KUSAMA_TEST_PARA_PREFIX.len() - <span class="number">1</span>], id, <span class="prelude-val">Some</span>(para_id))
 	} <span class="kw">else if let </span><span class="prelude-val">Some</span>(suffix) = id.strip_prefix(POLKADOT_TEST_PARA_PREFIX) {
 		<span class="kw">let </span>para_id: u32 = suffix.parse().expect(<span class="string">&quot;Invalid parachain-id suffix&quot;</span>);
 		(<span class="kw-2">&amp;</span>id[..POLKADOT_TEST_PARA_PREFIX.len() - <span class="number">1</span>], id, <span class="prelude-val">Some</span>(para_id))
+	} <span class="kw">else if let </span><span class="prelude-val">Some</span>(suffix) = id.strip_prefix(GLUTTON_PARA_DEV_PREFIX) {
+		<span class="kw">let </span>para_id: u32 = suffix.parse().expect(<span class="string">&quot;Invalid parachain-id suffix&quot;</span>);
+		(<span class="kw-2">&amp;</span>id[..GLUTTON_PARA_DEV_PREFIX.len() - <span class="number">1</span>], id, <span class="prelude-val">Some</span>(para_id))
+	} <span class="kw">else if let </span><span class="prelude-val">Some</span>(suffix) = id.strip_prefix(GLUTTON_PARA_LOCAL_PREFIX) {
+		<span class="kw">let </span>para_id: u32 = suffix.parse().expect(<span class="string">&quot;Invalid parachain-id suffix&quot;</span>);
+		(<span class="kw-2">&amp;</span>id[..GLUTTON_PARA_LOCAL_PREFIX.len() - <span class="number">1</span>], id, <span class="prelude-val">Some</span>(para_id))
+	} <span class="kw">else if let </span><span class="prelude-val">Some</span>(suffix) = id.strip_prefix(GLUTTON_PARA_GENESIS_PREFIX) {
+		<span class="kw">let </span>para_id: u32 = suffix.parse().expect(<span class="string">&quot;Invalid parachain-id suffix&quot;</span>);
+		(<span class="kw-2">&amp;</span>id[..GLUTTON_PARA_GENESIS_PREFIX.len() - <span class="number">1</span>], id, <span class="prelude-val">Some</span>(para_id))
 	} <span class="kw">else </span>{
 		(id, id, <span class="prelude-val">None</span>)
 	};
@@ -1529,6 +1619,7 @@
 			Runtime::BridgeHub(bridge_hub_runtime_type) =&gt;
 				bridge_hub_runtime_type.runtime_version(),
 			Runtime::Penpal(<span class="kw">_</span>) =&gt; <span class="kw-2">&amp;</span>penpal_runtime::VERSION,
+			Runtime::Glutton =&gt; <span class="kw-2">&amp;</span>glutton_runtime::VERSION,
 			Runtime::Default =&gt; <span class="kw-2">&amp;</span>rococo_parachain_runtime::VERSION,
 		}
 	}
@@ -1763,6 +1854,16 @@
 					<span class="kw">let </span>task_manager = <span class="macro-nonterminal">$components</span>.task_manager;
 					{ $( <span class="macro-nonterminal">$code </span>)* }.map(|v| (v, task_manager))
 				})
+			},
+			Runtime::Glutton =&gt; {
+				runner.async_run(|<span class="macro-nonterminal">$config</span>| {
+					<span class="kw">let </span><span class="macro-nonterminal">$components </span>= new_partial::&lt;glutton_runtime::RuntimeApi, <span class="kw">_</span>&gt;(
+						<span class="kw-2">&amp;</span><span class="macro-nonterminal">$config</span>,
+						<span class="kw">crate</span>::service::shell_build_import_queue,
+					)<span class="question-mark">?</span>;
+					<span class="kw">let </span>task_manager = <span class="macro-nonterminal">$components</span>.task_manager;
+					{ $( <span class="macro-nonterminal">$code </span>)* }.map(|v| (v, task_manager))
+				})
 			}
 		}
 	}}
@@ -1869,7 +1970,9 @@
 									bridge_hub_runtime_type
 								)
 									.into()),
-							}
+							},
+							Runtime::Glutton =&gt;
+								cmd.run::&lt;Block, GluttonRuntimeExecutor&gt;(config),
 							<span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
 								<span class="string">&quot;Chain &#39;{:?}&#39; doesn&#39;t support benchmarking&quot;</span>,
 								config.chain_spec.runtime()
@@ -2003,6 +2106,12 @@
 				Runtime::ContractsRococo =&gt; runner.async_run(|<span class="kw">_</span>| {
 					<span class="prelude-val">Ok</span>((
 						cmd.run::&lt;Block, HostFunctionsOf&lt;<span class="kw">crate</span>::service::ContractsRococoRuntimeExecutor&gt;, <span class="kw">_</span>&gt;(<span class="prelude-val">Some</span>(info_provider)),
+						task_manager,
+					))
+				}),
+				Runtime::Glutton =&gt; runner.async_run(|<span class="kw">_</span>| {
+					<span class="prelude-val">Ok</span>((
+						cmd.run::&lt;Block, HostFunctionsOf&lt;<span class="kw">crate</span>::service::GluttonRuntimeExecutor&gt;, <span class="kw">_</span>&gt;(<span class="prelude-val">Some</span>(info_provider)),
 						task_manager,
 					))
 				}),
@@ -2164,6 +2273,17 @@
 					.map_err(Into::into),
 					Runtime::Penpal(<span class="kw">_</span>) | Runtime::Default =&gt;
 						<span class="kw">crate</span>::service::start_rococo_parachain_node(
+							config,
+							polkadot_config,
+							collator_options,
+							id,
+							hwbench,
+						)
+						.<span class="kw">await
+						</span>.map(|r| r.<span class="number">0</span>)
+						.map_err(Into::into),
+					Runtime::Glutton =&gt;
+						<span class="kw">crate</span>::service::start_shell_node::&lt;glutton_runtime::RuntimeApi&gt;(
 							config,
 							polkadot_config,
 							collator_options,

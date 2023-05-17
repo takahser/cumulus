@@ -1,5 +1,6 @@
 (function() {var implementors = {
 "cumulus_test_runtime":[],
+"glutton_runtime":[],
 "rococo_parachain_runtime":[],
 "seedling_runtime":[],
 "shell_runtime":[]
