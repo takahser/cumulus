@@ -1294,35 +1294,6 @@
 <a href="#1294" id="1294">1294</a>
 <a href="#1295" id="1295">1295</a>
 <a href="#1296" id="1296">1296</a>
-<a href="#1297" id="1297">1297</a>
-<a href="#1298" id="1298">1298</a>
-<a href="#1299" id="1299">1299</a>
-<a href="#1300" id="1300">1300</a>
-<a href="#1301" id="1301">1301</a>
-<a href="#1302" id="1302">1302</a>
-<a href="#1303" id="1303">1303</a>
-<a href="#1304" id="1304">1304</a>
-<a href="#1305" id="1305">1305</a>
-<a href="#1306" id="1306">1306</a>
-<a href="#1307" id="1307">1307</a>
-<a href="#1308" id="1308">1308</a>
-<a href="#1309" id="1309">1309</a>
-<a href="#1310" id="1310">1310</a>
-<a href="#1311" id="1311">1311</a>
-<a href="#1312" id="1312">1312</a>
-<a href="#1313" id="1313">1313</a>
-<a href="#1314" id="1314">1314</a>
-<a href="#1315" id="1315">1315</a>
-<a href="#1316" id="1316">1316</a>
-<a href="#1317" id="1317">1317</a>
-<a href="#1318" id="1318">1318</a>
-<a href="#1319" id="1319">1319</a>
-<a href="#1320" id="1320">1320</a>
-<a href="#1321" id="1321">1321</a>
-<a href="#1322" id="1322">1322</a>
-<a href="#1323" id="1323">1323</a>
-<a href="#1324" id="1324">1324</a>
-<a href="#1325" id="1325">1325</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2023 Parity Technologies (UK) Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
@@ -1340,52 +1311,23 @@
 
 </span><span class="doccomment">//! Module contains predefined test-case scenarios for `Runtime` with various assets.
 
-</span><span class="kw">use crate</span>::{
-	assert_metadata, assert_total, AccountIdOf, BalanceOf, ExtBuilder, RuntimeHelper,
-	SessionKeysOf, ValidatorIdOf, XcmReceivedFrom,
-};
-<span class="kw">use </span>codec::Encode;
+</span><span class="kw">use </span>codec::Encode;
 <span class="kw">use </span>frame_support::{
 	assert_noop, assert_ok,
 	traits::{fungibles::InspectEnumerable, Get, OriginTrait},
 	weights::Weight,
 };
 <span class="kw">use </span>parachains_common::Balance;
+<span class="kw">use </span>parachains_runtimes_test_utils::{
+	assert_metadata, assert_total, AccountIdOf, BalanceOf, CollatorSessionKeys, ExtBuilder,
+	RuntimeHelper, ValidatorIdOf, XcmReceivedFrom,
+};
 <span class="kw">use </span>sp_runtime::{
 	traits::{StaticLookup, Zero},
 	DispatchError, Saturating,
 };
 <span class="kw">use </span>xcm::latest::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>xcm_executor::{traits::Convert, XcmExecutor};
-
-<span class="kw">pub struct </span>CollatorSessionKeys&lt;
-	Runtime: frame_system::Config + pallet_balances::Config + pallet_session::Config,
-&gt; {
-	collator: AccountIdOf&lt;Runtime&gt;,
-	validator: ValidatorIdOf&lt;Runtime&gt;,
-	key: SessionKeysOf&lt;Runtime&gt;,
-}
-
-<span class="kw">impl</span>&lt;Runtime: frame_system::Config + pallet_balances::Config + pallet_session::Config&gt;
-	CollatorSessionKeys&lt;Runtime&gt;
-{
-	<span class="kw">pub fn </span>new(
-		collator: AccountIdOf&lt;Runtime&gt;,
-		validator: ValidatorIdOf&lt;Runtime&gt;,
-		key: SessionKeysOf&lt;Runtime&gt;,
-	) -&gt; <span class="self">Self </span>{
-		<span class="self">Self </span>{ collator, validator, key }
-	}
-	<span class="kw">pub fn </span>collators(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;AccountIdOf&lt;Runtime&gt;&gt; {
-		<span class="macro">vec!</span>[<span class="self">self</span>.collator.clone()]
-	}
-
-	<span class="kw">pub fn </span>session_keys(
-		<span class="kw-2">&amp;</span><span class="self">self</span>,
-	) -&gt; Vec&lt;(AccountIdOf&lt;Runtime&gt;, ValidatorIdOf&lt;Runtime&gt;, SessionKeysOf&lt;Runtime&gt;)&gt; {
-		<span class="macro">vec!</span>[(<span class="self">self</span>.collator.clone(), <span class="self">self</span>.validator.clone(), <span class="self">self</span>.key.clone())]
-	}
-}
 
 <span class="doccomment">/// Test-case makes sure that `Runtime` can receive native asset from relay chain
 /// and can teleport it back and to the other parachains

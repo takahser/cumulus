@@ -1590,20 +1590,6 @@
 <a href="#1590" id="1590">1590</a>
 <a href="#1591" id="1591">1591</a>
 <a href="#1592" id="1592">1592</a>
-<a href="#1593" id="1593">1593</a>
-<a href="#1594" id="1594">1594</a>
-<a href="#1595" id="1595">1595</a>
-<a href="#1596" id="1596">1596</a>
-<a href="#1597" id="1597">1597</a>
-<a href="#1598" id="1598">1598</a>
-<a href="#1599" id="1599">1599</a>
-<a href="#1600" id="1600">1600</a>
-<a href="#1601" id="1601">1601</a>
-<a href="#1602" id="1602">1602</a>
-<a href="#1603" id="1603">1603</a>
-<a href="#1604" id="1604">1604</a>
-<a href="#1605" id="1605">1605</a>
-<a href="#1606" id="1606">1606</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2021 Parity Technologies (UK) Ltd.
 // This file is part of Parity Bridges Common.
 
@@ -2307,16 +2293,17 @@
 	<span class="kw">use </span><span class="kw">crate</span>::mock::{
 		run_test, test_relay_header, BigParachainHeader, RegularParachainHasher,
 		RegularParachainHeader, RuntimeEvent <span class="kw">as </span>TestEvent, RuntimeOrigin, TestRuntime,
-		PARAS_PALLET_NAME, UNTRACKED_PARACHAIN_ID,
+		UNTRACKED_PARACHAIN_ID,
 	};
+	<span class="kw">use </span>bp_test_utils::prepare_parachain_heads_proof;
 	<span class="kw">use </span>codec::Encode;
 
 	<span class="kw">use </span>bp_parachains::{
 		BestParaHeadHash, BridgeParachainCall, ImportedParaHeadsKeyProvider, ParasInfoKeyProvider,
 	};
 	<span class="kw">use </span>bp_runtime::{
-		record_all_trie_keys, BasicOperatingMode, OwnedBridgeModuleError,
-		StorageDoubleMapKeyProvider, StorageMapKeyProvider,
+		BasicOperatingMode, OwnedBridgeModuleError, StorageDoubleMapKeyProvider,
+		StorageMapKeyProvider,
 	};
 	<span class="kw">use </span>bp_test_utils::{
 		authority_list, generate_owned_bridge_module_tests, make_default_justification,
@@ -2331,7 +2318,6 @@
 	<span class="kw">use </span>frame_system::{EventRecord, Pallet <span class="kw">as </span>System, Phase};
 	<span class="kw">use </span>sp_core::Hasher;
 	<span class="kw">use </span>sp_runtime::{traits::Header <span class="kw">as </span>HeaderT, DispatchError};
-	<span class="kw">use </span>sp_trie::{trie_types::TrieDBMutBuilderV1, LayoutV1, MemoryDB, TrieMut};
 
 	<span class="kw">type </span>BridgesGrandpaPalletInstance = pallet_bridge_grandpa::Instance1;
 	<span class="kw">type </span>WeightInfo = &lt;TestRuntime <span class="kw">as </span>Config&gt;::WeightInfo;
@@ -2372,32 +2358,6 @@
 		);
 
 		hash
-	}
-
-	<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>prepare_parachain_heads_proof(
-		heads: Vec&lt;(u32, ParaHead)&gt;,
-	) -&gt; (RelayBlockHash, ParaHeadsProof, Vec&lt;(ParaId, ParaHash)&gt;) {
-		<span class="kw">let </span><span class="kw-2">mut </span>parachains = Vec::with_capacity(heads.len());
-		<span class="kw">let </span><span class="kw-2">mut </span>root = Default::default();
-		<span class="kw">let </span><span class="kw-2">mut </span>mdb = MemoryDB::default();
-		{
-			<span class="kw">let </span><span class="kw-2">mut </span>trie = TrieDBMutBuilderV1::&lt;RelayBlockHasher&gt;::new(<span class="kw-2">&amp;mut </span>mdb, <span class="kw-2">&amp;mut </span>root).build();
-			<span class="kw">for </span>(parachain, head) <span class="kw">in </span>heads {
-				<span class="kw">let </span>storage_key =
-					parachain_head_storage_key_at_source(PARAS_PALLET_NAME, ParaId(parachain));
-				trie.insert(<span class="kw-2">&amp;</span>storage_key.<span class="number">0</span>, <span class="kw-2">&amp;</span>head.encode())
-					.map_err(|<span class="kw">_</span>| <span class="string">&quot;TrieMut::insert has failed&quot;</span>)
-					.expect(<span class="string">&quot;TrieMut::insert should not fail in tests&quot;</span>);
-				parachains.push((ParaId(parachain), head.hash()));
-			}
-		}
-
-		<span class="comment">// generate storage proof to be delivered to This chain
-		</span><span class="kw">let </span>storage_proof = record_all_trie_keys::&lt;LayoutV1&lt;RelayBlockHasher&gt;, <span class="kw">_</span>&gt;(<span class="kw-2">&amp;</span>mdb, <span class="kw-2">&amp;</span>root)
-			.map_err(|<span class="kw">_</span>| <span class="string">&quot;record_all_trie_keys has failed&quot;</span>)
-			.expect(<span class="string">&quot;record_all_trie_keys should not fail in benchmarks&quot;</span>);
-
-		(root, ParaHeadsProof(storage_proof), parachains)
 	}
 
 	<span class="kw">fn </span>initial_best_head(parachain: u32) -&gt; ParaInfo {
@@ -2481,7 +2441,7 @@
 	<span class="attr">#[test]
 	</span><span class="kw">fn </span>submit_parachain_heads_checks_operating_mode() {
 		<span class="kw">let </span>(state_root, proof, parachains) =
-			prepare_parachain_heads_proof(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">0</span>))]);
+			prepare_parachain_heads_proof::&lt;RegularParachainHeader&gt;(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">0</span>))]);
 
 		run_test(|| {
 			initialize(state_root);
@@ -2512,7 +2472,10 @@
 	<span class="attr">#[test]
 	</span><span class="kw">fn </span>imports_initial_parachain_heads() {
 		<span class="kw">let </span>(state_root, proof, parachains) =
-			prepare_parachain_heads_proof(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">0</span>)), (<span class="number">3</span>, head_data(<span class="number">3</span>, <span class="number">10</span>))]);
+			prepare_parachain_heads_proof::&lt;RegularParachainHeader&gt;(<span class="macro">vec!</span>[
+				(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">0</span>)),
+				(<span class="number">3</span>, head_data(<span class="number">3</span>, <span class="number">10</span>)),
+			]);
 		run_test(|| {
 			initialize(state_root);
 
@@ -2591,9 +2554,9 @@
 	<span class="attr">#[test]
 	</span><span class="kw">fn </span>imports_parachain_heads_is_able_to_progress() {
 		<span class="kw">let </span>(state_root_5, proof_5, parachains_5) =
-			prepare_parachain_heads_proof(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">5</span>))]);
+			prepare_parachain_heads_proof::&lt;RegularParachainHeader&gt;(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">5</span>))]);
 		<span class="kw">let </span>(state_root_10, proof_10, parachains_10) =
-			prepare_parachain_heads_proof(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">10</span>))]);
+			prepare_parachain_heads_proof::&lt;RegularParachainHeader&gt;(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">10</span>))]);
 		run_test(|| {
 			<span class="comment">// start with relay block #0 and import head#5 of parachain#1
 			</span>initialize(state_root_5);
@@ -2689,11 +2652,12 @@
 
 	<span class="attr">#[test]
 	</span><span class="kw">fn </span>ignores_untracked_parachain() {
-		<span class="kw">let </span>(state_root, proof, parachains) = prepare_parachain_heads_proof(<span class="macro">vec!</span>[
-			(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">5</span>)),
-			(UNTRACKED_PARACHAIN_ID, head_data(<span class="number">1</span>, <span class="number">5</span>)),
-			(<span class="number">2</span>, head_data(<span class="number">1</span>, <span class="number">5</span>)),
-		]);
+		<span class="kw">let </span>(state_root, proof, parachains) =
+			prepare_parachain_heads_proof::&lt;RegularParachainHeader&gt;(<span class="macro">vec!</span>[
+				(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">5</span>)),
+				(UNTRACKED_PARACHAIN_ID, head_data(<span class="number">1</span>, <span class="number">5</span>)),
+				(<span class="number">2</span>, head_data(<span class="number">1</span>, <span class="number">5</span>)),
+			]);
 		run_test(|| {
 			<span class="comment">// start with relay block #0 and try to import head#5 of parachain#1 and untracked
 			// parachain
@@ -2766,7 +2730,7 @@
 	<span class="attr">#[test]
 	</span><span class="kw">fn </span>does_nothing_when_already_imported_this_head_at_previous_relay_header() {
 		<span class="kw">let </span>(state_root, proof, parachains) =
-			prepare_parachain_heads_proof(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">0</span>))]);
+			prepare_parachain_heads_proof::&lt;RegularParachainHeader&gt;(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">0</span>))]);
 		run_test(|| {
 			<span class="comment">// import head#0 of parachain#1 at relay block#0
 			</span>initialize(state_root);
@@ -2826,9 +2790,9 @@
 	<span class="attr">#[test]
 	</span><span class="kw">fn </span>does_nothing_when_already_imported_head_at_better_relay_header() {
 		<span class="kw">let </span>(state_root_5, proof_5, parachains_5) =
-			prepare_parachain_heads_proof(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">5</span>))]);
+			prepare_parachain_heads_proof::&lt;RegularParachainHeader&gt;(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">5</span>))]);
 		<span class="kw">let </span>(state_root_10, proof_10, parachains_10) =
-			prepare_parachain_heads_proof(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">10</span>))]);
+			prepare_parachain_heads_proof::&lt;RegularParachainHeader&gt;(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">10</span>))]);
 		run_test(|| {
 			<span class="comment">// start with relay block #0
 			</span>initialize(state_root_5);
@@ -2920,7 +2884,10 @@
 	<span class="attr">#[test]
 	</span><span class="kw">fn </span>does_nothing_when_parachain_head_is_too_large() {
 		<span class="kw">let </span>(state_root, proof, parachains) =
-			prepare_parachain_heads_proof(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">5</span>)), (<span class="number">4</span>, big_head_data(<span class="number">1</span>, <span class="number">5</span>))]);
+			prepare_parachain_heads_proof::&lt;RegularParachainHeader&gt;(<span class="macro">vec!</span>[
+				(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">5</span>)),
+				(<span class="number">4</span>, big_head_data(<span class="number">1</span>, <span class="number">5</span>)),
+			]);
 		run_test(|| {
 			<span class="comment">// start with relay block #0 and try to import head#5 of parachain#1 and big parachain
 			</span>initialize(state_root);
@@ -2974,8 +2941,9 @@
 
 			<span class="comment">// import exactly `HeadsToKeep` headers
 			</span><span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..heads_to_keep {
-				<span class="kw">let </span>(state_root, proof, parachains) =
-					prepare_parachain_heads_proof(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, i))]);
+				<span class="kw">let </span>(state_root, proof, parachains) = prepare_parachain_heads_proof::&lt;
+					RegularParachainHeader,
+				&gt;(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, i))]);
 				<span class="kw">if </span>i == <span class="number">0 </span>{
 					initialize(state_root);
 				} <span class="kw">else </span>{
@@ -2995,8 +2963,9 @@
 			}
 
 			<span class="comment">// import next relay chain header and next parachain head
-			</span><span class="kw">let </span>(state_root, proof, parachains) =
-				prepare_parachain_heads_proof(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, heads_to_keep))]);
+			</span><span class="kw">let </span>(state_root, proof, parachains) = prepare_parachain_heads_proof::&lt;
+				RegularParachainHeader,
+			&gt;(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, heads_to_keep))]);
 			proceed(heads_to_keep, state_root);
 			<span class="kw">let </span>expected_weight = weight_of_import_parachain_1_head(<span class="kw-2">&amp;</span>proof, <span class="bool-val">true</span>);
 			<span class="kw">let </span>result = import_parachain_1_head(heads_to_keep, state_root, parachains, proof);
@@ -3017,7 +2986,7 @@
 	<span class="attr">#[test]
 	</span><span class="kw">fn </span>fails_on_unknown_relay_chain_block() {
 		<span class="kw">let </span>(state_root, proof, parachains) =
-			prepare_parachain_heads_proof(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">5</span>))]);
+			prepare_parachain_heads_proof::&lt;RegularParachainHeader&gt;(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">5</span>))]);
 		run_test(|| {
 			<span class="comment">// start with relay block #0
 			</span>initialize(state_root);
@@ -3033,7 +3002,7 @@
 	<span class="attr">#[test]
 	</span><span class="kw">fn </span>fails_on_invalid_storage_proof() {
 		<span class="kw">let </span>(_state_root, proof, parachains) =
-			prepare_parachain_heads_proof(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">5</span>))]);
+			prepare_parachain_heads_proof::&lt;RegularParachainHeader&gt;(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">5</span>))]);
 		run_test(|| {
 			<span class="comment">// start with relay block #0
 			</span>initialize(Default::default());
@@ -3051,11 +3020,11 @@
 	<span class="attr">#[test]
 	</span><span class="kw">fn </span>is_not_rewriting_existing_head_if_failed_to_read_updated_head() {
 		<span class="kw">let </span>(state_root_5, proof_5, parachains_5) =
-			prepare_parachain_heads_proof(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">5</span>))]);
+			prepare_parachain_heads_proof::&lt;RegularParachainHeader&gt;(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">5</span>))]);
 		<span class="kw">let </span>(state_root_10_at_20, proof_10_at_20, parachains_10_at_20) =
-			prepare_parachain_heads_proof(<span class="macro">vec!</span>[(<span class="number">2</span>, head_data(<span class="number">2</span>, <span class="number">10</span>))]);
+			prepare_parachain_heads_proof::&lt;RegularParachainHeader&gt;(<span class="macro">vec!</span>[(<span class="number">2</span>, head_data(<span class="number">2</span>, <span class="number">10</span>))]);
 		<span class="kw">let </span>(state_root_10_at_30, proof_10_at_30, parachains_10_at_30) =
-			prepare_parachain_heads_proof(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">10</span>))]);
+			prepare_parachain_heads_proof::&lt;RegularParachainHeader&gt;(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">10</span>))]);
 		run_test(|| {
 			<span class="comment">// we&#39;ve already imported head#5 of parachain#1 at relay block#10
 			</span>initialize(state_root_5);
@@ -3123,7 +3092,8 @@
 
 	<span class="attr">#[test]
 	</span><span class="kw">fn </span>ignores_parachain_head_if_it_is_missing_from_storage_proof() {
-		<span class="kw">let </span>(state_root, proof, <span class="kw">_</span>) = prepare_parachain_heads_proof(<span class="macro">vec!</span>[]);
+		<span class="kw">let </span>(state_root, proof, <span class="kw">_</span>) =
+			prepare_parachain_heads_proof::&lt;RegularParachainHeader&gt;(<span class="macro">vec!</span>[]);
 		<span class="kw">let </span>parachains = <span class="macro">vec!</span>[(ParaId(<span class="number">2</span>), Default::default())];
 		run_test(|| {
 			initialize(state_root);
@@ -3148,7 +3118,8 @@
 
 	<span class="attr">#[test]
 	</span><span class="kw">fn </span>ignores_parachain_head_if_parachain_head_hash_is_wrong() {
-		<span class="kw">let </span>(state_root, proof, <span class="kw">_</span>) = prepare_parachain_heads_proof(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">0</span>))]);
+		<span class="kw">let </span>(state_root, proof, <span class="kw">_</span>) =
+			prepare_parachain_heads_proof::&lt;RegularParachainHeader&gt;(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">0</span>))]);
 		<span class="kw">let </span>parachains = <span class="macro">vec!</span>[(ParaId(<span class="number">1</span>), head_data(<span class="number">1</span>, <span class="number">10</span>).hash())];
 		run_test(|| {
 			initialize(state_root);
@@ -3175,7 +3146,8 @@
 
 	<span class="attr">#[test]
 	</span><span class="kw">fn </span>test_bridge_parachain_call_is_correctly_defined() {
-		<span class="kw">let </span>(state_root, proof, <span class="kw">_</span>) = prepare_parachain_heads_proof(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">0</span>))]);
+		<span class="kw">let </span>(state_root, proof, <span class="kw">_</span>) =
+			prepare_parachain_heads_proof::&lt;RegularParachainHeader&gt;(<span class="macro">vec!</span>[(<span class="number">1</span>, head_data(<span class="number">1</span>, <span class="number">0</span>))]);
 		<span class="kw">let </span>parachains = <span class="macro">vec!</span>[(ParaId(<span class="number">2</span>), Default::default())];
 		<span class="kw">let </span>relay_header_id = (<span class="number">0</span>, test_relay_header(<span class="number">0</span>, state_root).hash());
 

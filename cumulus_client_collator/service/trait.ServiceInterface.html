@@ -10,7 +10,7 @@
         parent_header: &amp;Block::Header,
         block_hash: Block::Hash,
         candidate: ParachainCandidate&lt;Block&gt;
-    ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.69.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;(Collation, <a class="struct" href="../../cumulus_primitives_core/struct.ParachainBlockData.html" title="struct cumulus_primitives_core::ParachainBlockData">ParachainBlockData</a>&lt;Block&gt;)&gt;;
+    ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.69.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;(Collation, ParachainBlockData&lt;Block&gt;)&gt;;
 <span class="item-spacer"></span>    fn <a href="#tymethod.announce_with_barrier" class="fn">announce_with_barrier</a>(
         &amp;self,
         block_hash: Block::Hash
@@ -23,7 +23,7 @@
     parent_header: &amp;Block::Header,
     block_hash: Block::Hash,
     candidate: ParachainCandidate&lt;Block&gt;
-) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.69.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;(Collation, <a class="struct" href="../../cumulus_primitives_core/struct.ParachainBlockData.html" title="struct cumulus_primitives_core::ParachainBlockData">ParachainBlockData</a>&lt;Block&gt;)&gt;</h4></section></summary><div class="docblock"><p>Build a full [<code>Collation</code>] from a given [<code>ParachainCandidate</code>]. This requires
+) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.69.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;(Collation, ParachainBlockData&lt;Block&gt;)&gt;</h4></section></summary><div class="docblock"><p>Build a full [<code>Collation</code>] from a given [<code>ParachainCandidate</code>]. This requires
 that the underlying block has been fully imported into the underlying client,
 as implementations will fetch underlying runtime API data.</p>
 <p>This also returns the unencoded parachain block data, in case that is desired.</p>
@@ -36,4 +36,4 @@ signal has been received. This returns the sending half of the signal.</p>
     Block: BlockT,
     BS: BlockBackend&lt;Block&gt;,
     RA: ProvideRuntimeApi&lt;Block&gt;,
-    RA::Api: <a class="trait" href="../../cumulus_primitives_core/trait.CollectCollationInfo.html" title="trait cumulus_primitives_core::CollectCollationInfo">CollectCollationInfo</a>&lt;Block&gt;,</span></h3></section></div><script src="../../implementors/cumulus_client_collator/service/trait.ServiceInterface.js" async></script></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="cumulus_client_collator" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0 (84c898d65 2023-04-16)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
+    RA::Api: CollectCollationInfo&lt;Block&gt;,</span></h3></section></div><script src="../../implementors/cumulus_client_collator/service/trait.ServiceInterface.js" async></script></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="cumulus_client_collator" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0 (84c898d65 2023-04-16)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
